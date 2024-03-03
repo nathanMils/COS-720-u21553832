@@ -51,14 +51,22 @@ public class AuthService {
             LoginRequest request
     ) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return LoginResponse.builder()
-                    .token(
-                            tokenService.genToken(
-                                    userRepository.findByUsername(request.getUsername()).orElseThrow()
-                            )
-                    )
-                    .code(Code.success)
-                    .build();
+            UserEntity user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                return LoginResponse.builder()
+                        .token(
+                                tokenService.genToken(
+                                        user
+                                )
+                        )
+                        .code(Code.success)
+                        .build();
+            } else {
+                return LoginResponse.builder()
+                        .code(Code.incorrectPassword)
+                        .build();
+            }
+
         } else {
             return LoginResponse.builder()
                     .code(Code.failed)

@@ -27,7 +27,6 @@ public class EncryptionUtility {
     }
 
     void callCipherInit(Cipher cipher, int encryptionMode, Key secretKey, AlgorithmParameterSpec algorithmParameters) throws InvalidKeyException, InvalidAlgorithmParameterException {
-
         cipher.init(encryptionMode, secretKey, algorithmParameters);
     }
 
