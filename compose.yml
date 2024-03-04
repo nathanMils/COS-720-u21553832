@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  postgres:
+  db:
     image: postgres:13-alpine
     environment:
       POSTGRES_USER: postgres
@@ -11,14 +11,13 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
-      - spring-boot-postgres
+      - server-db
 
-  backend:
-    build: server
-    ports:
-      - "8080:8080"
+  server:
+    build: ./server
+    container_name: "server"
     depends_on:
-      - postgres
+      - db
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: postgres
@@ -31,22 +30,32 @@ services:
       APP_CONNECTION_TIMEOUT: "3000"
       APP_REQUEST_TIMEOUT: "3000"
     networks:
-      - spring-boot-postgres
-      - spring-boot-react
-  frontend:
-      build:
-        context: ./client
-        dockerfile: Dockerfile
-      depends_on:
-        - backend
-      ports:
-        - "3000:80"
-      networks:
-        - spring-boot-react
+      - proxy-server
+      - server-db
+  
+  client:
+    build: ./client
+    container_name: "client"
+    depends_on:
+      - backend
+    networks:
+      - proxy-client
+      
+
+  proxy:
+    build: ./nginx
+    container_name: "book-portal-proxy"
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - proxy-client
+      - proxy-server
 
 volumes:
   postgres-data:
 
 networks:
-  spring-boot-postgres:
-  spring-boot-react:
+  proxy-client:
+  proxy-server:
+  server-db:
