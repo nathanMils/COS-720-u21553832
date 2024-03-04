@@ -6,8 +6,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: cos720
-    secrets:
-      - db-password
     expose:
       - "5432"
     volumes:
@@ -22,13 +20,13 @@ services:
     depends_on:
       - postgres
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cos720
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD_FILE: /run/secrets/db-password
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
       SPRING_JPA_SHOW_SQL: "false"
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      APP_KEY: "68566D597133743677397A24432646294A404E635266556A586E5A7234753778214125442A472D4B6150645367566B59703373357638792F423F4528482B4D62"
+      APP_KEY: ${JWT_KEY}
       APP_TOKEN_EXPIRE_FACTOR: "90"
       APP_CONNECTION_TIMEOUT: "3000"
       APP_REQUEST_TIMEOUT: "3000"
@@ -45,10 +43,6 @@ services:
         - "3000:80"
       networks:
         - spring-boot-react
-
-secrets:
-  db-password:
-    file: db/password.txt
 
 volumes:
   postgres-data:
