@@ -22,7 +22,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
       SPRING_JPA_SHOW_SQL: "false"
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       APP_KEY: ${JWT_KEY}
@@ -37,14 +37,14 @@ services:
     build: ./client
     container_name: "client"
     depends_on:
-      - backend
+      - server
     networks:
       - proxy-client
       
 
   proxy:
     build: ./nginx
-    container_name: "book-portal-proxy"
+    container_name: "proxy"
     restart: always
     ports:
       - "80:80"
