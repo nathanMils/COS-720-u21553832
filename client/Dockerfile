@@ -1,9 +1,19 @@
-FROM node:17-alpine3.12
+FROM node:14-alpine AS build
+
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
-COPY package.json .
-COPY package-lock.json .
-RUN npm install # -g npm@8.9.0
+
+COPY package*.json ./
+
+RUN npm install
+
 COPY . .
-EXPOSE 3000
-CMD ["npm","start"]
+
+RUN npm run build
+
+FROM nginx:alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
