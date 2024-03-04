@@ -1,45 +1,27 @@
+version: '3.8'
+
 services:
+  postgres:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Stupidcat12
+      POSTGRES_DB: cos720
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
   backend:
-    build: backend
+    build: server
     ports:
-      - 8080:8080
-    environment:
-      - POSTGRES_DB=example
-    networks:
-      - spring-postgres
-  db:
-    image: postgres
-    restart: always
-    secrets:
-      - db-password
-    volumes:
-      - db-data:/var/lib/postgresql/data
-    networks:
-      - spring-postgres
-    environment:
-      - POSTGRES_DB=example
-      - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
-  frontend:
-    build:
-      context: frontend
-      target: development
-    ports:
-      - 3000:3000
-    volumes:
-      - ./frontend/src:/code/src
-      - /project/node_modules
-    networks:
-      - react-spring
+      - "8080:8080"
     depends_on:
-      - backend
-    expose:
-      - 3306
-      - 33060
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cos720
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: Stupidcat12
+
 volumes:
-  db-data: {}
-secrets:
-  db-password:
-    file: db/password.txt
-networks:
-  react-spring: {}
-  spring-postgres: {}
+  postgres-data:
