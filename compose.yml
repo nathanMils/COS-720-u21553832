@@ -1,28 +1,14 @@
 version: '3.8'
 
 services:
-  db:
-    image: postgres:13-alpine
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: cos720
-    expose:
-      - "5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    networks:
-      - server-db
-
   server:
     build: ./server
     container_name: "server"
-    depends_on:
-      - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
-      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ep-shrill-scene-a29tlowz.eu-central-1.aws.neon.tech/${DB_NAME}?sslmode=require
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "false"
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       APP_KEY: ${JWT_KEY}
@@ -31,7 +17,6 @@ services:
       APP_REQUEST_TIMEOUT: "3000"
     networks:
       - proxy-server
-      - server-db
   
   client:
     build: ./client
@@ -58,4 +43,3 @@ volumes:
 networks:
   proxy-client:
   proxy-server:
-  server-db:
