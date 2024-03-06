@@ -5,7 +5,7 @@ services:
     build: ./server
     container_name: "server"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://ep-shrill-scene-a29tlowz.eu-central-1.aws.neon.tech/${DB_NAME}?sslmode=require
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_URL}/${DB_NAME}?sslmode=require
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
