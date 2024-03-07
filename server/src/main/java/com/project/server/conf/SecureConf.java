@@ -41,7 +41,7 @@ public class SecureConf {
                 .authorizeHttpRequests(
                         authorizationManagerRequestMatcherRegistry ->
                                 authorizationManagerRequestMatcherRegistry
-                                        .requestMatchers("/auth/**")
+                                        .requestMatchers("/app/v1/auth/**")
                                         .permitAll()
                                         .anyRequest()
                                         .authenticated()
