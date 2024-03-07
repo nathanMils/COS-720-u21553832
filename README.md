@@ -1,4 +1,5 @@
 # Frontend: React.js
+# CSS Framework: Tailwindcss
 # Backend: Spring Boot
 # Database: Postgres => Neon Tech Db project
 # Proxy: NGINX
