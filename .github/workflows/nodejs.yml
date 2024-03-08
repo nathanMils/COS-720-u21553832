@@ -33,14 +33,14 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./client
+          file: ./client/Dockerfile
           push: true
-          target: prod
           tags: ${{ secrets.DOCKER_USERNAME }}/project-client:latest
 
       - name: Build and push Nginx
         uses: docker/build-push-action@v5
         with:
           context: ./nginx
+          file: ./nginx/Dockerfile
           push: true
-          target: prod
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/project-proxy:latest
