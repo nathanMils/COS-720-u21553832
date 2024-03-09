@@ -4,8 +4,12 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches: [ 'main' ]
+
 jobs:
-  build:
+  docker:
+    name: Docker Build and Push Client and Proxy
     runs-on: ubuntu-latest
     steps:
       -
