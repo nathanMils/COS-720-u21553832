@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'main'
-      - 'dev'
   pull_request:
     branches: [ 'main' ]
 
@@ -12,9 +11,6 @@ jobs:
   docker:
     name: Docker Build and Push
     runs-on: ubuntu-latest
-
-    env:
-      APPLICATION_YML_CONTENT: ${{ secrets.SERVER_APPLICATION_YML }}
 
     steps:
       - name: Checkout
@@ -28,9 +24,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Decrypt and Load Application YML Content
-        run: echo "${{ secrets.SERVER_APPLICATION_YML }}" > application.yml
 
       - name: Build and push SERVER
         uses: docker/build-push-action@v5
