@@ -1,4 +1,4 @@
-package com.project.server.entity;
+package com.project.server.model.entity;
 
 public enum Role {
     ADMIN,

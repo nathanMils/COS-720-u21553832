@@ -1,5 +1,6 @@
-package com.project.server.request;
+package com.project.server.response.user;
 
+import com.project.server.response.Code;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistrationRequest {
-    private String username;
-    private String password;
+public class ModuleDeRegisterResponse {
+    private Code code;
 }

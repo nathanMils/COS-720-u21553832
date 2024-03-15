@@ -1,9 +1,9 @@
 package com.project.server.controller;
 
-import com.project.server.request.LoginRequest;
-import com.project.server.request.RegistrationRequest;
-import com.project.server.response.LoginResponse;
-import com.project.server.response.RegistrationResponse;
+import com.project.server.request.auth.LoginRequest;
+import com.project.server.request.auth.RegistrationRequest;
+import com.project.server.response.auth.LoginResponse;
+import com.project.server.response.auth.RegistrationResponse;
 import com.project.server.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

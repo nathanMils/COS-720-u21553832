@@ -1,15 +1,14 @@
 package com.project.server.service;
 
-import com.project.server.entity.Role;
-import com.project.server.entity.UserEntity;
+import com.project.server.model.entity.Role;
+import com.project.server.model.entity.UserEntity;
 import com.project.server.repository.UserRepository;
-import com.project.server.request.LoginRequest;
-import com.project.server.request.RegistrationRequest;
+import com.project.server.request.auth.LoginRequest;
+import com.project.server.request.auth.RegistrationRequest;
 import com.project.server.response.Code;
-import com.project.server.response.LoginResponse;
-import com.project.server.response.RegistrationResponse;
+import com.project.server.response.auth.LoginResponse;
+import com.project.server.response.auth.RegistrationResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

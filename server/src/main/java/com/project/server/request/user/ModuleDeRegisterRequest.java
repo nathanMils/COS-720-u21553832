@@ -1,5 +1,6 @@
-package com.project.server.response;
+package com.project.server.request.user;
 
+import com.project.server.model.dto.ModuleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponse {
-    private Code code;
-    private String token;
+public class ModuleDeRegisterRequest {
+    private ModuleDTO moduleDTO;
 }

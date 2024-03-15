@@ -1,7 +1,5 @@
 package com.project.server.converter;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Cipher;
@@ -17,9 +15,9 @@ import java.security.spec.AlgorithmParameterSpec;
 @Component
 public class EncryptionUtility {
 
-    public Cipher prepareAndInitCipher(int encryptionMode) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+    public Cipher prepareAndInitCipher(String encryptionKey, int encryptionMode) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        Key secretKey = new SecretKeySpec(("B+xn5K0UBj+vVBll/rEGAQ==").getBytes(),"AES");
+        Key secretKey = new SecretKeySpec((encryptionKey).getBytes(),"AES");
         AlgorithmParameterSpec algorithmParameters = getAlgorithmParameterSpec(cipher);
 
         callCipherInit(cipher, encryptionMode, secretKey, algorithmParameters);

@@ -1,5 +1,6 @@
-package com.project.server.request;
+package com.project.server.response.auth;
 
+import com.project.server.response.Code;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
-    private String username;
-    private String password;
+public class LoginResponse {
+    private Code code;
+    private String token;
 }

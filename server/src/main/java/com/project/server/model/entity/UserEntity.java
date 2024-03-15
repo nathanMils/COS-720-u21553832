@@ -1,6 +1,5 @@
-package com.project.server.entity;
+package com.project.server.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.project.server.converter.StringConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -21,21 +21,27 @@ import java.util.List;
 @Entity
 @Table(name = "_user")
 public class UserEntity implements UserDetails {
-    @Id
-    @GeneratedValue
-    public Integer userid;
 
-    @Column(unique = true,nullable = false)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private Long id;
+
+    @Column(name = "USERNAME",unique = true,nullable = false)
     @Convert(converter = StringConverter.class)
-    public String username;
-    @Column(nullable = false)
+    private String username;
+    @Column(name = "PASSWORD",nullable = false)
     @Convert(converter = StringConverter.class)
-    public String password;
+    private String password;
 
     @Enumerated(EnumType.STRING)
-    public Role role;
+    private Role role;
 
     private boolean enabled;
+
+    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH })
+    @JoinTable(name = "STUDENT_MODULE", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "module_id"))
+    private Set<ModuleEntity> modules;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
