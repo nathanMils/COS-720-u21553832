@@ -1,7 +1,7 @@
 package com.project.server.response;
 
-public enum Code {
+public enum ResponseCode {
     failed,
     success,
-    incorrectPassword
+    server_error
 }

@@ -1,6 +1,6 @@
-package com.project.server.response.user;
+package com.project.server.request.module;
 
-import com.project.server.response.ResponseCode;
+import com.project.server.model.dto.ModuleDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ModuleDeRegisterResponse {
-    private ResponseCode code;
+public class CreateModuleRequest {
+    private ModuleDTO moduleDTO;
 }

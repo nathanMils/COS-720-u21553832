@@ -1,6 +1,6 @@
 package com.project.server.response.auth;
 
-import com.project.server.response.Code;
+import com.project.server.response.ResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegistrationResponse {
-    private Code code;
+    private ResponseCode code;
     private String token;
 }

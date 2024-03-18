@@ -1,7 +1,6 @@
 package com.project.server.response.module;
 
 import com.project.server.model.dto.ModuleDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +12,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DeleteModuleResponse {
+public class FetchModulesResponse {
     private List<ModuleDTO> moduleDTOS;
 }

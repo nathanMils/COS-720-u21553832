@@ -5,7 +5,7 @@ import com.project.server.model.entity.UserEntity;
 import com.project.server.repository.UserRepository;
 import com.project.server.request.auth.LoginRequest;
 import com.project.server.request.auth.RegistrationRequest;
-import com.project.server.response.Code;
+import com.project.server.response.ResponseCode;
 import com.project.server.response.auth.LoginResponse;
 import com.project.server.response.auth.RegistrationResponse;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class AuthService {
     ) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             return RegistrationResponse.builder()
-                    .code(Code.failed)
+                    .code(ResponseCode.failed)
                     .build();
         }
         UserEntity user = UserEntity.builder()
@@ -39,7 +39,7 @@ public class AuthService {
                 user
         );
         return RegistrationResponse.builder()
-                .code(Code.success)
+                .code(ResponseCode.success)
                 .token(
                         tokenService.genToken(user)
                 )
@@ -58,17 +58,17 @@ public class AuthService {
                                         user
                                 )
                         )
-                        .code(Code.success)
+                        .code(ResponseCode.success)
                         .build();
             } else {
                 return LoginResponse.builder()
-                        .code(Code.incorrectPassword)
+                        .code(ResponseCode.failed)
                         .build();
             }
 
         } else {
             return LoginResponse.builder()
-                    .code(Code.failed)
+                    .code(ResponseCode.failed)
                     .build();
         }
     }

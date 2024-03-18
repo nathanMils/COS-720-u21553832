@@ -23,13 +23,9 @@ public class StringConverter implements AttributeConverter<String,String> {
     private final String key;
     private final EncryptionUtility encryptionUtility;
 
-    public StringConverter(@Value("app.encryption.key") String key) {
-        this(key,new EncryptionUtility());
-    }
-
-    private StringConverter(String key, EncryptionUtility encryptionUtility) {
+    public StringConverter(@Value("${app.encryption.key}") String key) {
         this.key = key;
-        this.encryptionUtility = encryptionUtility;
+        encryptionUtility = new EncryptionUtility();
     }
 
     @Override

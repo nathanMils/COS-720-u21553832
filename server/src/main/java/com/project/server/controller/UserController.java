@@ -1,6 +1,5 @@
 package com.project.server.controller;
 
-import com.project.server.repository.UserRepository;
 import com.project.server.request.user.ModuleRegisterRequest;
 import com.project.server.response.user.ModuleRegisterResponse;
 import com.project.server.service.UserService;
@@ -17,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
-    private final UserRepository repository;
+    private final UserService service;
+
     public ResponseEntity<ModuleRegisterResponse> registerModule(
             @RequestBody ModuleRegisterRequest request
             ) {
-        return ResponseEntity.ok(userService.register(request));
+        return ResponseEntity.ok(service.register(request));
     }
 }
