@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://ep-square-union-a2sgmmo5.eu-central-1.aws.neon.tech/cos720
-    username: nathanMils
-    password: mSjF2ILtD7ph
+    url: jdbc:postgresql://${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -13,8 +13,8 @@ spring:
         formatsql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-app.key: 68566D597133743677397A24432646294A404E635266556A586E5A7234753778214125442A472D4B6150645367566B59703373357638792F423F4528482B4D62
+app.key: ${JWT_SIGNING_KEY}
 app.token.expire.factor: 90
 app.connection.timeout: 3000
 app.request.timeout: 3000
-app.encryption.key: vpDnZ5b7c4/VK91kdEtbww==
+app.encryption.key: ${ENCRYPTION_KEY}

@@ -1,16 +1,15 @@
-# build client
-FROM node:alpine AS build
+# build stage
+FROM node:lts-alpine as build-stage
 WORKDIR /app
-ENV PATH /app/node_modules/.bin:$PATH
-COPY package.json /app/package.json
-RUN npm install --silent
-COPY . /app
+COPY package*.json ./
+RUN npm install
+COPY . .
 RUN npm run build
 
-# move builds to nginx and run the client
-FROM nginx:alpine
-COPY --from=build /app/build /usr/share/nginx/html
+# production stage
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 RUN rm /etc/nginx/conf.d/default.conf
 COPY ./nginx/nginx.conf /etc/nginx/conf.d
-EXPOSE 3000
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
