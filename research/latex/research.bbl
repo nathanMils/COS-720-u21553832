@@ -1,8 +1,16 @@
 \begin{thebibliography}{1}
 
-\bibitem{Taggart2021Amazon}
-M.~T. Taggart, B.~R. Roach, and P.~W. Woods.
-\newblock Amazon {Web} {Services}: Risk and {Compliance}.
-\newblock Technical report, Amazon Web Services, March 2021.
+\bibitem{Joo_et_al_2023}
+S.-H. Joo et~al.
+\newblock Strengthening enterprise security through the adoption of zero trust
+  architecture - a focus on micro-segmentation approach -.
+\newblock {\em Journal of Information and Security}, 2023.
+
+\bibitem{NIST_SP_800_207}
+Scott Rose, Oliver Borchert, Stu Mitchell, and Sean Connelly.
+\newblock {NIST} special publication 800-207: {Zero Trust Architecture}.
+\newblock Technical report, {National Institute of Standards and Technology
+  (NIST)}, Advanced Network Technologies Division, Information Technology
+  Laboratory, August 2020.
 
 \end{thebibliography}
