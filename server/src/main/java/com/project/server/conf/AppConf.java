@@ -1,6 +1,7 @@
 package com.project.server.conf;
 
 import com.project.server.repository.UserRepository;
+import com.project.server.service.ApplicationUDService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,19 +17,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @RequiredArgsConstructor
 public class AppConf {
-    private final UserRepository repository;
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> repository.findByUsername(username).orElseThrow(
-                () -> new UsernameNotFoundException("User Does not exist")
-        );
-    }
+    private final ApplicationUDService applicationUDService;
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(
-                userDetailsService()
+                applicationUDService
         );
         provider.setPasswordEncoder(
                 passEncoder()

@@ -1,12 +1,15 @@
 package com.project.server.service;
 
+import com.project.server.model.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -17,7 +20,6 @@ import java.util.function.Function;
 
 @Service
 public class TokenService {
-
     @Value("${app.token.expire.factor}")
     private String expireFactor;
     @Value("${app.key}")
@@ -44,13 +46,13 @@ public class TokenService {
     }
 
     public String genToken(
-            UserDetails details
+            User details
     ) {
         HashMap<String,Object> Claims = new HashMap<>();
         return Jwts
                 .builder()
                 .setClaims(Claims)
-                .setSubject(details.getUsername())
+                .setSubject(details.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000L *60 *Integer.parseInt(expireFactor)))
                 .signWith(getKey(), SignatureAlgorithm.HS512)

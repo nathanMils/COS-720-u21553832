@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegistrationResponse {
+public class ApplicationResponse {
     private ResponseCode code;
     private String token;
 }

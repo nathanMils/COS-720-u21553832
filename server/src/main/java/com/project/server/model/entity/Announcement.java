@@ -1,5 +1,6 @@
 package com.project.server.model.entity;
 
+import com.project.server.converter.StringConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,28 +9,29 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "ROLE")
-public class Role {
+@Table(name = "announcement")
+public class Announcement {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    @Column(
-            unique = true,
+    private Long annId;
+
+    @Column(nullable = false)
+    @Convert(converter = StringConverter.class)
+    private String announcement;
+
+    @ManyToOne
+    @JoinColumn(
+            name = "module_id",
             nullable = false
     )
-    private String name;
-
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private List<User> users;
+    private Module module;
 
     @CreationTimestamp
     @Column(

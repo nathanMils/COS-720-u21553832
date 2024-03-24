@@ -17,10 +17,4 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService service;
-
-    public ResponseEntity<ModuleRegisterResponse> registerModule(
-            @RequestBody ModuleRegisterRequest request
-            ) {
-        return ResponseEntity.ok(service.register(request));
-    }
 }
