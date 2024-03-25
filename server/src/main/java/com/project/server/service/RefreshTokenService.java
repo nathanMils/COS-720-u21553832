@@ -40,12 +40,14 @@ public class RefreshTokenService {
             RefreshToken existingToken = existingTokenOpt.get();
             existingToken.setToken(UUID.randomUUID().toString());
             existingToken.setExpiryDate(Instant.now().plusMillis(Long.parseLong(expireTime)));
+            existingToken.setRevoked(false);
             return refreshTokenRepository.save(existingToken).getToken();
         } else {
             RefreshToken refreshToken = RefreshToken.builder()
                     .user(user)
                     .token(UUID.randomUUID().toString())
                     .expiryDate(Instant.now().plusMillis(Long.parseLong(expireTime)))
+                    .revoked(false)
                     .build();
             return refreshTokenRepository.save(refreshToken).getToken();
         }

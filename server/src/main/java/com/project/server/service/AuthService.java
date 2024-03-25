@@ -1,6 +1,7 @@
 package com.project.server.service;
 
 import com.project.server.exception.PasswordDoesNotMatchException;
+import com.project.server.exception.RefreshTokenException;
 import com.project.server.exception.UsernameAlreadyExists;
 import com.project.server.model.entity.RefreshToken;
 import com.project.server.model.entity.RoleEnum;
@@ -85,6 +86,9 @@ public class AuthService {
         RefreshRequest request
     ) {
         RefreshToken token = refreshTokenService.verifyExpiration(request.getToken());
+        if (token.isRevoked()) {
+            throw new RefreshTokenException(token.getToken(), "TOKEN_REVOKED");
+        }
         return AuthResponse.builder()
                 .accessToken(
                         tokenService.genToken(
