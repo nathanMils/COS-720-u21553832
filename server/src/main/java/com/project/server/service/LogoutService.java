@@ -1,5 +1,6 @@
 package com.project.server.service;
 
+import com.project.server.model.entity.RefreshToken;
 import com.project.server.repository.RefreshTokenRepository;
 import com.project.server.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,9 +28,15 @@ public class LogoutService implements LogoutHandler {
         if (header != null && header.startsWith("Bearer")) {
             final String token = header.substring(7);
             final String username = tokenService.getUserName(token);
-            refreshTokenRepository
-                    .findByUser(userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("USER_NOT_FOUND")))
-                    .ifPresent(refreshTokenRepository::delete);
+            refreshTokenRepository.findByUser(
+                    userRepository.findByUsername(username)
+                            .orElseThrow(() -> new UsernameNotFoundException("USER_NOT_FOUND")))
+                    .ifPresent(
+                            (rToken) ->{
+                                rToken.setRevoked(true);
+                                refreshTokenRepository.save(rToken);
+                            }
+            );
         }
     }
 }

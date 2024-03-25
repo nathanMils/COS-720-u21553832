@@ -5,11 +5,11 @@ import com.project.server.response.APIResponse;
 import com.project.server.response.ResponseCode;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +18,8 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public APIResponse<Void> validationExceptions(
+    public ResponseEntity<APIResponse<Void>> validationExceptions(
             MethodArgumentNotValidException ex
     ) {
         Map<String, String> errors = new HashMap<>();
@@ -32,53 +31,71 @@ public class GlobalExceptionHandler {
                     }
                 }
         );
-        return APIResponse.<Void>builder()
-                .status(ResponseCode.failed)
-                .internalCode(errors.toString())
-                .build();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(errors.toString())
+                                .build()
+                );
     }
 
-    @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(RefreshTokenException.class)
-    public APIResponse<Void> tokenRefreshException(
+    public ResponseEntity<APIResponse<Void>> tokenRefreshException(
             RefreshTokenException ex
     ) {
-        return APIResponse.<Void>builder()
-                .status(ResponseCode.failed)
-                .internalCode(ex.getMessage())
-                .build();
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getMessage())
+                                .build()
+                );
+
     }
     // Unknown Errors
-    @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
     @ExceptionHandler(RuntimeException.class)
-    public APIResponse<Void> runtimeErrorException(
+    public ResponseEntity<APIResponse<Void>> runtimeErrorException(
             RuntimeException ex
     ) {
-        return APIResponse.<Void>builder()
-                .status(ResponseCode.server_error)
-                .internalCode("Unknown Server Error")
-                .build();
+        return ResponseEntity
+                .status(HttpStatus.EXPECTATION_FAILED)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.server_error)
+                                .internalCode("UNKNOWN_SERVER_ERROR")
+                                .build()
+                );
     }
 
     // Database violations
-    @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public APIResponse<Void> dataIntegrityViolationException(
+    public ResponseEntity<APIResponse<Void>> dataIntegrityViolationException(
             DataIntegrityViolationException ex
     ) {
-        return APIResponse.<Void>builder()
-                .status(ResponseCode.server_error)
-                .internalCode("Unknown Data Integrity Violation")
-                .build();
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.server_error)
+                                .internalCode("INTEGRITY_VIOLATION")
+                                .build()
+                );
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public APIResponse<Void> usernameNotFound(
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<APIResponse<Void>> usernameNotFound(
             UsernameNotFoundException usernameNotFoundException
     ) {
-        return APIResponse.<Void>builder()
-                .status(ResponseCode.failed)
-                .internalCode("USERNAME_NOT_FOUND")
-                .build();
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode("USERNAME_NOT_FOUND")
+                                .build()
+                );
     }
 }

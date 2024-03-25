@@ -60,12 +60,12 @@ public class RefreshTokenService {
     public RefreshToken verifyExpiration(RefreshToken token){
         if(token.getExpiryDate().compareTo(Instant.now())<0){
             refreshTokenRepository.delete(token);
-            throw new RefreshTokenException(token.getToken()," Refresh token is expired. Please make a new login..!");
+            throw new RefreshTokenException("REFRESH_TOKEN_EXPIRED");
         }
         return token;
     }
 
     public RefreshToken verifyExpiration(String token) {
-        return findByToken(token).orElseThrow(() -> new RefreshTokenException(token,"Refresh token not found"));
+        return findByToken(token).orElseThrow(() -> new RefreshTokenException("REFRESH_TOKEN_NOT_FOUND"));
     }
 }

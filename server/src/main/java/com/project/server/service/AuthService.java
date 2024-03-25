@@ -87,7 +87,7 @@ public class AuthService {
     ) {
         RefreshToken token = refreshTokenService.verifyExpiration(request.getToken());
         if (token.isRevoked()) {
-            throw new RefreshTokenException(token.getToken(), "TOKEN_REVOKED");
+            throw new RefreshTokenException("TOKEN_REVOKED");
         }
         return AuthResponse.builder()
                 .accessToken(
