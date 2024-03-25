@@ -52,7 +52,9 @@ public class TokenService {
         return Jwts
                 .builder()
                 .setClaims(Claims)
-                .setSubject(details.getEmail())
+                .setSubject(details.getUsername())
+                .setIssuer("http://localhost")
+                .setAudience(details.getId().toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000L *60 *Integer.parseInt(expireFactor)))
                 .signWith(getKey(), SignatureAlgorithm.HS512)

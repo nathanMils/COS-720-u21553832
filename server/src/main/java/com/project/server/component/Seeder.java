@@ -64,13 +64,14 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
     private void createAdministrator() {
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.ROLE_ADMIN.name());
-        Optional<User> optionalUser = userRepository.findByEmail("admin@email.com");
+        Optional<User> optionalUser = userRepository.findByUsername("admin");
 
         if (optionalRole.isEmpty() || optionalUser.isPresent()) {
             return;
         }
         Role role = optionalRole.orElseThrow();
         User user = User.builder()
+                .username("admin")
                 .email("admin@email.com")
                 .firstName("admin")
                 .lastName("admin")

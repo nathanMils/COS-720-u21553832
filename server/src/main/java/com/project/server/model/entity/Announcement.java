@@ -20,7 +20,7 @@ import java.util.Date;
 public class Announcement {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long annId;
+    private Long id;
 
     @Column(nullable = false)
     @Convert(converter = StringConverter.class)

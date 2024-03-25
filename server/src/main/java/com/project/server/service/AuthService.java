@@ -1,21 +1,21 @@
 package com.project.server.service;
 
+import com.project.server.exception.PasswordDoesNotMatchException;
+import com.project.server.exception.UsernameAlreadyExists;
+import com.project.server.model.entity.RefreshToken;
 import com.project.server.model.entity.RoleEnum;
 import com.project.server.model.entity.User;
 import com.project.server.repository.RoleRepository;
 import com.project.server.repository.UserRepository;
-import com.project.server.request.auth.LoginRequest;
 import com.project.server.request.auth.ApplicationRequest;
-import com.project.server.response.ResponseCode;
-import com.project.server.response.auth.LoginResponse;
-import com.project.server.response.auth.ApplicationResponse;
+import com.project.server.request.auth.LoginRequest;
+import com.project.server.request.auth.RefreshRequest;
+import com.project.server.response.auth.AuthResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -24,17 +24,17 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
 
-    public ApplicationResponse apply(
+    public AuthResponse apply(
             ApplicationRequest request
     ) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            return ApplicationResponse.builder()
-                    .code(ResponseCode.failed)
-                    .build();
+        if (userRepository.findByUsername(request.getEmail()).isPresent()) {
+            throw new UsernameAlreadyExists();
         }
         User user = User.builder()
+                .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .firstName(request.getFirstName())
@@ -45,33 +45,57 @@ public class AuthService {
         userRepository.save(
                 user
         );
-        return ApplicationResponse.builder()
-                .code(ResponseCode.success)
-                .token(
+        return AuthResponse.builder()
+                .accessToken(
                         tokenService.genToken(
+                                user
+                        )
+                )
+                .refreshToken(
+                        refreshTokenService.createRefreshToken(
                                 user
                         )
                 )
                 .build();
     }
 
-    public LoginResponse login (
+    public AuthResponse login (
             LoginRequest request
     ) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UsernameNotFoundException(request.getEmail()));
+        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
         if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            return LoginResponse.builder()
-                    .token(
+            return AuthResponse.builder()
+                    .accessToken(
                             tokenService.genToken(
                                     user
                             )
                     )
-                    .code(ResponseCode.success)
+                    .refreshToken(
+                            refreshTokenService.createRefreshToken(
+                                    user
+                            )
+                    )
                     .build();
         } else {
-            return LoginResponse.builder()
-                    .code(ResponseCode.failed)
-                    .build();
+            throw new PasswordDoesNotMatchException();
         }
+    }
+
+    public AuthResponse refresh(
+        RefreshRequest request
+    ) {
+        RefreshToken token = refreshTokenService.verifyExpiration(request.getToken());
+        return AuthResponse.builder()
+                .accessToken(
+                        tokenService.genToken(
+                                token.getUser()
+                        )
+                )
+                .refreshToken(
+                        refreshTokenService.createRefreshToken(
+                                token.getUser()
+                        )
+                )
+                .build();
     }
 }

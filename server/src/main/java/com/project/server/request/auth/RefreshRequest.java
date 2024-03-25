@@ -1,6 +1,5 @@
-package com.project.server.response.auth;
+package com.project.server.request.auth;
 
-import com.project.server.response.ResponseCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponse {
-    private ResponseCode code;
+public class RefreshRequest {
     private String token;
 }

@@ -29,11 +29,11 @@ public class ApplicationUDService implements UserDetailsService {
     private RoleRepository roleRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
     {
-        User user = userRepository.findByEmail(name).orElseThrow();
+        User user = userRepository.findByUsername(username).orElseThrow();
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
+                user.getUsername(),
                 user.getPassword(),
                 user.isEnabled(),
                 true,

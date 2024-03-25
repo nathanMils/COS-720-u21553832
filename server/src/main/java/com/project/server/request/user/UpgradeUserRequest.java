@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpgradeUserRequest {
-    private String userEmail;
+    private String username;
 }

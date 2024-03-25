@@ -2,16 +2,12 @@ package com.project.server.model.entity;
 
 import com.project.server.converter.StringConverter;
 import jakarta.persistence.*;
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 
@@ -21,7 +17,6 @@ import java.util.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "_USER")
-@Transactional
 public class User {
 
     @Id
@@ -30,6 +25,12 @@ public class User {
 
     @Column(
             unique = true,
+            nullable = false
+    )
+    @Convert(converter = StringConverter.class)
+    private String username;
+
+    @Column(
             nullable = false
     )
     @Convert(converter = StringConverter.class)
@@ -98,4 +99,7 @@ public class User {
             name = "updated_at"
     )
     private Date updatedAt;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private RefreshToken token;
 }

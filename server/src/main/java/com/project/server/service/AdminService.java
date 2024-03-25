@@ -17,8 +17,8 @@ public class AdminService {
     private final RoleRepository roleRepository;
 
     public void upgradeUser(UpgradeUserRequest request) {
-        User user = userRepository.findByEmail(request.getUserEmail())
-                .orElseThrow(() -> new UsernameNotFoundException(request.getUserEmail()));
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
 
         Role studentRole = roleRepository.findByName(RoleEnum.ROLE_STUDENT.name())
                 .orElseThrow(() -> new RuntimeException("Role STUDENT not found"));
