@@ -1,9 +1,8 @@
 package com.project.server.service;
 
-import com.project.server.model.entity.Module;
 import com.project.server.model.entity.User;
-import com.project.server.repository.RoleRepository;
-import com.project.server.repository.UserRepository;
+import com.project.server.model.enums.StatusEnum;
+import com.project.server.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service("userDetailsService")
 @Transactional
@@ -23,15 +23,20 @@ public class ApplicationUDService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-
-
     @Autowired
-    private RoleRepository roleRepository;
+    private StudentApplicationRepository studentApplicationRepository;
+    @Autowired
+    private StudentRepository studentRepository;
+    @Autowired
+    private ModuleModeratorRepository moduleModeratorRepository;
+    @Autowired
+    private CourseModeratorRepository courseModeratorRepository;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
     {
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("USER_NOT_FOUND"));
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
@@ -43,15 +48,44 @@ public class ApplicationUDService implements UserDetailsService {
         );
     }
 
+    @Transactional
     private Collection<? extends GrantedAuthority> getAuthorities(User user)
     {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(user.getRole().getName()));
-        for (Module module: user.getModules()) {
-            authorities.add(new SimpleGrantedAuthority(String.format("module_%d_student",module.getId())));
-        }
-        for (Module module: user.getModerates()) {
-            authorities.add(new SimpleGrantedAuthority(String.format("module_%d_moderator",module.getId())));
+        authorities.add(new SimpleGrantedAuthority(user.getRole().name()));
+        switch (user.getRole()) {
+            case ROLE_STUDENT:
+                authorities.addAll(
+                        studentApplicationRepository.findByUserIdAndStatus(user.getId(), StatusEnum.ACCEPTED)
+                                .stream()
+                                .map(application -> new SimpleGrantedAuthority(String.format("course_%s_student",application.getCourse().getId().toString())))
+                                .toList()
+                );
+                studentRepository.findByUserId(user.getId()).forEach(
+                        (student) -> {
+                            authorities.add(
+                                    new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()))
+                            );
+                        }
+                );
+                break;
+            case ROLE_MODULE_MODERATOR:
+                moduleModeratorRepository.findByUserId(user.getId()).forEach(
+                        (moduleModerator) -> {
+                            authorities.add(
+                                    new SimpleGrantedAuthority(String.format("module_%s_moderator",moduleModerator.getModule().getId().toString()))
+                            );
+                        }
+                );
+                break;
+            case ROLE_COURSE_MODERATOR:
+                courseModeratorRepository.findByUserId(user.getId()).forEach(
+                        (courseModerator) -> {
+                            authorities.add(
+                                    new SimpleGrantedAuthority(String.format("course_%s_moderator",courseModerator.getCourses().getId().toString()))
+                            );
+                        }
+                );
         }
         return authorities;
     }

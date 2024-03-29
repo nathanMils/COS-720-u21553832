@@ -1,7 +1,6 @@
 package com.project.server.controller;
 
 import com.project.server.exception.PasswordDoesNotMatchException;
-import com.project.server.exception.UsernameAlreadyExists;
 import com.project.server.request.auth.ApplicationRequest;
 import com.project.server.request.auth.LoginRequest;
 import com.project.server.request.auth.RefreshRequest;
@@ -12,7 +11,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,22 +24,14 @@ public class AuthController {
     public ResponseEntity<APIResponse<AuthResponse>> apply(
             @RequestBody @Valid ApplicationRequest request
     ) {
-        try {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(
-                            APIResponse.success(
-                                    service.apply(request),
-                                    "SUCCESS"
-                            )
-                    );
-        } catch (UsernameAlreadyExists e) {
-            return ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(
-                            APIResponse.error("USERNAME_ALREADY_EXISTS")
-                    );
-        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                service.apply(request),
+                                "SUCCESS"
+                        )
+                );
     }
 
     @PostMapping("/login")

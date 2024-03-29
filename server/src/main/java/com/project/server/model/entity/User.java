@@ -1,6 +1,7 @@
 package com.project.server.model.entity;
 
 import com.project.server.converter.StringConverter;
+import com.project.server.model.enums.RoleEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -48,42 +49,12 @@ public class User {
     @Convert(converter = StringConverter.class)
     private String lastName;
 
-    @ManyToOne(fetch = FetchType.LAZY) // Lazy fetching by default
-    @JoinColumn(name = "role_id")
-    private Role role;
 
-    @Column(nullable = false)
-    private boolean enabled;
-
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE,
-                    CascadeType.DETACH,
-                    CascadeType.REFRESH
-            })
-    @JoinTable(
-            name = "students_modules",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "module_id")
+    @Enumerated(EnumType.STRING)
+    @Column(
+            nullable = false
     )
-    private Set<Module> modules;
-
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE,
-                    CascadeType.DETACH,
-                    CascadeType.REFRESH
-            })
-    @JoinTable(
-            name = "moderator_modules",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "module_id")
-    )
-    private Set<Module> moderates;
+    private RoleEnum role;
 
     @CreationTimestamp
     @Column(
@@ -100,6 +71,15 @@ public class User {
     )
     private Date updatedAt;
 
+    @Column(nullable = false)
+    private boolean enabled;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private RefreshToken token;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Student> student;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentApplication> studentApplication;
 }

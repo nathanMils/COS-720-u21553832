@@ -12,10 +12,12 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ public class SecureConf {
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        String hierarchy = "ROLE_ADMIN > ROLE_MODERATOR \n ROLE_MODERATOR > ROLE_STUDENT \n ROLE_STUDENT > ROLE_APPLICANT";
+        String hierarchy = "ROLE_ADMIN > ROLE_COURSE_MODERATOR \n ROLE_COURSE_MODERATOR > ROLE_MODULE_MODERATOR \n ROLE_MODULE_MODERATOR > ROLE_STUDENT";
         roleHierarchy.setHierarchy(hierarchy);
         return roleHierarchy;
     }
@@ -40,31 +42,30 @@ public class SecureConf {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(
-                        csrf -> csrf.disable()
+                        AbstractHttpConfigurer::disable
                 )
                 .cors(
-                        cors -> cors.disable()
+                        AbstractHttpConfigurer::disable
                 )
                 .authorizeHttpRequests(
                         authorizationManagerRequestMatcherRegistry ->
                                 authorizationManagerRequestMatcherRegistry
+                                        .requestMatchers(proxyPrefix+"public/**")
+                                        .permitAll()
                                         .requestMatchers(proxyPrefix+"auth/**")
                                         .permitAll()
-                                        .requestMatchers(proxyPrefix+"applicant/**")
-                                        .hasRole("APPLICANT")
+                                        .requestMatchers(proxyPrefix+"user/**")
+                                        .authenticated()
                                         .requestMatchers(proxyPrefix+"student/**")
                                         .hasRole("STUDENT")
-                                        .requestMatchers(proxyPrefix+"moderator/**")
-                                        .hasRole("MODERATOR")
+                                        .requestMatchers(proxyPrefix+"moduleModerator/**")
+                                        .hasRole("MODULE_MODERATOR")
+                                        .requestMatchers(proxyPrefix+"courseModerator/**")
+                                        .hasRole("COURSE_MODERATOR")
                                         .requestMatchers(proxyPrefix+"admin/**")
                                         .hasRole("ADMIN")
-                                        .requestMatchers(proxyPrefix+"module/{moduleId}/**")
-                                        .hasAnyAuthority("module_{moduleId}_moderator","ADMIN")
-                                        .requestMatchers(proxyPrefix+"module/{moduleId}/student/**")
-                                        .hasAnyAuthority("module_{moduleId}_student","ADMIN")
                                         .anyRequest()
                                         .authenticated()
-
                 )
                 .sessionManagement(
                         sessionManagement ->

@@ -3,6 +3,8 @@ package com.project.server.exceptionHandler;
 import com.project.server.exception.RefreshTokenException;
 import com.project.server.response.APIResponse;
 import com.project.server.response.ResponseCode;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,34 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<APIResponse<Void>> entityExists(
+            EntityExistsException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<APIResponse<Void>> entityNotFound(
+            EntityNotFoundException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getMessage())
+                                .build()
+                );
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<APIResponse<Void>> validationExceptions(
@@ -36,7 +66,8 @@ public class GlobalExceptionHandler {
                 .body(
                         APIResponse.<Void>builder()
                                 .status(ResponseCode.failed)
-                                .internalCode(errors.toString())
+                                .internalCode("VALIDATION_FAILED")
+                                .errors(errors)
                                 .build()
                 );
     }
@@ -60,6 +91,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<APIResponse<Void>> runtimeErrorException(
             RuntimeException ex
     ) {
+        System.out.println(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.EXPECTATION_FAILED)
                 .body(
@@ -94,7 +126,7 @@ public class GlobalExceptionHandler {
                 .body(
                         APIResponse.<Void>builder()
                                 .status(ResponseCode.failed)
-                                .internalCode("USERNAME_NOT_FOUND")
+                                .internalCode("USER_NOT_FOUND")
                                 .build()
                 );
     }

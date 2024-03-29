@@ -1,5 +1,7 @@
 package com.project.server.model.entity;
 
+import com.project.server.converter.StringConverter;
+import com.project.server.model.dto.ModuleDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +20,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "module")
+@Table(name = "MODULE")
 public class Module {
 
     @Id
@@ -29,13 +31,13 @@ public class Module {
     private String name;
 
     @ManyToMany(mappedBy = "modules")
-    private Set<User> students;
+    private Set<Course> courses;
 
-    @ManyToMany(mappedBy = "moderates")
-    private Set<User> moderators;
+    @Convert(converter = StringConverter.class)
+    private String description;
 
-    @OneToMany(mappedBy = "module")
-    private List<Announcement> announcements;
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Post> posts;
 
     @CreationTimestamp
     @Column(
@@ -51,4 +53,14 @@ public class Module {
             name = "updated_at"
     )
     private Date updatedAt;
+
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Student> student;
+
+    public ModuleDTO convert() {
+        return ModuleDTO.builder()
+                .moduleId(id)
+                .moduleName(name)
+                .build();
+    }
 }

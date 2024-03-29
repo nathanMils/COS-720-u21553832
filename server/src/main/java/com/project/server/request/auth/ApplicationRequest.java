@@ -1,8 +1,11 @@
 package com.project.server.request.auth;
 
 import com.project.server.constraint.ValidPasswordConstraint;
+import com.project.server.constraint.ValidUUID;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.util.UUID;
 
 
 // Request is used to create entities => must conform to validation
@@ -36,4 +39,10 @@ public class ApplicationRequest {
     @NotEmpty
     @NotBlank(message = "last name is mandatory")
     private String lastName;
+
+    @NotNull
+    @NotEmpty
+    @NotBlank(message = "course is mandatory")
+    @ValidUUID
+    private String courseId;
 }
