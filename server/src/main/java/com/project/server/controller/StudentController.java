@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin(value="*")
-@RequestMapping(path = "/app/v1/student")
+@RequestMapping(path = "/api/v1/student")
 @RequiredArgsConstructor
 public class StudentController {
     private final StudentService studentService;
@@ -75,7 +75,7 @@ public class StudentController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('course_' + #courseId + '_student'))")
+    @PreAuthorize("hasAuthority('course_' + #courseId + '_student')")
     @GetMapping("/fetchModules/{courseId}")
     public ResponseEntity<APIResponse<FetchModulesResponse>> fetchCourseModules(
             @ValidUUID @PathVariable String courseId
@@ -116,7 +116,7 @@ public class StudentController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('course_' + #courseId + '_module_' + #moduleId + '_student'') || hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('course_' + #courseId + '_module_' + #moduleId + '_student') || hasRole('ADMIN')")
     @PostMapping("/deRegister/{courseId}/{moduleId}")
     public ResponseEntity<APIResponse<Void>> deRegister(
             @ValidUUID @PathVariable String courseId,

@@ -1,1 +1,1 @@
-export { default as SiteNavigation } from './SiteNavigation.vue'
+export { NavComponent } from './nav'

@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin(value="*")
-@RequestMapping(path = "/app/v1/courseModerator")
+@RequestMapping(path = "/api/v1/courseModerator")
 @RequiredArgsConstructor
 public class CourseModeratorController {
 

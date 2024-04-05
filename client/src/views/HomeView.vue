@@ -1,12 +1,12 @@
 <template>
   <div>
-    <SiteNavigation />
+    <NavComponent />
     <RouterView />
   </div>
 </template>
 
 <script setup lang="ts">
-import { SiteNavigation } from '@/components'
+import { NavComponent } from '@/components'
 import { RouterView } from 'vue-router'
 </script>
 

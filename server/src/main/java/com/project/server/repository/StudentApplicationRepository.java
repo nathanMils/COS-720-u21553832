@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface StudentApplicationRepository extends JpaRepository<StudentApplication, UUID> {
+public interface StudentApplicationRepository extends JpaRepository<StudentApplication, Long> {
     Optional<StudentApplication> findByUserIdAndCourseIdAndStatus(Long userId, UUID course, StatusEnum status);
     Optional<StudentApplication> findByUserIdAndCourseId(Long userId, UUID courseId);
     void deleteByUserIdAndCourseId(Long userId, UUID course);

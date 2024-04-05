@@ -28,7 +28,7 @@ public class SecureConf {
     private final AuthFilter authFilter;
     private final AuthenticationProvider authProvider;
     private final LogoutService logoutService;
-    private static final String proxyPrefix = "/app/v1/";
+    private static final String proxyPrefix = "/api/v1/";
 
     @Bean
     public RoleHierarchy roleHierarchy() {

@@ -19,7 +19,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin(value="*")
-@RequestMapping(path = "/app/v1/admin")
+@RequestMapping(path = "/api/v1/admin")
 @RequiredArgsConstructor
 public class AdminController {
 

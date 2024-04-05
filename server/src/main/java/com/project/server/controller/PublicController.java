@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(value="*")
-@RequestMapping(path = "/app/v1/public")
+@RequestMapping(path = "/api/v1/public")
 @RequiredArgsConstructor
 public class PublicController {
 

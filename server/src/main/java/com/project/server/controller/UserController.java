@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin(value="*")
-@RequestMapping(path = "/app/v1/user")
+@RequestMapping(path = "/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
