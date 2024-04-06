@@ -91,7 +91,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<APIResponse<Void>> runtimeErrorException(
             RuntimeException ex
     ) {
-        System.out.println(ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.EXPECTATION_FAILED)
                 .body(

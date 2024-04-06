@@ -11,15 +11,11 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +24,7 @@ public class SecureConf {
     private final AuthFilter authFilter;
     private final AuthenticationProvider authProvider;
     private final LogoutService logoutService;
-    private static final String proxyPrefix = "/api/v1/";
+    private static final String PREFIX = "/api/v1/";
 
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -50,19 +46,19 @@ public class SecureConf {
                 .authorizeHttpRequests(
                         authorizationManagerRequestMatcherRegistry ->
                                 authorizationManagerRequestMatcherRegistry
-                                        .requestMatchers(proxyPrefix+"public/**")
+                                        .requestMatchers(PREFIX+"public/**")
                                         .permitAll()
-                                        .requestMatchers(proxyPrefix+"auth/**")
+                                        .requestMatchers(PREFIX+"auth/**")
                                         .permitAll()
-                                        .requestMatchers(proxyPrefix+"user/**")
+                                        .requestMatchers(PREFIX+"user/**")
                                         .authenticated()
-                                        .requestMatchers(proxyPrefix+"student/**")
+                                        .requestMatchers(PREFIX+"student/**")
                                         .hasRole("STUDENT")
-                                        .requestMatchers(proxyPrefix+"moduleModerator/**")
+                                        .requestMatchers(PREFIX+"moduleModerator/**")
                                         .hasRole("MODULE_MODERATOR")
-                                        .requestMatchers(proxyPrefix+"courseModerator/**")
+                                        .requestMatchers(PREFIX+"courseModerator/**")
                                         .hasRole("COURSE_MODERATOR")
-                                        .requestMatchers(proxyPrefix+"admin/**")
+                                        .requestMatchers(PREFIX+"admin/**")
                                         .hasRole("ADMIN")
                                         .anyRequest()
                                         .authenticated()
@@ -82,7 +78,7 @@ public class SecureConf {
                 )
                 .logout(
                         logout -> logout
-                                .logoutUrl(proxyPrefix+"/user/logout")
+                                .logoutUrl(PREFIX+"/user/logout")
                                 .addLogoutHandler(logoutService)
                                 .logoutSuccessHandler(
                                         new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)

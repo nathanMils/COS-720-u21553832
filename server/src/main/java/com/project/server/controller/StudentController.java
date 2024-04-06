@@ -102,7 +102,7 @@ public class StudentController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('course_' + #courseId + '_student')")
+    @PreAuthorize("hasAuthority('course_' + #courseId + '_student') || hasRole('ADMIN')")
     @PostMapping("/register/{courseId}/{moduleId}")
     public ResponseEntity<APIResponse<Void>> register(
             @ValidUUID @PathVariable String courseId,
@@ -122,6 +122,7 @@ public class StudentController {
             @ValidUUID @PathVariable String courseId,
             @ValidUUID @PathVariable String moduleId
     ) {
+        System.out.println("Here");
         studentService.deRegisterStudent(UUID.fromString(moduleId));
         return ResponseEntity
                 .status(HttpStatus.OK)

@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service("userDetailsService")
 @Transactional
@@ -63,6 +62,7 @@ public class ApplicationUDService implements UserDetailsService {
                 );
                 studentRepository.findByUserId(user.getId()).forEach(
                         (student) -> {
+                            System.out.println(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()));
                             authorities.add(
                                     new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()))
                             );
@@ -86,6 +86,9 @@ public class ApplicationUDService implements UserDetailsService {
                             );
                         }
                 );
+                break;
+            default:
+                break;
         }
         return authorities;
     }

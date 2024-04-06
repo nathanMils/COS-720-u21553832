@@ -23,5 +23,10 @@
     "name": "app.request.timeout",
     "type": "java.lang.String",
     "description": "Request Timeout Time"
+  },
+  {
+    "name": "app.token.refresh",
+    "type": "java.lang.String",
+    "description": "A description for 'app.token.refresh'"
   }
 ]}

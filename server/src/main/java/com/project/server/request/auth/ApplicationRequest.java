@@ -5,7 +5,6 @@ import com.project.server.constraint.ValidUUID;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.UUID;
 
 
 // Request is used to create entities => must conform to validation

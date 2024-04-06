@@ -1,6 +1,5 @@
 package com.project.server.service;
 
-import com.project.server.model.entity.RefreshToken;
 import com.project.server.repository.RefreshTokenRepository;
 import com.project.server.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
