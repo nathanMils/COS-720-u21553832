@@ -122,7 +122,6 @@ public class StudentController {
             @ValidUUID @PathVariable String courseId,
             @ValidUUID @PathVariable String moduleId
     ) {
-        System.out.println("Here");
         studentService.deRegisterStudent(UUID.fromString(moduleId));
         return ResponseEntity
                 .status(HttpStatus.OK)
