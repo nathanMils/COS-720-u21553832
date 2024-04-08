@@ -4,6 +4,12 @@
 
 name: filebeat
 
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+
 filebeat.config:
   modules:
     path: ${path.config}/modules.d/*.yml
@@ -30,19 +36,12 @@ filebeat.autodiscover:
                   type: container
                   paths:
                     - /var/lib/docker/containers/${data.container.id}/*-json.log
-    - type: nginx
-      templates:
-        - condition:
-            contains:
-              docker.container.image: proxy
-          config:
-            - type: container
-              paths:
-                - /var/log/nginx/*.log
 
 
-processors:
-  - add_cloud_metadata: ~
+# processors:
+#   - grok:
+#       patterns:
+#         - '%{IP:client_ip} %{USER:ident} %{USER:auth} \[%{HTTPDATE:timestamp}\] "(?:%{WORD:method} %{DATA:request} HTTP/%{NUMBER:http_version})" %{NUMBER:status:int} %{NUMBER:bytes_sent:int} "%{DATA:referrer}" "%{DATA:agent}"'
 
 monitoring:
   enabled: true
@@ -54,6 +53,9 @@ output.elasticsearch:
   hosts: [ http://elasticsearch:9200 ]
   username: filebeat_internal
   password: ${FILEBEAT_INTERNAL_PASSWORD}
+
+# output.logstash:
+#   hosts: ["http://logstash:5044"]
 
 ## HTTP endpoint for health checking
 ## https://www.elastic.co/guide/en/beats/filebeat/current/http-endpoint.html
