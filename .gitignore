@@ -2,3 +2,4 @@ secret.json
 .env
 .vscode
 application.yml
+*.log

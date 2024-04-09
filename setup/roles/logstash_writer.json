@@ -9,7 +9,11 @@
         "names": [
           "logs-generic-default",
           "logstash-*",
-          "ecs-logstash-*"
+          "ecs-logstash-*",
+          "error_logs-*",
+          "client_access_logs-*",
+          "server_access_logs-*",
+          "kibana_access_logs-*"
         ],
         "privileges": [
           "write",

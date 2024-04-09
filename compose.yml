@@ -9,6 +9,7 @@ services:
       context: setup/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: setup
     init: true
     volumes:
       - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
@@ -18,6 +19,8 @@ services:
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
       BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
     networks:
       - elk
     depends_on:
@@ -25,7 +28,7 @@ services:
 
   server:
     build: ./server
-    container_name: "server"
+    container_name: server
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_URL}/${DB_NAME}?sslmode=require
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
@@ -42,7 +45,7 @@ services:
   
   client:
     build: ./client
-    container_name: "client"
+    container_name: client
     depends_on:
       - server
     networks:
@@ -51,7 +54,7 @@ services:
 
   proxy:
     build: ./nginx
-    container_name: "proxy"
+    container_name: proxy
     restart: always
     ports:
       - "80:80"
@@ -60,12 +63,14 @@ services:
     networks:
       - proxy-client
       - proxy-server
+      - proxy-kibana
     
   elasticsearch:
     build:
       context: elasticsearch/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: elasticsearch
     volumes:
       - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
       - elasticsearch:/usr/share/elasticsearch/data:Z
@@ -91,6 +96,7 @@ services:
       context: logstash/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: logstash
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
@@ -113,6 +119,7 @@ services:
       context: kibana/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: kibana
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
     ports:
@@ -121,6 +128,7 @@ services:
       KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
     networks:
       - elk
+      - proxy-kibana
     depends_on:
       - elasticsearch
     restart: unless-stopped
@@ -132,6 +140,7 @@ services:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     # Run as 'root' instead of 'filebeat' (uid 1000) to allow reading
     # 'docker.sock' and the host's filesystem.
+    container_name: filebeat
     user: root
     command:
       # Log to stderr.
@@ -166,5 +175,6 @@ volumes:
 networks:
   proxy-client:
   proxy-server:
+  proxy-kibana:
   elk:
     driver: bridge
