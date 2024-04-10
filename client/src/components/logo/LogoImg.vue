@@ -1,5 +1,6 @@
 <template>
-    <img :src="isDark ? darkModeImageUrl : lightModeImageUrl" alt="Missing" class="mx-4" :style="{ width: `${size}rem`, height: `${size}rem`}">
+    <img v-if="isDark" src="/src/assets/logoDark.svg" alt="Missing" class="mx-4" :style="{ width: `${size}rem`, height: `${size}rem`}">
+    <img v-else src="/src/assets/logoLight.svg" alt="Missing" class="mx-4" :style="{ width: `${size}rem`, height: `${size}rem`}">
 </template>
 
 <script setup lang="ts">
@@ -13,7 +14,4 @@ defineProps({
         default: 3
     }
 });
-
-const darkModeImageUrl = '/src/assets/logoDark.svg';
-const lightModeImageUrl = '/src/assets/logoLight.svg';
 </script>
