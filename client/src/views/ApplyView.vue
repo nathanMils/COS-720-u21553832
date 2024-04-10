@@ -8,11 +8,11 @@
             <h1>Portal</h1>
           </div>
           <div
-            class="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700"
+            class="w-full bg-white rounded-lg shadow-xl border border-appBorder-light dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-appSecondary-dark dark:border-appBorder-dark dark:shadow-none"
           >
             <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
               <h1
-                class="text-xl font-bold leading-tight tracking-tight text-center text-gray-900 md:text-2xl dark:text-white"
+                class="text-xl font-bold leading-tight tracking-tight text-center text-appText-light md:text-2xl dark:text-appText-dark"
               >
                 Apply for Portal
               </h1>
@@ -20,7 +20,7 @@
                 <div>
                   <label
                     for="firstName"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    class="block mb-2 text-sm font-medium text-appText-light dark:text-appText-dark"
                     >First Name</label
                   >
                   <input
@@ -34,7 +34,7 @@
                 <div>
                   <label
                     for="lastName"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    class="block mb-2 text-sm font-medium text-appText-light dark:text-appText-dark"
                     >Last Name</label
                   >
                   <input
@@ -48,7 +48,7 @@
                 <div>
                   <label
                     for="email"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    class="block mb-2 text-sm font-medium text-appText-light dark:text-appText-dark"
                     >Email</label
                   >
                   <input
@@ -63,7 +63,7 @@
                 <div>
                   <label
                     for="username"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    class="block mb-2 text-sm font-medium text-appText-light dark:text-appText-dark"
                     >Username</label
                   >
                   <input
@@ -78,7 +78,7 @@
                 <div>
                   <label
                     for="password"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                    class="block mb-2 text-sm font-medium text-appText-light dark:text-appText-dark"
                     >Password</label
                   >
                   <input
