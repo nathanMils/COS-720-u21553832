@@ -37,13 +37,13 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-  const publicPages = ['/login', '/welcome']
+  const publicPages = ['/login', '/welcome', '/apply']
   const authRequired = !publicPages.includes(to.path)
   const auth = AuthStore()
 
   if (authRequired && !auth.user) {
     auth.returnUrl = to.fullPath
-    return '/welcome'
+    return '/login'
   }
 })
 
