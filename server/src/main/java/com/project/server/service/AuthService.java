@@ -2,6 +2,7 @@ package com.project.server.service;
 
 import com.project.server.exception.ConfirmationTokenException;
 import com.project.server.exception.RefreshTokenException;
+import com.project.server.model.dto.UserDTO;
 import com.project.server.model.entity.*;
 import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.enums.StatusEnum;
@@ -11,7 +12,9 @@ import com.project.server.request.auth.LoginRequest;
 import com.project.server.request.auth.RefreshRequest;
 import com.project.server.response.auth.AuthResponse;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,7 +107,7 @@ public class AuthService {
                             user.getId()
                     )
             );
-            return buildAuthResponse(user,true);
+            return buildAuthResponse(user);
         } else if (passwordEncoder.matches(request.getPassword(), user.getPassword())){
             log.atInfo().log(
                     String.format(
@@ -116,7 +119,7 @@ public class AuthService {
             );
             String token = confirmationTokenService.generateConfirmationToken(user);
             emailService.sendEmailVerificationEmail(user.getEmail(), token);
-            return buildAuthResponse(null,false);
+            return AuthResponse.builder().verified(false).build();
         } else {
             log.atWarn().log(
                     String.format(
@@ -132,10 +135,20 @@ public class AuthService {
 
     @Transactional
     public AuthResponse refresh(
-        HttpServletRequest servletRequest,
-        RefreshRequest request
+        HttpServletRequest servletRequest
     ) {
-        RefreshToken token = refreshTokenService.verifyExpiration(request.getToken());
+        if (servletRequest.getCookies() == null) {
+            return null;
+        }
+        String refresh = null;
+        for (Cookie cookie: servletRequest.getCookies()) {
+            if (cookie.getName().equals("refreshToken")) {
+                refresh = cookie.getValue();
+                break;
+            }
+        }
+        if (refresh == null) return null;
+        RefreshToken token = refreshTokenService.verifyExpiration(refresh);
         if (token.isRevoked()) {
             log.atWarn().log(
                     String.format(
@@ -145,7 +158,7 @@ public class AuthService {
                             token.getUser().getId()
                     )
             );
-            throw new RefreshTokenException("TOKEN_REVOKED");
+            return null;
         }
         log.atInfo().log(
                 String.format(
@@ -155,7 +168,7 @@ public class AuthService {
                         token.getUser().getId()
                 )
         );
-        return buildAuthResponse(token.getUser(),true);
+        return buildAuthResponse(token.getUser());
     }
 
     public AuthResponse verifyToken(
@@ -175,19 +188,7 @@ public class AuthService {
                             user.getId()
                     )
             );
-            return AuthResponse.builder()
-                    .accessToken(
-                            tokenService.genToken(
-                                    user
-                            )
-                    )
-                    .refreshToken(
-                            tokenService.genToken(
-                                    user
-                            )
-                    )
-                    .verified(true)
-                    .build();
+            return buildAuthResponse(user);
         } else {
             log.atWarn().log(
                     String.format(
@@ -201,11 +202,23 @@ public class AuthService {
         }
     }
 
-    private AuthResponse buildAuthResponse(User user, boolean verified) {
+    private AuthResponse buildAuthResponse(User user) {
         return AuthResponse.builder()
-                .accessToken(user != null ?tokenService.genToken(user): null)
-                .refreshToken(user!= null ?refreshTokenService.createRefreshToken(user): null)
-                .verified(verified)
+                .userDTO(
+                        UserDTO.builder()
+                                .username(user.getUsername())
+                                .firstName(user.getFirstName())
+                                .lastName(user.getLastName())
+                                .role(user.getRole())
+                                .build()
+                )
+                .accessToken(
+                        tokenService.genToken(user)
+                )
+                .refreshToken(
+                        refreshTokenService.createRefreshToken(user)
+                )
+                .verified(true)
                 .build();
     }
 }

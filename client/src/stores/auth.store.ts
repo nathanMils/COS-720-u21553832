@@ -1,26 +1,35 @@
 import { defineStore } from 'pinia'
 
 import router from '@/router'
-
-import type { User } from '@/types'
+import {
+  login, 
+  logout, 
+  apply
+} from '@/api'
 
 export const AuthStore = defineStore({
   id: 'auth',
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user') ?? 'null') as User | null,
-    returnUrl: null as string | null
+    loggedIn: JSON.parse(localStorage.getItem('loggedIn')?? 'false') as boolean,
+    returnUrl: null as string | null,
+    role: JSON.parse(localStorage.getItem('refresh') ?? 'null') as string | null
   }),
   actions: {
     async login(username: string, password: string) {
-      const user: User = { username: 'username', firstName: 'firstname', lastName: 'lastName' }
-      this.user = user
-      localStorage.setItem('user', JSON.stringify(user))
-      router.push(this.returnUrl ?? '/')
+      const response = await login(username,password);
+      if (response.status == 200) {
+        localStorage.setItem('loggedIn', JSON.stringify(true))
+        router.push('/home')
+      } else if (response.status == 409){
+        return "USERNAME_EXISTS"
+      }
+      console.log('Unkown Server Error')
+      return "SERVER_ERROR"
     },
     logout() {
-      this.user = null
-      localStorage.removeItem('user')
-      router.push('/login')
+      this.loggedIn = false;
+      localStorage.removeItem('/loggedIn')
+      router.push('/welcome')
     }
   }
 })

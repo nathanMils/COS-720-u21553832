@@ -3,6 +3,7 @@ package com.project.server.filter;
 import com.project.server.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -28,9 +29,8 @@ public class AuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        final String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer")) {
-            final String token = header.substring(7);
+        String token = getAccessTokenFromCookie(request);
+        if (token != null) {
             final String username = tokenService.getUserName(token);
             if (username != null) {
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -41,12 +41,20 @@ public class AuthFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
                 }
-            } else {
-                System.out.println("Error with auth token");
             }
-            filterChain.doFilter(request,response);
-        } else {
-            filterChain.doFilter(request,response);
         }
+        filterChain.doFilter(request,response);
+    }
+
+    private String getAccessTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

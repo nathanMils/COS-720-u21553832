@@ -1,5 +1,6 @@
 package com.project.server.response.auth;
 
+import com.project.server.model.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,5 +13,6 @@ import lombok.NoArgsConstructor;
 public class AuthResponse {
     private String accessToken;
     private String refreshToken;
+    private UserDTO userDTO;
     private Boolean verified;
 }

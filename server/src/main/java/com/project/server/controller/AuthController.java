@@ -2,17 +2,24 @@ package com.project.server.controller;
 
 import com.project.server.constraint.ValidUUID;
 import com.project.server.exception.ConfirmationTokenException;
+import com.project.server.model.dto.UserDTO;
+import com.project.server.model.enums.RoleEnum;
 import com.project.server.request.auth.ApplicationRequest;
 import com.project.server.request.auth.LoginRequest;
 import com.project.server.request.auth.RefreshRequest;
 import com.project.server.response.APIResponse;
 import com.project.server.response.auth.AuthResponse;
 import com.project.server.service.AuthService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +30,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService service;
+
+    @Value("${app.token.authExpire}")
+    private String authExpire;
+
+    @Value("${app.token.refreshExpire}")
+    private String refreshExpire;
     @PostMapping("/apply")
     public ResponseEntity<APIResponse<Void>> apply(
             HttpServletRequest servletRequest,
@@ -48,8 +61,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<APIResponse<AuthResponse>> login(
+    public ResponseEntity<APIResponse<UserDTO>> login(
             HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse,
             @RequestBody LoginRequest request
     ) {
         AuthResponse response = service.login(servletRequest,request);
@@ -58,24 +72,24 @@ public class AuthController {
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(
                             APIResponse.success(
-                                    response,
+                                    null,
                                     "INCORRECT_PASSWORD"
                             )
                     );
         }
-        if (response.getVerified())
-        {
+        if (response.getVerified()) {
+            setCookies(servletResponse,response);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(
                             APIResponse.success(
-                                    response,
+                                    response.getUserDTO(),
                                     "User logged in"
                             )
                     );
         } else {
             return ResponseEntity
-                    .status(HttpStatus.OK)
+                    .status(HttpStatus.UNAUTHORIZED)
                     .body(
                             APIResponse.error(
                                     "EMAIL_NOT_VERIFIED"
@@ -85,31 +99,45 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<APIResponse<AuthResponse>> refresh(
+    public ResponseEntity<APIResponse<UserDTO>> refresh(
             HttpServletRequest servletRequest,
-            @RequestBody RefreshRequest request
+            HttpServletResponse servletResponse
     ) {
+        AuthResponse response = service.refresh(servletRequest);
+        if (response == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(
+                            APIResponse.error(
+                                    "TOKEN_INVALID"
+                            )
+                    );
+        }
+        setCookies(servletResponse,response);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                service.refresh(servletRequest,request),
+                                response.getUserDTO(),
                                 "SUCCESS"
                         )
                 );
     }
 
     @PostMapping("/verifyEmail")
-    public ResponseEntity<APIResponse<?>> verifyCode(
+    public ResponseEntity<APIResponse<UserDTO>> verifyCode(
             HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse,
             @Param("token") @ValidUUID String token
     ) {
         try {
+            AuthResponse response = service.verifyToken(servletRequest,token);
+            setCookies(servletResponse,response);
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(
                             APIResponse.success(
-                                    service.verifyToken(servletRequest,token),
+                                    response.getUserDTO(),
                                     "SUCCESS"
                             )
                     );
@@ -122,5 +150,22 @@ public class AuthController {
                             )
                     );
         }
+    }
+
+    private void setCookies(HttpServletResponse servletResponse, AuthResponse response) {
+        ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken",response.getAccessToken())
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(Long.parseLong(authExpire))
+                        .build();
+        ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken",response.getRefreshToken())
+                        .httpOnly(true)
+                        .secure(false)
+                        .path("/")
+                        .maxAge(Long.parseLong(refreshExpire))
+                        .build();
+        servletResponse.addHeader(HttpHeaders.SET_COOKIE,accessTokenCookie.toString());
+        servletResponse.addHeader(HttpHeaders.SET_COOKIE,refreshTokenCookie.toString());
     }
 }
