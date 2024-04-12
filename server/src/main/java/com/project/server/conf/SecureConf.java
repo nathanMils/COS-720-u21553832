@@ -13,7 +13,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
@@ -25,6 +27,9 @@ public class SecureConf {
     private final AuthenticationProvider authProvider;
     private final LogoutService logoutService;
     private static final String PREFIX = "/api/v1/";
+
+    private final AuthenticationEntryPoint authEntryPoint;
+    private final AccessDeniedHandler accessDeniedHandler;
 
     @Bean
     public RoleHierarchy roleHierarchy() {
@@ -38,9 +43,6 @@ public class SecureConf {
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf(
-                        AbstractHttpConfigurer::disable
-                )
-                .cors(
                         AbstractHttpConfigurer::disable
                 )
                 .authorizeHttpRequests(
@@ -60,6 +62,8 @@ public class SecureConf {
                                         .hasRole("COURSE_MODERATOR")
                                         .requestMatchers(PREFIX+"admin/**")
                                         .hasRole("ADMIN")
+                                        .requestMatchers("/elastic")
+                                        .hasRole("ELASTIC")
                                         .anyRequest()
                                         .authenticated()
                 )
@@ -68,6 +72,11 @@ public class SecureConf {
                                 sessionManagement.sessionCreationPolicy(
                                         SessionCreationPolicy.STATELESS
                                 )
+                )
+                .exceptionHandling(
+                        ex -> ex
+                                .authenticationEntryPoint(authEntryPoint)
+                                .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authenticationProvider(
                         authProvider

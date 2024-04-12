@@ -13,11 +13,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class RefreshToken {
-
+@Table(name = "CONFIRMATION_CODE")
+public class ConfirmationToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(
             nullable = false,
@@ -25,17 +25,9 @@ public class RefreshToken {
     )
     private String token;
 
-    @Column(
-            nullable = false
-    )
-    private Date expiryDate;
-
-    @Column(
-            nullable = false
-    )
-    private boolean revoked;
-
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    private Date expiryDate;
 }

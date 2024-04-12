@@ -49,6 +49,11 @@ public class User {
     @Convert(converter = StringConverter.class)
     private String lastName;
 
+    @Column(
+            nullable = false
+    )
+    private String secret;
+
 
     @Enumerated(EnumType.STRING)
     @Column(
@@ -76,6 +81,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private RefreshToken token;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private ConfirmationToken confirmationToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Student> student;

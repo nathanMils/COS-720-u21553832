@@ -26,7 +26,7 @@
                   type="username"
                   name="username"
                   id="username"
-                  class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
                   placeholder="username"
                   required="true"
                 />
@@ -41,7 +41,7 @@
                   type="password"
                   name="password"
                   id="password"
-                  class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
                   placeholder="password"
                   required="true"
                 />
@@ -55,7 +55,7 @@
               </div>
               <button type="submit" class="w-full text-white bg-primaryButton-600 hover:bg-primaryButton-700 focus:ring-4 focus:outline-none focus:ring-primaryButton-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primaryButton-600 dark:hover:bg-primaryButton-700 dark:focus:ring-primaryButton-800">Sign in</button>
               <p class="text-sm font-light text-gray-500 dark:text-gray-400">
-                Not a student?
+                Not a student yet?
                 <RouterLink :to="{name: 'apply'}">
                   <a
                     href="#"

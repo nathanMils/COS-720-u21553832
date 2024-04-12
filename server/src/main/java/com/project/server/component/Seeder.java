@@ -3,6 +3,7 @@ package com.project.server.component;
 import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.entity.User;
 import com.project.server.repository.UserRepository;
+import com.project.server.service.OTPService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -17,6 +18,9 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private OTPService otpService;
 
     boolean done = false;
 
@@ -44,6 +48,8 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
                                     .lastName("admin")
                                     .password(passwordEncoder.encode("admin"))
                                     .role(RoleEnum.ROLE_ADMIN)
+                                    .secret(otpService.generateSecret())
+                                    .enabled(true)
                                     .build()
                     );
                 }

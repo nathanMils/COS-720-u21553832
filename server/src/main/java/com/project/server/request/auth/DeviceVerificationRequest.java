@@ -1,4 +1,4 @@
-package com.project.server.response.auth;
+package com.project.server.request.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private String accessToken;
-    private String refreshToken;
-    private Boolean verified;
+public class DeviceVerificationRequest {
+    private String username;
+    private String code;
 }

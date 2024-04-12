@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+geolite/
+geolite/README.txt

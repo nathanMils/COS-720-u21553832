@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,10 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class TokenService {
-    @Value("${app.token.expire.factor}")
-    private String expireFactor;
+    @Value("${app.token.authExpire}")
+    private String expireTime;
     @Value("${app.key}")
     private String key;
 
@@ -54,7 +56,7 @@ public class TokenService {
                 .setIssuer("http://localhost")
                 .setAudience(details.getId().toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000L *60 *Integer.parseInt(expireFactor)))
+                .setExpiration(new Date(System.currentTimeMillis()+(Long.parseLong(expireTime)*1000)))
                 .signWith(getKey(), SignatureAlgorithm.HS512)
                 .compact();
     }

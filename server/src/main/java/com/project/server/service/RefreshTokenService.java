@@ -4,49 +4,39 @@ import com.project.server.exception.RefreshTokenException;
 import com.project.server.model.entity.RefreshToken;
 import com.project.server.model.entity.User;
 import com.project.server.repository.RefreshTokenRepository;
-import com.project.server.repository.UserRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class RefreshTokenService {
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Value("${app.token.refresh}")
+    
+    private final RefreshTokenRepository refreshTokenRepository;
+    
+    @Value("${app.token.refreshExpire}")
     private String expireTime;
 
-    public String createRefreshToken(String username){
-        RefreshToken refreshToken = RefreshToken.builder()
-                .user(userRepository.findByUsername(username).orElseThrow(()-> new UsernameNotFoundException("User not found")))
-                .token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plusMillis(Long.parseLong(expireTime)))
-                .build();
-        return refreshTokenRepository.save(refreshToken).getToken();
-    }
-
-    @Transactional
     public String createRefreshToken(User user) {
         Optional<RefreshToken> existingTokenOpt = refreshTokenRepository.findByUser(user);
         if (existingTokenOpt.isPresent()) {
             RefreshToken existingToken = existingTokenOpt.get();
             existingToken.setToken(UUID.randomUUID().toString());
-            existingToken.setExpiryDate(Instant.now().plusMillis(Long.parseLong(expireTime)));
+            existingToken.setExpiryDate(new Date(System.currentTimeMillis()+(Long.parseLong(expireTime)*1000)));
             existingToken.setRevoked(false);
             return refreshTokenRepository.save(existingToken).getToken();
         } else {
             RefreshToken refreshToken = RefreshToken.builder()
                     .user(user)
                     .token(UUID.randomUUID().toString())
-                    .expiryDate(Instant.now().plusMillis(Long.parseLong(expireTime)))
+                    .expiryDate(new Date(System.currentTimeMillis()+(Long.parseLong(expireTime)*1000)))
                     .revoked(false)
                     .build();
             return refreshTokenRepository.save(refreshToken).getToken();
@@ -58,7 +48,7 @@ public class RefreshTokenService {
     }
 
     public RefreshToken verifyExpiration(RefreshToken token){
-        if(token.getExpiryDate().compareTo(Instant.now())<0){
+        if(token.getExpiryDate().compareTo(Date.from(Instant.now()))<0){
             refreshTokenRepository.delete(token);
             throw new RefreshTokenException("REFRESH_TOKEN_EXPIRED");
         }
