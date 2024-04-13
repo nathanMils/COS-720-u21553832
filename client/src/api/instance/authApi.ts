@@ -2,7 +2,7 @@ import type { APIResponse, AuthResponse } from '../response';
 import axiosInstance from './axios';
 
 export const login = (username: string, password: string) => {
-    return axiosInstance.post<APIResponse<void>>('/auth/login',{username, password})
+    return axiosInstance.post<APIResponse<AuthResponse>>('/auth/login',{username, password})
 }
 
 export const logout = () => {
@@ -34,5 +34,5 @@ export const apply  = (
 export const refresh = (
     refreshToken: string
 ) => {
-    return axiosInstance.post<APIResponse<void>>('/auth/refresh',{refreshToken})
+    return axiosInstance.post<APIResponse<AuthResponse>>('/auth/refresh',{refreshToken})
 }

@@ -61,30 +61,15 @@ public class AuthService {
                         .secret(otpService.generateSecret())
                         .build()
         );
-        studentApplicationRepository.save(
-                StudentApplication.builder()
-                        .user(
-                                user
-                        )
-                        .course(
-                                courseRepository.findById(UUID.fromString(request.getCourseId()))
-                                        .orElseThrow(
-                                                () -> new EntityNotFoundException("COURSE_NOT_FOUND")
-                                        )
-                        )
-                        .status(StatusEnum.PENDING)
-                        .build()
-        );
         emailService.sendEmailVerificationEmail(
                 user.getEmail(),
                 confirmationTokenService.generateConfirmationToken(user)
         );
         log.atInfo().log(
                 String.format(
-                        "Student application submitted successfully: IP='%s' UserId='%s', CourseId='%s'",
+                        "Student application submitted successfully: IP='%s' UserId='%s'",
                         servletRequest.getRemoteAddr(),
-                        user.getId(),
-                        request.getCourseId()
+                        user.getId()
                 )
         );
         return true;
@@ -171,25 +156,27 @@ public class AuthService {
         return buildAuthResponse(token.getUser());
     }
 
-    public AuthResponse verifyToken(
+    public boolean verifyToken(
             HttpServletRequest servletRequest,
             String uuid
     ) {
         ConfirmationToken token = confirmationTokenService.getToken(uuid);
-        User user = token.getUser();
-        if (token.getExpiryDate().compareTo(Date.from(Instant.now())) >=0) {
-            user.setEnabled(true);
-            userRepository.save(user);
-            log.atInfo().log(
-                    String.format(
-                            "User email verification successful: IP='%s' Role='%s', UserId='%s'",
-                            servletRequest.getRemoteAddr(),
-                            user.getRole(),
-                            user.getId()
-                    )
-            );
-            return buildAuthResponse(user);
-        } else {
+
+        if (token != null) {
+            User user = token.getUser();
+            if (token.getExpiryDate().compareTo(Date.from(Instant.now())) >=0) {
+                user.setEnabled(true);
+                userRepository.save(user);
+                log.atInfo().log(
+                        String.format(
+                                "User email verification successful: IP='%s' Role='%s', UserId='%s'",
+                                servletRequest.getRemoteAddr(),
+                                user.getRole(),
+                                user.getId()
+                        )
+                );
+                return true;
+            }
             log.atWarn().log(
                     String.format(
                             "User email verification failed: IP='%s' Role='%s', UserId='%s'",
@@ -198,8 +185,16 @@ public class AuthService {
                             user.getId()
                     )
             );
-            throw new ConfirmationTokenException("CONFIRMATION_TOKEN_EXPIRED");
+           return false;
         }
+        log.atWarn().log(
+                String.format(
+                        "Unknown email verification token: IP='%s' token:'%s'",
+                        servletRequest.getRemoteAddr(),
+                        uuid
+                )
+        );
+        return false;
     }
 
     private AuthResponse buildAuthResponse(User user) {

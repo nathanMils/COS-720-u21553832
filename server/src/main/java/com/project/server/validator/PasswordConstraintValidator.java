@@ -35,11 +35,7 @@ public class PasswordConstraintValidator implements ConstraintValidator<ValidPas
                 // at least one symbol (special character)
                 new CharacterRule(EnglishCharacterData.Special, 1),
                 // no whitespace
-                new WhitespaceRule(),
-                // rejects passwords that contain a sequence of >= 5 characters alphabetical  (e.g. abcdef)
-                new IllegalSequenceRule(EnglishSequenceData.Alphabetical, 5, false),
-                // rejects passwords that contain a sequence of >= 5 characters numerical   (e.g. 12345)
-                new IllegalSequenceRule(EnglishSequenceData.Numerical, 5, false)
+                new WhitespaceRule()
         ));
         RuleResult result = validator.validate(new PasswordData(password));
         if (result.isValid()) {

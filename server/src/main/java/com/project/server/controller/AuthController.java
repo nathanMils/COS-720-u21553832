@@ -8,6 +8,7 @@ import com.project.server.request.auth.ApplicationRequest;
 import com.project.server.request.auth.LoginRequest;
 import com.project.server.request.auth.RefreshRequest;
 import com.project.server.response.APIResponse;
+import com.project.server.response.ResponseCode;
 import com.project.server.response.auth.AuthResponse;
 import com.project.server.service.AuthService;
 import jakarta.servlet.http.Cookie;
@@ -24,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -36,6 +36,12 @@ public class AuthController {
 
     @Value("${app.token.refreshExpire}")
     private String refreshExpire;
+
+    @Value("${app.cookie.sameSite}")
+    private String sameSite;
+
+    @Value("${app.cookie.secure}")
+    private String secure;
     @PostMapping("/apply")
     public ResponseEntity<APIResponse<Void>> apply(
             HttpServletRequest servletRequest,
@@ -125,44 +131,43 @@ public class AuthController {
     }
 
     @PostMapping("/verifyEmail")
-    public ResponseEntity<APIResponse<UserDTO>> verifyCode(
+    public ResponseEntity<APIResponse<Void>> verifyCode(
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse,
             @Param("token") @ValidUUID String token
     ) {
-        try {
-            AuthResponse response = service.verifyToken(servletRequest,token);
-            setCookies(servletResponse,response);
+        if (service.verifyToken(servletRequest,token)) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(
                             APIResponse.success(
-                                    response.getUserDTO(),
+                                    null,
                                     "SUCCESS"
                             )
                     );
-        } catch (ConfirmationTokenException e) {
+        } else {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(
-                            APIResponse.error(
-                                    e.getMessage()
-                            )
+                            APIResponse.error("INVALID_TOKEN")
                     );
         }
+
     }
 
     private void setCookies(HttpServletResponse servletResponse, AuthResponse response) {
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken",response.getAccessToken())
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(Boolean.parseBoolean(secure))
                         .path("/")
+                        .sameSite(sameSite)
                         .maxAge(Long.parseLong(authExpire))
                         .build();
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken",response.getRefreshToken())
                         .httpOnly(true)
-                        .secure(false)
+                        .secure(Boolean.parseBoolean(secure))
                         .path("/")
+                        .sameSite(sameSite)
                         .maxAge(Long.parseLong(refreshExpire))
                         .build();
         servletResponse.addHeader(HttpHeaders.SET_COOKIE,accessTokenCookie.toString());

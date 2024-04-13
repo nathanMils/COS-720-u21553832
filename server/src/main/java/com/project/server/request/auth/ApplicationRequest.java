@@ -38,10 +38,4 @@ public class ApplicationRequest {
     @NotEmpty
     @NotBlank(message = "last name is mandatory")
     private String lastName;
-
-    @NotNull
-    @NotEmpty
-    @NotBlank(message = "course is mandatory")
-    @ValidUUID
-    private String courseId;
 }

@@ -1,5 +1,6 @@
+import type { UserDTO } from "@/types"
+
 export interface AuthResponse {
-    authToken: string | null,
-    refreshToken: string | null,
-    verified: boolean
+    userDTO: UserDTO | null
+    verified: boolean | null
 }

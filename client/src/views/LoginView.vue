@@ -15,7 +15,7 @@
             >
               Log in to Portal
             </h1>
-            <form class="space-y-4 md:space-y-6" action="#">
+            <form class="space-y-4 md:space-y-6" @submit.prevent="login">
               <div>
                 <label
                   for="username"
@@ -23,12 +23,12 @@
                   >Username</label
                 >
                 <input
+                v-model="formData.username"
                   type="username"
                   name="username"
                   id="username"
                   class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
                   placeholder="username"
-                  required="true"
                 />
               </div>
               <div>
@@ -38,12 +38,12 @@
                   >Password</label
                 >
                 <input
+                  v-model="formData.password"
                   type="password"
                   name="password"
                   id="password"
                   class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
                   placeholder="password"
-                  required="true"
                 />
               </div>
               <div class="flex items-center justify-between">
@@ -75,4 +75,39 @@
 <script setup lang="ts">
 import { LogoImg } from '@/components';
 import { RouterLink } from 'vue-router';
+import { AuthStore } from '@/stores';
+import { reactive } from 'vue'
+import useVuelidate from '@vuelidate/core'
+import { validPassword, validUsername } from '@/validators'
+import router from '@/router';
+
+const authStore = AuthStore();
+
+const formData = reactive({
+  username: "",
+  password: ""
+})
+
+const rules = {
+  username: {
+    ...validUsername
+  },
+  password: {
+    ...validPassword
+  }
+}
+
+const v$ = useVuelidate(rules, formData);
+
+const login = async () => {
+  const result = await v$.value.$validate();
+  if (result) {
+    var answer = await authStore.Login(
+      formData.username,
+      formData.password
+    )
+    console.log(answer);
+    router.push({name: 'home'})
+  }
+}
 </script>

@@ -41,6 +41,6 @@ public class ConfirmationTokenService {
     }
 
     public ConfirmationToken getToken(String token) {
-        return confirmationTokenRepository.findByToken(token).orElseThrow(() -> new ConfirmationTokenException("CONFIRMATION_TOKEN_NOT_FOUND"));
+        return confirmationTokenRepository.findByToken(token).orElse(null);
     }
 }

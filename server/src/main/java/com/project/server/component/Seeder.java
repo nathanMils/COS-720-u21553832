@@ -42,11 +42,11 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
                 () -> {
                     userRepository.save(
                             User.builder()
-                                    .username("admin")
-                                    .email("admin@email.com")
-                                    .firstName("admin")
-                                    .lastName("admin")
-                                    .password(passwordEncoder.encode("admin"))
+                                    .username("NathanOpp")
+                                    .email("nathanopperman123@gmail.com")
+                                    .firstName("Nathan")
+                                    .lastName("Opperman")
+                                    .password(passwordEncoder.encode("Stupidcat12!"))
                                     .role(RoleEnum.ROLE_ADMIN)
                                     .secret(otpService.generateSecret())
                                     .enabled(true)
