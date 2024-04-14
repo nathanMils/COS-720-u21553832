@@ -62,22 +62,11 @@ public class AdminService {
     }
 
     @Transactional
-    public Map<String,String> destroyCourse(DestroyCourseRequest request) {
-        Map<String,String> warningList = new HashMap<>();
-        Course course = courseRepository.findById(UUID.fromString(request.getCourseId())).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
-        for (Module module : course.getModules()) {
-            if (module.getCourses().size() == 1) {
-                if (request.isForce()) {
-                    moduleRepository.deleteById(module.getId());
-                } else {
-                    warningList.put(
-                            module.getName(),
-                            "Will be deleted!"
-                    );
-                }
-            }
-        }
-        return warningList;
+    public void deleteCourse(UUID courseId) {
+        courseRepository.findById(courseId).ifPresentOrElse(
+                courseRepository::delete,
+                () -> {throw new EntityNotFoundException("COURSE_NOT_FOUND");}
+        );
     }
 
     @Transactional

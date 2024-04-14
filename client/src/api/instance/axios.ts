@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { APIResponse, AuthResponse } from '../response';
+import type { APIResponse, AuthResponse } from '@/api';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 

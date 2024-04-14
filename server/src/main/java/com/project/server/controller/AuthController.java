@@ -1,17 +1,12 @@
 package com.project.server.controller;
 
 import com.project.server.constraint.ValidUUID;
-import com.project.server.exception.ConfirmationTokenException;
 import com.project.server.model.dto.UserDTO;
-import com.project.server.model.enums.RoleEnum;
 import com.project.server.request.auth.ApplicationRequest;
 import com.project.server.request.auth.LoginRequest;
-import com.project.server.request.auth.RefreshRequest;
 import com.project.server.response.APIResponse;
-import com.project.server.response.ResponseCode;
 import com.project.server.response.auth.AuthResponse;
 import com.project.server.service.AuthService;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -133,7 +128,6 @@ public class AuthController {
     @PostMapping("/verifyEmail")
     public ResponseEntity<APIResponse<Void>> verifyCode(
             HttpServletRequest servletRequest,
-            HttpServletResponse servletResponse,
             @Param("token") @ValidUUID String token
     ) {
         if (service.verifyToken(servletRequest,token)) {

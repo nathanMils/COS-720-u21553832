@@ -47,7 +47,6 @@ public class ApplicationUDService implements UserDetailsService {
         );
     }
 
-    @Transactional
     private Collection<? extends GrantedAuthority> getAuthorities(User user)
     {
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -60,31 +59,25 @@ public class ApplicationUDService implements UserDetailsService {
                                 .map(application -> new SimpleGrantedAuthority(String.format("course_%s_student",application.getCourse().getId().toString())))
                                 .toList()
                 );
+                System.out.println(authorities);
                 studentRepository.findByUserId(user.getId()).forEach(
-                        (student) -> {
-                            System.out.println(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()));
-                            authorities.add(
-                                    new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()))
-                            );
-                        }
+                        (student) -> authorities.add(
+                                new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()))
+                        )
                 );
                 break;
             case ROLE_MODULE_MODERATOR:
                 moduleModeratorRepository.findByUserId(user.getId()).forEach(
-                        (moduleModerator) -> {
-                            authorities.add(
-                                    new SimpleGrantedAuthority(String.format("module_%s_moderator",moduleModerator.getModule().getId().toString()))
-                            );
-                        }
+                        (moduleModerator) -> authorities.add(
+                                new SimpleGrantedAuthority(String.format("module_%s_moderator",moduleModerator.getModule().getId().toString()))
+                        )
                 );
                 break;
             case ROLE_COURSE_MODERATOR:
                 courseModeratorRepository.findByUserId(user.getId()).forEach(
-                        (courseModerator) -> {
-                            authorities.add(
-                                    new SimpleGrantedAuthority(String.format("course_%s_moderator",courseModerator.getCourses().getId().toString()))
-                            );
-                        }
+                        (courseModerator) -> authorities.add(
+                                new SimpleGrantedAuthority(String.format("course_%s_moderator",courseModerator.getCourses().getId().toString()))
+                        )
                 );
                 break;
             default:

@@ -36,22 +36,22 @@ public class CourseModeratorService {
                 .build();
     }
     @Transactional
-    public CreateModuleResponse createModule(CreateModuleRequest request) {
-        Course course = courseRepository.findById(UUID.fromString(request.getCourseId()))
+    public CreateModuleResponse createModule(UUID courseId,CreateModuleRequest request) {
+        Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
         moduleRepository.findByName(request.getName()).ifPresent((module) -> {throw new EntityExistsException("MODULE_NAME_EXISTS");});
         Module module = Module.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .courses(new HashSet<>())
+                .course(course)
                 .build();
 
         // Save the module without cascading to the course
         moduleRepository.save(module);
 
-        // Since the relationship is bidirectional, ensure consistency
-        course.getModules().add(module);
-        courseRepository.save(course);
+//        // Since the relationship is bidirectional, ensure consistency
+//        course.getModules().add(module);
+//        courseRepository.save(course);
 
         return CreateModuleResponse.builder()
                 .moduleDTO(module.convert())
@@ -59,90 +59,13 @@ public class CourseModeratorService {
     }
 
     @Transactional
-    public Map<String,String> removeModuleFromCourse(RemoveModuleFromCourseRequest request) {
-        Map<String,String> warnings = new HashMap<>();
-        List<Module> modules = moduleRepository.findByCoursesId(UUID.fromString(request.getCourseId()));
-        if (!containsModule(modules, UUID.fromString(request.getModuleId()))) {
-            throw new EntityExistsException("MODULE_NOT_IN_COURSE");
-        }
-        courseRepository.findById(UUID.fromString(request.getCourseId())).ifPresentOrElse(
-                (course) -> {
-                    moduleRepository.findById(UUID.fromString(request.getModuleId())).ifPresentOrElse(
-                            (module) -> {
-                                if (request.isForce()) {
-                                    course.getModules().remove(module);
-                                    courseRepository.save(course);
-
-                                } else {
-                                    warnings.put(module.getName(),"Will be deleted!");
-                                }
-                            },
-                            () -> {
-                                throw new EntityNotFoundException("MODULE_NOT_FOUND");
-                            }
-                    );
-                },
-                () -> {
-                    throw new EntityNotFoundException("COURSE_NOT_FOUND");
-                }
-        );
-        return warnings;
-    }
-
-    @Transactional
-    public void destroyModule(
+    public boolean deleteModule(
             UUID courseId,
             UUID moduleId
     ) {
-        List<Module> modules = moduleRepository.findByCoursesId(courseId);
-        if (!containsModule(modules,moduleId)) {
-            throw new EntityExistsException("MODULE_NOT_IN_COURSE");
-        }
-        courseRepository.findById(courseId).ifPresentOrElse(
-                (course) -> {
-                    course.getModules().removeIf(
-                            (module) -> {
-                                return module.getId() == moduleId;
-                            }
-                    );
-                    courseRepository.save(course);
-                },
-                () -> {
-                    throw new EntityNotFoundException("COURSE_NOT_FOUND");
-                }
-        );
-    }
-
-    @Transactional
-    public void addModuleToCourse(UUID courseId, UUID moduleId) {
-        List<Module> modules = moduleRepository.findByCoursesId(courseId);
-        if (containsModule(modules,moduleId)) {
-            throw new EntityExistsException("MODULE_ALREADY_IN_COURSE");
-        }
-        courseRepository.findById(courseId).ifPresentOrElse(
-                (course) -> {
-                    moduleRepository.findById(moduleId).ifPresentOrElse(
-                            (module) -> {
-                                course.getModules().add(module);
-                                courseRepository.save(course);
-                            },
-                            () -> {
-                                throw new EntityNotFoundException("MODULE_NOT_FOUND");
-                            }
-                    );
-                },
-                () -> {
-                    throw new EntityNotFoundException("COURSE_NOT_FOUND");
-                }
-        );
-    }
-
-    private boolean containsModule(List<Module> modules,UUID moduleId) {
-        for (Module module : modules) {
-            if (module.getId().equals(moduleId)) {
-                return true;
-            }
-        }
-        return false;
+        Module module = moduleRepository.findById(moduleId).orElseThrow(() -> new EntityNotFoundException("MODULE_NOT_FOUND"));
+        if (!module.getCourse().getId().equals(courseId)) return false;
+        moduleRepository.delete(module);
+        return true;
     }
 }

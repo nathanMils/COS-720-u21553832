@@ -23,8 +23,4 @@ public class CreateModuleRequest {
     @NotNull
     @NotBlank(message = "description is mandatory")
     private String description;
-
-    @NotNull
-    @ValidUUID
-    private String courseId;
 }

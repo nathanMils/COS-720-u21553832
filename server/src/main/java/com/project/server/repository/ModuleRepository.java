@@ -9,6 +9,6 @@ import java.util.UUID;
 
 public interface ModuleRepository extends JpaRepository<Module, UUID> {
     Optional<Module> findByName(String name);
-    List<Module> findByCoursesId(UUID courseId);
+    List<Module> findByCourseId(UUID courseId);
     boolean existsByName(String name);
 }

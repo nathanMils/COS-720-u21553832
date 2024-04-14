@@ -41,45 +41,29 @@ public class CourseModeratorController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('course_' + #request.getCourseId() + '_moderator') || hasRole('ADMIN')")
-    @PostMapping("/createModule")
+    @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
+    @PostMapping("/{courseId}/createModule")
     public ResponseEntity<APIResponse<CreateModuleResponse>> createModule(
+            @ValidUUID @PathVariable String courseId,
             @Valid @RequestBody CreateModuleRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                courseModeratorService.createModule(request),
+                                courseModeratorService.createModule(UUID.fromString(courseId),request),
                                 "SUCCESS"
                         )
                 );
     }
 
     @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
-    @PostMapping("/addModuleToCourse/{courseId}/{moduleId}")
-    public ResponseEntity<APIResponse<Void>> addModuleToCourse(
+    @DeleteMapping("/deleteModule/{courseId}/{moduleId}")
+    public ResponseEntity<APIResponse<Void>> deleteModule(
             @ValidUUID @PathVariable String courseId,
             @ValidUUID @PathVariable String moduleId
     ) {
-        courseModeratorService.addModuleToCourse(UUID.fromString(courseId),UUID.fromString(moduleId));
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
-                );
-    }
-
-    @PreAuthorize("hasAuthority('course_' + #request.getCourseId() + '_moderator') || hasRole('ADMIN')")
-    @PostMapping("/removeModule")
-    public ResponseEntity<APIResponse<Void>> removeModuleFromCourse(
-            RemoveModuleFromCourseRequest request
-    ) {
-        Map<String,String> warnings = courseModeratorService.removeModuleFromCourse(request);
-        if (request.isForce() || warnings.isEmpty()) {
+        if (courseModeratorService.deleteModule(UUID.fromString(courseId), UUID.fromString(moduleId))) {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(
@@ -90,31 +74,11 @@ public class CourseModeratorController {
                     );
         } else {
             return ResponseEntity
-                    .status(HttpStatus.OK)
+                    .status(HttpStatus.NOT_FOUND)
                     .body(
-                            APIResponse.<Void>builder()
-                                    .status(ResponseCode.warning)
-                                    .internalCode("WARNING")
-                                    .warnings(warnings)
-                                    .build()
+                            APIResponse.error("MODULE_NOT_IN_COURSE")
                     );
         }
-    }
 
-    @PreAuthorize("hasAuthority('course_' + #coursId + '_moderator') || hasRole('ADMIN')")
-    @PostMapping("/deleteModule/{courseId}/{moduleId}")
-    public ResponseEntity<APIResponse<Void>> deleteModule(
-            @ValidUUID @PathVariable String courseId,
-            @ValidUUID @PathVariable String moduleId
-    ) {
-        courseModeratorService.destroyModule(UUID.fromString(courseId), UUID.fromString(moduleId));
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
-                );
     }
 }

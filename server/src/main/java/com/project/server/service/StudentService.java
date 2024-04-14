@@ -12,6 +12,7 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -92,7 +93,7 @@ public class StudentService {
     public FetchModulesResponse fetchCourseModules(UUID courseId) {
         return FetchModulesResponse.builder()
                 .moduleDTOS(
-                        moduleRepository.findByCoursesId(courseId)
+                        moduleRepository.findByCourseId(courseId)
                                 .stream()
                                 .map(Module::convert)
                                 .collect(Collectors.toList())
@@ -113,43 +114,24 @@ public class StudentService {
     }
 
     @Transactional
-    public void registerStudent(UUID courseId, UUID moduleId) {
+    public boolean registerStudent(UUID courseId, UUID moduleId) {
         User user = getAuthenticatedUser();
         if (studentRepository.findByUserIdAndModuleId(user.getId(),moduleId).isPresent()) {
             throw new EntityExistsException("STUDENT_ALREADY_REGISTERED");
         }
-        List<Module> modules = moduleRepository.findByCoursesId(courseId);
-        if (containsModule(modules,moduleId)) {
-            courseRepository.findById(courseId).ifPresentOrElse(
-                    (course) -> {
-                        moduleRepository.findById(moduleId).ifPresentOrElse(
-                                (module) -> {
-                                    studentRepository.findByUserIdAndModuleId(user.getId(), moduleId).ifPresentOrElse(
-                                            (student) -> {
-                                                throw new EntityExistsException("STUDENT_ALREADY_REGISTERED");
-                                            },
-                                            () -> {
-                                                studentRepository.save(
-                                                        Student.builder()
-                                                                .user(user)
-                                                                .module(module)
-                                                                .course(course)
-                                                                .build()
-                                                );
-                                            }
-                                    );
-                                },
-                                () -> {
-                                    throw new EntityNotFoundException("MODULE_NOT_FOUND");
-                                }
-                        );
-                    },
-                    () -> {
-                        throw new EntityNotFoundException("COURSE_NOT_FOUND");
-                    }
-            );
-        }
+        // ignore course must exist for execution to get here
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
 
+        if (containsModule(course.getModules().stream().toList(),moduleId)) return false;
+        Module module = moduleRepository.findById(moduleId).get();
+        studentRepository.save(
+                Student.builder()
+                        .course(course)
+                        .module(module)
+                        .user(user)
+                        .build()
+        );
+        return true;
     }
 
     @Transactional

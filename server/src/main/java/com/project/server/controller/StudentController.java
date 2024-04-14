@@ -108,12 +108,19 @@ public class StudentController {
             @ValidUUID @PathVariable String courseId,
             @ValidUUID @PathVariable String moduleId
     ) {
-        studentService.registerStudent(UUID.fromString(courseId),UUID.fromString(moduleId));
+        if(studentService.registerStudent(UUID.fromString(courseId),UUID.fromString(moduleId))) {
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(
+                            APIResponse.success(null,"SUCCESS")
+                    );
+        }
         return ResponseEntity
-                .status(HttpStatus.OK)
+                .status(HttpStatus.NOT_FOUND)
                 .body(
-                        APIResponse.success(null,"SUCCESS")
+                        APIResponse.error("MODULE_NOT_IN_COURSE")
                 );
+
     }
 
     @PreAuthorize("hasAuthority('course_' + #courseId + '_module_' + #moduleId + '_student') || hasRole('ADMIN')")

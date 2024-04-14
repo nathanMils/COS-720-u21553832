@@ -1,5 +1,6 @@
 package com.project.server.controller;
 
+import com.project.server.constraint.ValidUUID;
 import com.project.server.request.admin.AcceptRequest;
 import com.project.server.request.admin.CreateCourseRequest;
 import com.project.server.request.admin.DestroyCourseRequest;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(value="*")
@@ -80,30 +82,18 @@ public class AdminController {
                 );
     }
 
-    @PostMapping("/destroyCourse")
-    public ResponseEntity<APIResponse<Void>> destroyCourse(
-            @RequestBody @Valid DestroyCourseRequest request
+    @DeleteMapping("/{courseId}/deleteCourse")
+    public ResponseEntity<APIResponse<Void>> deleteCourse(
+            @ValidUUID @PathVariable String courseId
     ) {
-        Map<String, String> warnings = adminService.destroyCourse(request);
-        if (request.isForce() || warnings.isEmpty()) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(
-                            APIResponse.success(
-                                    null,
-                                    "SUCCESS"
-                            )
-                    );
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(
-                            APIResponse.<Void>builder()
-                                    .status(ResponseCode.warning)
-                                    .internalCode("WARNING")
-                                    .warnings(warnings)
-                                    .build()
-                    );
-        }
+        adminService.deleteCourse(UUID.fromString(courseId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
     }
 }

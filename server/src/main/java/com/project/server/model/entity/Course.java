@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -40,22 +42,12 @@ public class Course {
     @Convert(converter = StringConverter.class)
     private  String description;
 
-    @ManyToMany(
-            fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE,
-                    CascadeType.DETACH,
-                    CascadeType.REFRESH
-            })
-    @JoinTable(
-            name = "course_modules",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "module_id")
-    )
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private Set<Module> modules;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Student> student;
 
     @CreationTimestamp

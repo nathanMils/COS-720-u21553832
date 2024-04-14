@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
@@ -30,8 +32,9 @@ public class Module {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "modules")
-    private Set<Course> courses;
+    @ManyToOne
+    @JoinColumn(name = "course_id")
+    private Course course;
 
     @Convert(converter = StringConverter.class)
     private String description;
@@ -54,7 +57,9 @@ public class Module {
     )
     private Date updatedAt;
 
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
+    // Will remove all students when deleted
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Student> student;
 
     public ModuleDTO convert() {
