@@ -20,12 +20,12 @@ public class ModuleModeratorService {
 
     @Transactional
     public void addPost(AddPostRequest request) {
-        moduleRepository.findById(UUID.fromString(request.getModuleId())).ifPresentOrElse(
+        moduleRepository.findById(UUID.fromString(request.moduleId())).ifPresentOrElse(
                 (module) -> {
                     postRepository.save(
                             Post.builder()
                                     .module(module)
-                                    .content(request.getContent())
+                                    .content(request.content())
                                     .build()
                     );
                 },

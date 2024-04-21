@@ -3,16 +3,14 @@ package com.project.server.model.entity;
 import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.model.enums.StatusEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -57,6 +55,7 @@ public class StudentApplication {
 
     public StudentApplicationDTO convert() {
         return StudentApplicationDTO.builder()
+                .applicationId(id)
                 .courseId(course.getId())
                 .username(user.getUsername())
                 .userFirstName(user.getFirstName())

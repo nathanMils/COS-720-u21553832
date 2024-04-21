@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -11,6 +12,14 @@ export default {
         appSecondary: {
           light: '#ffffff',
           dark: '#1f2937',
+        },
+        appTertiary: {
+          light: '#f3f4f6',
+          dark: '#374151',
+        },
+        appHover: {
+          light: '#e5e7eb',
+          dark: '#374151',
         },
         appText: {
           light: '#111827',

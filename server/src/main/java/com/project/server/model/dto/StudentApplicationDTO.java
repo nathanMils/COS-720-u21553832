@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudentApplicationDTO {
+    private Long applicationId;
     private UUID courseId;
     private String username;
     private String userFirstName;

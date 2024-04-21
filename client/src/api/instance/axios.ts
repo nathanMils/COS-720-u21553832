@@ -5,7 +5,8 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const axiosInstance = axios.create({
     baseURL: baseURL,
-    timeout: 10000
+    timeout: 10000,
+    withCredentials: true
 })
 
 axiosInstance.interceptors.response.use(
@@ -20,6 +21,7 @@ axiosInstance.interceptors.response.use(
           await axiosInstance.post<APIResponse<AuthResponse>>('/auth/refresh');
           return axiosInstance(originalRequest);
         } catch (refreshError) {
+          localStorage.removeItem('user');
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }

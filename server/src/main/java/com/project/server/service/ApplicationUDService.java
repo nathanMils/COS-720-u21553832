@@ -76,7 +76,7 @@ public class ApplicationUDService implements UserDetailsService {
             case ROLE_COURSE_MODERATOR:
                 courseModeratorRepository.findByUserId(user.getId()).forEach(
                         (courseModerator) -> authorities.add(
-                                new SimpleGrantedAuthority(String.format("course_%s_moderator",courseModerator.getCourses().getId().toString()))
+                                new SimpleGrantedAuthority(String.format("course_%s_moderator",courseModerator.getCourse().getId().toString()))
                         )
                 );
                 break;

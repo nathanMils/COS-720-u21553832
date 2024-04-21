@@ -1,11 +1,12 @@
 <template>
   <div>
+    <Modal v-show="show" :message="message" @close="handleClose"/>
     <section class="bg-appPrimary-light dark:bg-appPrimary-dark">
       <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div class="flex flex-row items-center justify-evenly text-4xl mb-8 font-bold text-appText-light dark:text-appText-dark">
-            <LogoImg :size="3"/>
+            <LogoImg :size="3" :mr="1"/>
             <h1>Portal</h1>
-          </div>
+        </div>
         <div
           class="w-full bg-white rounded-lg shadow-xl border border-appBorder-light dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-appSecondary-dark dark:border-appBorder-dark dark:shadow-none"
         >
@@ -23,13 +24,18 @@
                   >Username</label
                 >
                 <input
-                v-model="formData.username"
-                  type="username"
+                  v-model="formData.username"
+                  @input="v$.username.$touch(); formData.error = ''"
+                  type="text"
                   name="username"
                   id="username"
-                  class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
+                  :class="{
+                    'bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500 focus:outline-none focus:ring-0': true,
+                    'border-red-500 focus:border-red-500 focus:border-2 dark:border-red-400 dark:focus:border-red-400': (v$.username.$error && v$.username.$dirty) || formData.error }"
                   placeholder="username"
                 />
+                <span v-if="v$.username.$error && v$.username.$dirty && !formData.error" class="text-xs text-red-500 dark:text-red-400">{{v$.username?.$errors[0].$message}}</span>
+                <span v-if="formData.error" class="text-xs text-red-500 dark:text-red-400">{{formData.error}}</span>
               </div>
               <div>
                 <label
@@ -39,12 +45,17 @@
                 >
                 <input
                   v-model="formData.password"
+                  @input="v$.password.$touch(); formData.error = ''"
                   type="password"
                   name="password"
                   id="password"
-                  class="bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg focus:ring-primaryButton-600 focus:border-primaryButton-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500"
+                  :class="{
+                    'bg-gray-50 border border-appBorder-light text-appText-light sm:text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500 focus:outline-none focus:ring-0': true,
+                    'border-red-500 focus:border-red-500 focus:border-2 dark:border-red-400 dark:focus:border-red-400': (v$.password.$error && v$.password.$dirty) || formData.error }"
                   placeholder="password"
                 />
+                <span v-if="v$.password.$error && v$.password.$dirty && !formData.error" class="text-xs text-red-500 dark:text-red-400">{{v$.password?.$errors[0].$message}}</span>
+                <span v-if="formData.error" class="text-xs text-red-500 dark:text-red-400">{{formData.error}}</span>
               </div>
               <div class="flex items-center justify-between">
                 <a
@@ -76,24 +87,36 @@
 import { LogoImg } from '@/components';
 import { RouterLink } from 'vue-router';
 import { AuthStore } from '@/stores';
-import { reactive } from 'vue'
 import useVuelidate from '@vuelidate/core'
-import { validPassword, validUsername } from '@/validators'
-import router from '@/router';
+import { reactive, ref } from 'vue'
+import { helpers, required } from '@vuelidate/validators'
+import { Modal } from '@/components/modal'
+import router from '@/router'
 
 const authStore = AuthStore();
 
+let message = ref('')
+const show = ref(false)
+const handleClose = () => {
+  show.value = false
+}
+const displayError = (msg: string) => {
+  message.value = msg
+  show.value = true
+}
+
 const formData = reactive({
   username: "",
-  password: ""
+  password: "",
+  error: "",
 })
 
 const rules = {
   username: {
-    ...validUsername
+    required: helpers.withMessage('Username is required', required),
   },
   password: {
-    ...validPassword
+    required: helpers.withMessage('Password is required', required),
   }
 }
 
@@ -102,12 +125,30 @@ const v$ = useVuelidate(rules, formData);
 const login = async () => {
   const result = await v$.value.$validate();
   if (result) {
-    var answer = await authStore.Login(
+    let answer = await authStore.Login(
       formData.username,
       formData.password
     )
     console.log(answer);
-    router.push({name: 'home'})
+    switch (answer.status) {
+      case 200:
+        break;
+      case 401:
+        if (answer.message === 'INVALID_CREDENTIALS') {
+          formData.username = ''
+          formData.password = ''
+          formData.error = 'Invalid username or password'
+        } else if (answer.message === 'EMAIL_NOT_VERIFIED') {
+          router.push({ name: 'confirm' })
+          displayError('Please verify your email address')
+        }
+        break;
+      default:
+        formData.username = ''
+        formData.password = ''
+        displayError('An error occurred, please try again later')
+        break;
+    }
   }
 }
 </script>

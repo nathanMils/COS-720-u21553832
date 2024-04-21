@@ -1,10 +1,10 @@
 package com.project.server.controller;
 
 import com.project.server.constraint.ValidUUID;
+import com.project.server.model.dto.CourseDTO;
+import com.project.server.model.dto.ModuleDTO;
+import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.response.APIResponse;
-import com.project.server.response.student.FetchStudentApplicationsResponse;
-import com.project.server.response.open.FetchCoursesResponse;
-import com.project.server.response.module.FetchModulesResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.service.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -23,7 +24,7 @@ public class StudentController {
     private final StudentService studentService;
 
     @GetMapping("/fetchApplications")
-    public ResponseEntity<APIResponse<FetchStudentApplicationsResponse>> fetchApplications() {
+    public ResponseEntity<APIResponse<List<StudentApplicationDTO>>> fetchApplications() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
@@ -64,7 +65,7 @@ public class StudentController {
     }
 
     @GetMapping("/fetchCourses")
-    public ResponseEntity<APIResponse<FetchCoursesResponse>> getCourses() {
+    public ResponseEntity<APIResponse<List<CourseDTO>>> getCourses() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
@@ -77,7 +78,7 @@ public class StudentController {
 
     @PreAuthorize("hasAuthority('course_' + #courseId + '_student')")
     @GetMapping("/fetchModules/{courseId}")
-    public ResponseEntity<APIResponse<FetchModulesResponse>> fetchCourseModules(
+    public ResponseEntity<APIResponse<List<ModuleDTO>>> fetchCourseModules(
             @ValidUUID @PathVariable String courseId
     ) {
         return ResponseEntity
@@ -91,7 +92,7 @@ public class StudentController {
     }
 
     @GetMapping("/fetchModules")
-    public ResponseEntity<APIResponse<FetchModulesResponse>> fetchModules() {
+    public ResponseEntity<APIResponse<List<ModuleDTO>>> fetchModules() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(

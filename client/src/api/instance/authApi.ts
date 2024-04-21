@@ -1,8 +1,9 @@
-import type { APIResponse, AuthResponse } from '../response';
+import type { APIResponse } from '@/api';
 import axiosInstance from './axios';
+import type { UserDTO } from '@/types'
 
 export const login = (username: string, password: string) => {
-    return axiosInstance.post<APIResponse<AuthResponse>>('/auth/login',{username, password})
+    return axiosInstance.post<APIResponse<UserDTO>>('/auth/login',{username, password})
 }
 
 export const logout = () => {
@@ -14,8 +15,7 @@ export const apply  = (
     password: string,
     email: string,
     firstName: string,
-    lastName: string,
-    courseId: string
+    lastName: string
 
 ) => {
     return axiosInstance.post<APIResponse<void>>(
@@ -25,8 +25,7 @@ export const apply  = (
             password,
             email,
             firstName,
-            lastName,
-            courseId
+            lastName
         }
     );
 }
@@ -34,5 +33,17 @@ export const apply  = (
 export const refresh = (
     refreshToken: string
 ) => {
-    return axiosInstance.post<APIResponse<AuthResponse>>('/auth/refresh',{refreshToken})
+    return axiosInstance.post<APIResponse<UserDTO>>('/auth/refresh',{refreshToken})
+}
+
+export const resetPassword = (
+    username: string,
+) => {
+    return axiosInstance.post<APIResponse<void>>('/auth/reset',{username})
+}
+
+export const verifyEmail = (
+  token: string
+) => {
+  return axiosInstance.post<APIResponse<void>>(`/auth/verifyEmail?token=${token}`);
 }

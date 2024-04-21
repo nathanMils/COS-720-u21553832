@@ -3,10 +3,7 @@ package com.project.server.model.entity;
 import com.project.server.converter.StringConverter;
 import com.project.server.model.dto.ModuleDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -17,7 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,6 +39,14 @@ public class Module {
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Post> posts;
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
+    private List<ModuleModerator> moduleModerators;
+
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
+    private List<Student> students;
 
     @CreationTimestamp
     @Column(

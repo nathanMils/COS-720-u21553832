@@ -1,30 +1,22 @@
 package com.project.server.service;
 
-import com.project.server.exception.ConfirmationTokenException;
-import com.project.server.exception.RefreshTokenException;
 import com.project.server.model.dto.UserDTO;
 import com.project.server.model.entity.*;
 import com.project.server.model.enums.RoleEnum;
-import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
 import com.project.server.request.auth.ApplicationRequest;
 import com.project.server.request.auth.LoginRequest;
-import com.project.server.request.auth.RefreshRequest;
 import com.project.server.response.auth.AuthResponse;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.time.Instant;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -46,16 +38,16 @@ public class AuthService {
             HttpServletRequest servletRequest,
             ApplicationRequest request
     ) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        if (userRepository.findByUsername(request.username()).isPresent()) {
             return false;
         }
         User user = userRepository.save(
                 User.builder()
-                        .username(request.getUsername())
-                        .email(request.getEmail())
-                        .password(passwordEncoder.encode(request.getPassword()))
-                        .firstName(request.getFirstName())
-                        .lastName(request.getLastName())
+                        .username(request.username())
+                        .email(request.email())
+                        .password(passwordEncoder.encode(request.password()))
+                        .firstName(request.firstName())
+                        .lastName(request.lastName())
                         .role(RoleEnum.ROLE_STUDENT)
                         .enabled(false)
                         .secret(otpService.generateSecret())
@@ -79,9 +71,19 @@ public class AuthService {
             HttpServletRequest servletRequest,
             LoginRequest request
     ) {
-        User user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new UsernameNotFoundException(request.getUsername()));
+        User user = userRepository.findByUsername(request.username()).orElse(null);
+        if (user == null) {
+            log.atWarn().log(
+                    String.format(
+                            "User login failed: IP='%s' Username='%s'",
+                            servletRequest.getRemoteAddr(),
+                            request.username()
+                    )
+            );
+            return null;
+        }
         if (
-                passwordEncoder.matches(request.getPassword(), user.getPassword()) &&
+                passwordEncoder.matches(request.password(), user.getPassword()) &&
                 user.isEnabled()
         ) {
             log.atInfo().log(
@@ -93,7 +95,7 @@ public class AuthService {
                     )
             );
             return buildAuthResponse(user);
-        } else if (passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        } else if (passwordEncoder.matches(request.password(), user.getPassword())){
             log.atInfo().log(
                     String.format(
                             "Unverified User login: IP='%s' Role='%s', UserId='%s'",

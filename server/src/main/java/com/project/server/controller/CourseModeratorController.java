@@ -1,12 +1,9 @@
 package com.project.server.controller;
 
 import com.project.server.constraint.ValidUUID;
+import com.project.server.model.dto.ModuleDTO;
 import com.project.server.request.courseModerator.CreateModuleRequest;
-import com.project.server.request.courseModerator.RemoveModuleFromCourseRequest;
 import com.project.server.response.APIResponse;
-import com.project.server.response.ResponseCode;
-import com.project.server.response.courseModerator.CreateModuleResponse;
-import com.project.server.response.module.FetchModulesResponse;
 import com.project.server.service.CourseModeratorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,7 +25,7 @@ public class CourseModeratorController {
 
     @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
     @GetMapping("/fetchModules/{courseId}")
-    public ResponseEntity<APIResponse<FetchModulesResponse>> fetchModulesInCourse(
+    public ResponseEntity<APIResponse<List<ModuleDTO>>> fetchModulesInCourse(
             @ValidUUID @PathVariable String courseId
     ) {
         return ResponseEntity
@@ -42,8 +39,8 @@ public class CourseModeratorController {
     }
 
     @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
-    @PostMapping("/{courseId}/createModule")
-    public ResponseEntity<APIResponse<CreateModuleResponse>> createModule(
+    @PostMapping("/createModule/{courseId}")
+    public ResponseEntity<APIResponse<ModuleDTO>> createModule(
             @ValidUUID @PathVariable String courseId,
             @Valid @RequestBody CreateModuleRequest request
     ) {

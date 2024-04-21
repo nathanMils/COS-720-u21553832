@@ -1,13 +1,12 @@
 package com.project.server.controller;
 
 import com.project.server.constraint.ValidUUID;
+import com.project.server.model.dto.CourseDTO;
+import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.request.admin.AcceptRequest;
 import com.project.server.request.admin.CreateCourseRequest;
-import com.project.server.request.admin.DestroyCourseRequest;
+import com.project.server.request.admin.DenyRequest;
 import com.project.server.response.APIResponse;
-import com.project.server.response.ResponseCode;
-import com.project.server.response.admin.CreateCourseResponse;
-import com.project.server.response.admin.FetchStudentApplicationsResponse;
 import com.project.server.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,8 +25,8 @@ public class AdminController {
 
     public final AdminService adminService;
 
-    @GetMapping("/fetchStudentApplicants")
-    public ResponseEntity<APIResponse<FetchStudentApplicationsResponse>> fetchStudentApplications() {
+    @GetMapping("/fetchApplications")
+    public ResponseEntity<APIResponse<List<StudentApplicationDTO>>> fetchStudentApplications() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
@@ -48,28 +47,28 @@ public class AdminController {
                 .body(
                         APIResponse.success(
                                 null,
-                                "USER_STUDENT"
+                                "SUCCESS"
                         )
                 );
     }
 
-    @PostMapping("/acceptCourseModerator")
-    public ResponseEntity<APIResponse<Void>> acceptModerator(
-            @RequestBody AcceptRequest request
+    @PostMapping("/denyStudent")
+    public ResponseEntity<APIResponse<Void>> denyStudent(
+            @RequestBody @Valid DenyRequest request
     ) {
-        adminService.acceptCourseModerator(request);
+        adminService.rejectApplicant(request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
                                 null,
-                                "USER_MODERATOR"
+                                "SUCCESS"
                         )
                 );
     }
 
     @PostMapping("/createCourse")
-    public ResponseEntity<APIResponse<CreateCourseResponse>> createCourse(
+    public ResponseEntity<APIResponse<CourseDTO>> createCourse(
             @RequestBody @Valid CreateCourseRequest request
     ) {
         return ResponseEntity
@@ -77,12 +76,12 @@ public class AdminController {
                 .body(
                         APIResponse.success(
                                 adminService.createCourse(request),
-                                "COURSE_CREATED"
+                                "SUCCESS"
                         )
                 );
     }
 
-    @DeleteMapping("/{courseId}/deleteCourse")
+    @DeleteMapping("/deleteCourse/{courseId}")
     public ResponseEntity<APIResponse<Void>> deleteCourse(
             @ValidUUID @PathVariable String courseId
     ) {

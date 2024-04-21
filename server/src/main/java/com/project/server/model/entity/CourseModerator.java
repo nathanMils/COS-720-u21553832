@@ -1,12 +1,10 @@
 package com.project.server.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,5 +21,5 @@ public class CourseModerator {
 
     @ManyToOne
     @JoinColumn(name = "course_id")
-    private Course courses;
+    private Course course;
 }

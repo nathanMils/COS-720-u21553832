@@ -24,6 +24,8 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     @Value("${spring.mail.username}")
     private String emailSource;
+    @Value("${app.base.url}")
+    private String baseUrl;
     private final ResourceLoader resourceLoader;
     private final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
@@ -57,7 +59,7 @@ public class EmailService {
             helper.setSubject("Confirm Your Email");
             String content = loadEmailHtml("verifyEmailTemplate");
             message.setContent(
-                    content.replace("[[URL]]","http://localhost:8080/verify?token="+code),
+                    content.replace("[[URL]]",baseUrl+"/verifyEmail?token="+code),
                     "text/html; charset=utf-8"
             );
             javaMailSender.send(message);

@@ -1,18 +1,17 @@
 package com.project.server.service;
 
+import com.project.server.model.dto.CourseDTO;
+import com.project.server.model.dto.ModuleDTO;
+import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.model.entity.*;
 import com.project.server.model.entity.Module;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
-import com.project.server.response.student.FetchStudentApplicationsResponse;
-import com.project.server.response.open.FetchCoursesResponse;
-import com.project.server.response.module.FetchModulesResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,15 +33,11 @@ public class StudentService {
     private final PostRepository postRepository;
 
     @Transactional
-    public FetchStudentApplicationsResponse fetchStudentApplications() {
-        return FetchStudentApplicationsResponse.builder()
-                .studentApplicationDTOS(
-                        studentApplicationRepository.findByUserId(getAuthenticatedUser().getId())
-                                .stream()
-                                .map(StudentApplication::convert)
-                                .collect(Collectors.toList())
-                )
-                .build();
+    public List<StudentApplicationDTO> fetchStudentApplications() {
+        return studentApplicationRepository.findByUserId(getAuthenticatedUser().getId())
+                .stream()
+                .map(StudentApplication::convert)
+                .collect(Collectors.toList());
     }
     @Transactional
     public void apply(UUID courseId) {
@@ -76,41 +71,29 @@ public class StudentService {
     }
 
     @Transactional
-    public FetchCoursesResponse fetchStudentCourses() {
-        return FetchCoursesResponse.builder()
-                .courseDTOS(
-                        studentApplicationRepository.findByUserIdAndStatus(getAuthenticatedUser().getId(), StatusEnum.ACCEPTED)
-                                .stream()
-                                .map(
-                                        application -> application.getCourse().convert()
-                                )
-                                .collect(Collectors.toList())
+    public List<CourseDTO> fetchStudentCourses() {
+        return studentApplicationRepository.findByUserIdAndStatus(getAuthenticatedUser().getId(), StatusEnum.ACCEPTED)
+                .stream()
+                .map(
+                        application -> application.getCourse().convert()
                 )
-                .build();
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public FetchModulesResponse fetchCourseModules(UUID courseId) {
-        return FetchModulesResponse.builder()
-                .moduleDTOS(
-                        moduleRepository.findByCourseId(courseId)
-                                .stream()
-                                .map(Module::convert)
-                                .collect(Collectors.toList())
-                )
-                .build();
+    public List<ModuleDTO> fetchCourseModules(UUID courseId) {
+        return moduleRepository.findByCourseId(courseId)
+                .stream()
+                .map(Module::convert)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public FetchModulesResponse fetchStudentModules() {
-        return FetchModulesResponse.builder()
-                .moduleDTOS(
-                        studentRepository.findByUserId(getAuthenticatedUser().getId())
-                                .stream()
-                                .map(student -> student.getModule().convert())
-                                .collect(Collectors.toList())
-                )
-                .build();
+    public List<ModuleDTO> fetchStudentModules() {
+        return studentRepository.findByUserId(getAuthenticatedUser().getId())
+                .stream()
+                .map(student -> student.getModule().convert())
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -122,7 +105,7 @@ public class StudentService {
         // ignore course must exist for execution to get here
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
 
-        if (containsModule(course.getModules().stream().toList(),moduleId)) return false;
+        if (!containsModule(course.getModules().stream().toList(),moduleId)) return false;
         Module module = moduleRepository.findById(moduleId).get();
         studentRepository.save(
                 Student.builder()

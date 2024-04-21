@@ -53,8 +53,7 @@ public class AppConf {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:5173",
-                "http://localhost"
+                "http://localhost:3000"
         ));
         config.setAllowCredentials(true);
         config.setAllowedHeaders(List.of(

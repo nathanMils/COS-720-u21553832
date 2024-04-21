@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -37,6 +38,7 @@ public class AuthController {
 
     @Value("${app.cookie.secure}")
     private String secure;
+
     @PostMapping("/apply")
     public ResponseEntity<APIResponse<Void>> apply(
             HttpServletRequest servletRequest,
@@ -69,12 +71,12 @@ public class AuthController {
     ) {
         AuthResponse response = service.login(servletRequest,request);
         if (response == null) {
+            // Invalid credentials
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .body(
-                            APIResponse.success(
-                                    null,
-                                    "INCORRECT_PASSWORD"
+                            APIResponse.error(
+                                    "INVALID_CREDENTIALS"
                             )
                     );
         }
@@ -85,7 +87,7 @@ public class AuthController {
                     .body(
                             APIResponse.success(
                                     response.getUserDTO(),
-                                    "User logged in"
+                                    "SUCCESS"
                             )
                     );
         } else {

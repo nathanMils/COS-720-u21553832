@@ -1,13 +1,11 @@
 package com.project.server.service;
 
+import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.entity.Course;
 import com.project.server.model.entity.Module;
 import com.project.server.repository.CourseRepository;
 import com.project.server.repository.ModuleRepository;
 import com.project.server.request.courseModerator.CreateModuleRequest;
-import com.project.server.request.courseModerator.RemoveModuleFromCourseRequest;
-import com.project.server.response.courseModerator.CreateModuleResponse;
-import com.project.server.response.module.FetchModulesResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -24,38 +22,25 @@ public class CourseModeratorService {
     private final ModuleRepository moduleRepository;
 
     @Transactional
-    public FetchModulesResponse fetchModulesInCourse(UUID courseId) {
-        return FetchModulesResponse.builder()
-                .moduleDTOS(
-                        courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"))
-                                .getModules()
-                                .stream()
-                                .map(Module::convert)
-                                .collect(Collectors.toList())
-                )
-                .build();
+    public List<ModuleDTO> fetchModulesInCourse(UUID courseId) {
+        return courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"))
+                .getModules()
+                .stream()
+                .map(Module::convert)
+                .collect(Collectors.toList());
     }
     @Transactional
-    public CreateModuleResponse createModule(UUID courseId,CreateModuleRequest request) {
+    public ModuleDTO createModule(UUID courseId, CreateModuleRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
-        moduleRepository.findByName(request.getName()).ifPresent((module) -> {throw new EntityExistsException("MODULE_NAME_EXISTS");});
+        moduleRepository.findByName(request.name()).ifPresent((module) -> {throw new EntityExistsException("MODULE_NAME_EXISTS");});
+        System.out.println("Course: " + course.getName() + " " + course.getId());
         Module module = Module.builder()
-                .name(request.getName())
-                .description(request.getDescription())
+                .name(request.name())
+                .description(request.description())
                 .course(course)
                 .build();
-
-        // Save the module without cascading to the course
-        moduleRepository.save(module);
-
-//        // Since the relationship is bidirectional, ensure consistency
-//        course.getModules().add(module);
-//        courseRepository.save(course);
-
-        return CreateModuleResponse.builder()
-                .moduleDTO(module.convert())
-                .build();
+        return moduleRepository.save(module).convert();
     }
 
     @Transactional

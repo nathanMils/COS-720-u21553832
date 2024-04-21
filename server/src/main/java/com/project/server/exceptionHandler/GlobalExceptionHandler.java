@@ -131,20 +131,20 @@ public class GlobalExceptionHandler {
 
     }
     // Unknown Errors
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<APIResponse<Void>> runtimeErrorException(
-            RuntimeException ex
-    ) {
-        ex.printStackTrace();
-        return ResponseEntity
-                .status(HttpStatus.EXPECTATION_FAILED)
-                .body(
-                        APIResponse.<Void>builder()
-                                .status(ResponseCode.server_error)
-                                .internalCode("UNKNOWN_SERVER_ERROR")
-                                .build()
-                );
-    }
+//    @ExceptionHandler(RuntimeException.class)
+//    public ResponseEntity<APIResponse<Void>> runtimeErrorException(
+//            RuntimeException ex
+//    ) {
+//        ex.printStackTrace();
+//        return ResponseEntity
+//                .status(HttpStatus.EXPECTATION_FAILED)
+//                .body(
+//                        APIResponse.<Void>builder()
+//                                .status(ResponseCode.server_error)
+//                                .internalCode("UNKNOWN_SERVER_ERROR")
+//                                .build()
+//                );
+//    }
 
     // Database violations
     @ExceptionHandler(DataIntegrityViolationException.class)
