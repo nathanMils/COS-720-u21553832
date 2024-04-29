@@ -29,19 +29,29 @@ services:
   server:
     build: ./server
     container_name: server
+    volumes:
+      - ./logs:/var/log/server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_URL}/${DB_NAME}?sslmode=require
-      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
-      SPRING_JPA_SHOW_SQL: "false"
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      APP_KEY: ${JWT_KEY}
-      APP_TOKEN_EXPIRE_FACTOR: "90"
-      APP_CONNECTION_TIMEOUT: "3000"
-      APP_REQUEST_TIMEOUT: "3000"
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/cos
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=1234
+    depends_on:
+      - postgres
     networks:
       - proxy-server
+      - postgres-server
+  
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - POSTGRES_DB=cos
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_USER=postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres-server
+    
   
   client:
     build: ./client
@@ -62,6 +72,9 @@ services:
       - "80:80"
     volumes:
       - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - client
+      - server
     networks:
       - proxy-client
       - proxy-server
@@ -152,6 +165,7 @@ services:
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,Z
       - ./nginx/logs:/var/log/nginx
+      - /logs:/var/log/server
       - type: bind
         source: /var/lib/docker/containers
         target: /var/lib/docker/containers
@@ -176,5 +190,6 @@ networks:
   proxy-client:
   proxy-server:
   proxy-kibana:
+  postgres-server:
   elk:
     driver: bridge

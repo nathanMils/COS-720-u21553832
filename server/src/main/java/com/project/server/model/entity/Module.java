@@ -42,10 +42,6 @@ public class Module {
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
-    private List<ModuleModerator> moduleModerators;
-
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Student> students;
 
     @CreationTimestamp
@@ -63,15 +59,11 @@ public class Module {
     )
     private Date updatedAt;
 
-    // Will remove all students when deleted
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
-    private List<Student> student;
-
     public ModuleDTO convert() {
         return ModuleDTO.builder()
-                .moduleId(id)
-                .moduleName(name)
+                .id(id)
+                .name(name)
+                .description(description)
                 .build();
     }
 }

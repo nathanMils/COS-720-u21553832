@@ -7,11 +7,14 @@ import com.project.server.model.entity.*;
 import com.project.server.model.entity.Module;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
+import com.project.server.response.courseModerator.FetchCourseResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
+import com.project.server.response.student.FetchStudentCourseResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -31,6 +34,26 @@ public class StudentService {
     private final CourseRepository courseRepository;
     private final StudentApplicationRepository studentApplicationRepository;
     private final PostRepository postRepository;
+
+    public FetchStudentCourseResponse fetchCourse(UUID courseId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
+        List<Module> modules = studentRepository.findByUserIdAndCourseId(getAuthenticatedUser().getId(),courseId)
+                .stream()
+                .map(Student::getModule)
+                .toList();
+        return FetchStudentCourseResponse.builder()
+                .courseName(course.getName())
+                .courseDescription(course.getDescription())
+                .modules(
+                        course.getModules().stream()
+                                .map(
+                                        module -> module.convert().convert(modules.contains(module))
+                                )
+                                .collect(Collectors.toList())
+                )
+                .courseModerator(course.getModerator().getUsername())
+                .build();
+    }
 
     @Transactional
     public List<StudentApplicationDTO> fetchStudentApplications() {
@@ -71,12 +94,37 @@ public class StudentService {
     }
 
     @Transactional
+    public void dropApplication(Long applicationId) {
+        studentApplicationRepository.findById(applicationId).ifPresentOrElse(
+                (application) -> {
+                    studentRepository.deleteAllByUserIdAndCourseId(application.getUser().getId(), application.getCourse().getId());
+                    studentApplicationRepository.delete(application);
+                },
+                () -> {
+                    throw new EntityNotFoundException("APPLICATION_NOT_FOUND");
+                }
+        );
+    }
+
     public List<CourseDTO> fetchStudentCourses() {
         return studentApplicationRepository.findByUserIdAndStatus(getAuthenticatedUser().getId(), StatusEnum.ACCEPTED)
                 .stream()
                 .map(
                         application -> application.getCourse().convert()
                 )
+                .collect(Collectors.toList());
+    }
+
+    public List<CourseDTO> fetchOtherCourses() {
+        return courseRepository.findAll()
+                .stream()
+                .filter(
+                        course -> studentApplicationRepository.findByUserIdAndCourseId(
+                                getAuthenticatedUser().getId(),
+                                course.getId()
+                        ).isEmpty()
+                )
+                .map(Course::convert)
                 .collect(Collectors.toList());
     }
 

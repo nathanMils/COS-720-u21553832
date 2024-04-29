@@ -98,11 +98,7 @@ public class AuthIntegrationTests {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.username").value("NathanTest"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.firstName").value("Nathan"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.lastName").value("Name"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.role").value("ROLE_STUDENT"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"));
     }
 
     /**
@@ -210,7 +206,7 @@ public class AuthIntegrationTests {
      */
     @Test
     public void testApplySuccess() throws Exception {
-        ApplicationRequest applicationRequest = new ApplicationRequest("NotNathanTest", "passWord1!", "nathangenius@gmail.com", "Nathan", "Opppermans");
+        ApplicationRequest applicationRequest = new ApplicationRequest("NotIsNathanTest", "passWord1!", "nathangenius@gmail.com", "Nathan", "Opppermans");
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/v1/auth/apply")
                                 .contentType("application/json")

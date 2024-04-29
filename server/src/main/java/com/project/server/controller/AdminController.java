@@ -1,10 +1,9 @@
 package com.project.server.controller;
 
-import com.project.server.constraint.ValidUUID;
 import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.request.admin.AcceptRequest;
-import com.project.server.request.admin.CreateCourseRequest;
+import com.project.server.request.admin.CreateModeratorRequest;
 import com.project.server.request.admin.DenyRequest;
 import com.project.server.response.APIResponse;
 import com.project.server.service.AdminService;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @CrossOrigin(value="*")
@@ -67,25 +65,23 @@ public class AdminController {
                 );
     }
 
-    @PostMapping("/createCourse")
-    public ResponseEntity<APIResponse<CourseDTO>> createCourse(
-            @RequestBody @Valid CreateCourseRequest request
-    ) {
+    @GetMapping("/fetchCourses")
+    public ResponseEntity<APIResponse<List<CourseDTO>>> fetchCourses() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                adminService.createCourse(request),
+                                adminService.fetchCourses(),
                                 "SUCCESS"
                         )
                 );
     }
 
-    @DeleteMapping("/deleteCourse/{courseId}")
-    public ResponseEntity<APIResponse<Void>> deleteCourse(
-            @ValidUUID @PathVariable String courseId
+    @PostMapping("/createModerator")
+    public ResponseEntity<APIResponse<Void>> createModerator(
+            @RequestBody @Valid CreateModeratorRequest request
     ) {
-        adminService.deleteCourse(UUID.fromString(courseId));
+        adminService.createModerator(request);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(

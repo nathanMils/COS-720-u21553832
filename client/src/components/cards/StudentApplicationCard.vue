@@ -38,12 +38,21 @@ const denyApplication = async () => {
 </script>
 
 <template>
-  <div class="p-4 bg-white rounded-lg shadow-md dark:bg-gray-800">
-    <h2 class="text-lg font-semibold">{{application.userFirstName +' '+application.userLastName}}</h2>
-    <p class="mt-2 text-gray-600">{{application.courseName}}</p>
-    <p class="mt-2 text-gray-600">{{application.description}}</p>
-    <p class="mt-2 text-blue-500">{{application.status}}</p>
-    <button @click="acceptApplication" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-md">Accept</button>
-    <button @click="denyApplication" class="mt-2 bg-red-500 text-white px-4 py-2 rounded-md">Reject</button>
+  <div class="p-6 bg-white rounded-lg shadow-md dark:bg-gray-800 flex flex-col" style="max-height: 200px;">
+    <div class="flex justify-between items-start w-full">
+      <div>
+        <h2 class="text-lg font-semibold">{{ application.userFirstName + ' ' + application.userLastName }}</h2>
+        <p class="mt-2 text-gray-600">{{ application.courseName }}</p>
+        <p class="mt-2 text-gray-600">{{ application.description }}</p>
+        <p class="mt-2 text-blue-500">{{ application.status }}</p>
+      </div>
+      <div class="flex flex-col justify-center items-center">
+        <button v-show="application.status === Status.PENDING" @click="acceptApplication" class="mt-2 bg-green-500 text-white px-4 py-2 rounded-md w-32">Accept</button>
+        <button v-show="application.status === Status.PENDING" @click="denyApplication" class="mt-2 bg-red-500 text-white px-4 py-2 rounded-md w-32">Reject</button>
+      </div>
+    </div>
   </div>
 </template>
+
+
+

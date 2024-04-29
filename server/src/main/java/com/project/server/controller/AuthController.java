@@ -1,9 +1,11 @@
 package com.project.server.controller;
 
+import com.project.server.constraint.Sanitize;
 import com.project.server.constraint.ValidUUID;
-import com.project.server.model.dto.UserDTO;
 import com.project.server.request.auth.ApplicationRequest;
+import com.project.server.request.auth.ForgotPasswordRequest;
 import com.project.server.request.auth.LoginRequest;
+import com.project.server.request.auth.PasswordChangeRequest;
 import com.project.server.response.APIResponse;
 import com.project.server.response.auth.AuthResponse;
 import com.project.server.service.AuthService;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @CrossOrigin(value="*")
@@ -42,86 +45,51 @@ public class AuthController {
     @PostMapping("/apply")
     public ResponseEntity<APIResponse<Void>> apply(
             HttpServletRequest servletRequest,
-            @RequestBody @Valid ApplicationRequest request
+            @RequestBody @Valid @Sanitize ApplicationRequest request
     ) {
-        if (service.apply(servletRequest,request)) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(
-                            APIResponse.success(
-                                    null,
-                                    "SUCCESS"
-                            )
-                    );
-        } else {
-            return  ResponseEntity
-                    .status(HttpStatus.CONFLICT)
-                    .body(
-                            APIResponse.error("USERNAME_EXISTS")
-                    );
-        }
+        service.apply(servletRequest,request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
 
     }
 
     @PostMapping("/login")
-    public ResponseEntity<APIResponse<UserDTO>> login(
+    public ResponseEntity<APIResponse<Void>> login(
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse,
             @RequestBody LoginRequest request
     ) {
         AuthResponse response = service.login(servletRequest,request);
-        if (response == null) {
-            // Invalid credentials
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(
-                            APIResponse.error(
-                                    "INVALID_CREDENTIALS"
-                            )
-                    );
-        }
-        if (response.getVerified()) {
-            setCookies(servletResponse,response);
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(
-                            APIResponse.success(
-                                    response.getUserDTO(),
-                                    "SUCCESS"
-                            )
-                    );
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(
-                            APIResponse.error(
-                                    "EMAIL_NOT_VERIFIED"
-                            )
-                    );
-        }
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<APIResponse<UserDTO>> refresh(
-            HttpServletRequest servletRequest,
-            HttpServletResponse servletResponse
-    ) {
-        AuthResponse response = service.refresh(servletRequest);
-        if (response == null) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(
-                            APIResponse.error(
-                                    "TOKEN_INVALID"
-                            )
-                    );
-        }
         setCookies(servletResponse,response);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                response.getUserDTO(),
+                                null,
+                                "SUCCESS"
+                        )
+                );
+
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<APIResponse<Void>> refresh(
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
+    ) {
+        AuthResponse response = service.refresh(servletRequest);
+        setCookies(servletResponse,response);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
                                 "SUCCESS"
                         )
                 );
@@ -132,23 +100,78 @@ public class AuthController {
             HttpServletRequest servletRequest,
             @Param("token") @ValidUUID String token
     ) {
-        if (service.verifyToken(servletRequest,token)) {
-            return ResponseEntity
-                    .status(HttpStatus.OK)
-                    .body(
-                            APIResponse.success(
-                                    null,
-                                    "SUCCESS"
-                            )
-                    );
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body(
-                            APIResponse.error("INVALID_TOKEN")
-                    );
-        }
+        service.verifyToken(servletRequest,token);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
+    }
 
+    @GetMapping("/loggedIn")
+    public ResponseEntity<APIResponse<Void>> loggedIn(
+            HttpServletRequest servletRequest
+    ) {
+        if(!service.isLoggedIn(servletRequest)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"UNAUTHORIZED");
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @PostMapping("/forgot")
+    public ResponseEntity<APIResponse<Void>> reset(
+            HttpServletRequest servletRequest,
+            @Valid @RequestBody ForgotPasswordRequest request
+    ) {
+        service.forgot(servletRequest,request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @GetMapping("/isValid/{token}")
+    public ResponseEntity<APIResponse<Void>> verifyToken(
+            HttpServletRequest servletRequest,
+            @PathVariable @ValidUUID String token
+    ) {
+        service.isValid(servletRequest,token);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @PostMapping("/reset")
+    public ResponseEntity<APIResponse<Void>> changePassword(
+            HttpServletRequest servletRequest,
+            @RequestBody @Valid PasswordChangeRequest request
+    ) {
+        service.changePassword(servletRequest,request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
     }
 
     private void setCookies(HttpServletResponse servletResponse, AuthResponse response) {

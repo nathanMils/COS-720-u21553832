@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { inject} from 'vue'
+import type { Ref } from 'vue'
 import {
   HomeView,
   LoginView,
@@ -7,9 +9,19 @@ import {
   ConfirmationView,
   VerifyView,
   ProfileView,
-  StudentApplicationsView, AccessDeniedView, MyApplicationsView, MyCoursesView, MyModulesView
+  StudentApplicationsView,
+  AccessDeniedView,
+  MyApplicationsView,
+  MyCoursesView,
+  MyModulesView,
+  ApplyForCourseView,
+  CourseView,
+  AllCoursesView,
+  NotFoundView,
+  CreateCourseView, UnderConstructionView, ModerateCourseView, CreateModuleView, ForgotPasswordView, ResetPasswordView
 } from '@/views'
 import { AuthStore } from '@/stores'
+import { Role } from '@/types'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,7 +34,7 @@ const router = createRouter({
         {
           path: 'dashboard',
           name: 'dashboard',
-          component: DashboardView
+          component: UnderConstructionView
         },
         {
           path: 'profile',
@@ -32,27 +44,65 @@ const router = createRouter({
         {
           path: 'studentApplications',
           name: 'studentApplications',
-          component: StudentApplicationsView
+          component: StudentApplicationsView,
+          meta: { roles: [Role.ROLE_ADMIN] }
         },
         {
-          path: 'accessDenied',
-          name: 'accessDenied',
-          component: AccessDeniedView
+          path: 'allCourses',
+          name: 'allCourses',
+          component: AllCoursesView,
+          meta: { roles: [Role.ROLE_ADMIN] }
         },
         {
           path: 'myApplications',
           name: 'myApplications',
-          component: MyApplicationsView
+          component: MyApplicationsView,
+          meta: { roles: [Role.ROLE_STUDENT] }
         },
         {
           path: 'myCourses',
           name: 'myCourses',
-          component: MyCoursesView
+          component: MyCoursesView,
+          meta: { roles: [Role.ROLE_STUDENT] }
+        },
+        {
+          path: 'applyCourse',
+          name: 'applyCourse',
+          component: ApplyForCourseView,
+          meta: { roles: [Role.ROLE_STUDENT] }
+        },
+        {
+          path: 'createCourse',
+          name: 'createCourse',
+          component: CreateCourseView,
+          meta: { roles: [Role.ROLE_ADMIN, Role.ROLE_COURSE_MODERATOR] }
         },
         {
           path: 'myModules',
           name: 'myModules',
-          component: MyModulesView
+          component: MyModulesView,
+          meta: { roles: [Role.ROLE_STUDENT] }
+        },
+        {
+          path: 'course/:courseId',
+          name: 'studentCourse',
+          component: CourseView
+        },
+        {
+          path: 'course/:courseId/edit',
+          name: 'moderateCourse',
+          component: ModerateCourseView,
+          meta: { roles: [Role.ROLE_COURSE_MODERATOR,Role.ROLE_ADMIN] }
+        },
+        {
+          path: 'course/:courseId/createModule',
+          name: 'createModule',
+          component: CreateModuleView
+        },
+        {
+          path: '',
+          name: 'default',
+          redirect: { name: 'dashboard' }
         }
       ]
     },
@@ -67,6 +117,16 @@ const router = createRouter({
       component: ApplyView
     },
     {
+      path: '/forgot',
+      name: 'forgot',
+      component: ForgotPasswordView
+    },
+    {
+      path: '/reset',
+      name: 'reset',
+      component: ResetPasswordView
+    },
+    {
       path: '/confirm',
       name: 'confirm',
       component: ConfirmationView
@@ -75,37 +135,56 @@ const router = createRouter({
       path: '/verifyEmail',
       name: 'verify',
       component: VerifyView
+    },
+    {
+      path: '/accessDenied',
+      name: 'accessDenied',
+      component: AccessDeniedView
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView
     }
   ]
 })
 
 router.beforeEach(async (to) => {
+  const isLoading = inject<Ref<boolean>>('isLoading')
+  if (isLoading === undefined) throw new Error('isLoading not provided')
+  isLoading.value = true
   const publicPages = [
     '/login',
     '/apply',
     '/confirm',
-    '/verifyEmail'
+    '/verifyEmail',
+    '/forgot',
+    '/reset',
   ]
   const authRequired = !publicPages.includes(to.path)
   const auth = AuthStore()
 
-  if (authRequired && !auth.user) {
+  if (authRequired && !(await auth.loggedIn())) {
     auth.returnUrl = to.fullPath
+    isLoading.value = false
     return '/login'
   }
+  isLoading.value = false
 })
 
-// Check Role Requirements
-router.beforeEach(async (to) => {
-  const adminPages = [
-    '/studentApplications',
-  ]
-  const authRequired = adminPages.includes(to.path);
+router.beforeEach(async (to, from, next) => {
+  const isLoading = inject<Ref<boolean>>('isLoading')
+  if (isLoading === undefined) throw new Error('isLoading not provided')
   const auth = AuthStore()
-
-  if (authRequired && auth.user?.role !== "ROLE_ADMIN") {
+  const allowedRoles = to.meta.roles as Role[]
+  if (allowedRoles && !(await auth.isRoleIncluded(allowedRoles))) {
     auth.returnUrl = to.fullPath
-    return '/accessDenied'
+    isLoading.value = false
+    console.log('Access Denied')
+    next('/accessDenied')
+  } else {
+    isLoading.value = false
+    next()
   }
 })
 

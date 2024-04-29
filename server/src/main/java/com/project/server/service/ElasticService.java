@@ -19,7 +19,7 @@ public class ElasticService {
     public void sendUserAlert(SendUserAlertRequest request) {
         userRepository.findById(request.getUserId()).ifPresentOrElse(
                 (user) -> {
-                    emailService.sendUserAlert(user.getEmail(), user.getFirstName());
+                    emailService.sendUserAlert(user.getEmail(), user.getUsername());
                 },
                 () -> {
                     logger.atError().log("User not found");

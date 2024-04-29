@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,20 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<APIResponse<Void>> handleResponseStatusException(
+            ResponseStatusException ex
+    ) {
+        return ResponseEntity
+                .status(ex.getStatusCode())
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getReason())
+                                .build()
+                );
+    }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<APIResponse<String>> handleAuthenticationException(AuthenticationException ex) {

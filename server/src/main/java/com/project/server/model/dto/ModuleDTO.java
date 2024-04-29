@@ -19,8 +19,19 @@ public class ModuleDTO {
     @NotNull
     @NotBlank(message = "Id is mandatory")
     @ValidUUID
-    private UUID moduleId;
+    private UUID id;
     @NotNull
     @Pattern(regexp = "[A-Za-z][A-Za-z0-9_]{3,29}$", message = "module name not valid")
-    private String moduleName;
+    private String name;
+
+    private String description;
+
+    public StudentModuleDTO convert(boolean registered) {
+        return StudentModuleDTO.builder()
+                .id(this.id)
+                .name(this.name)
+                .description(this.description)
+                .registered(registered)
+                .build();
+    }
 }

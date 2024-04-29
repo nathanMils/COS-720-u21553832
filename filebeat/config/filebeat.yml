@@ -29,6 +29,12 @@ filebeat.inputs:
     - /var/log/nginx/kibana_access.log
   fields:
     source: kibana_access.log
+- type: log
+  enabled: true
+  paths:
+    - /var/log/server.log
+  fields:
+    source: server.log
 
 
 # processors:

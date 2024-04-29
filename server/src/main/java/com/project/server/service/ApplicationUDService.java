@@ -1,5 +1,6 @@
 package com.project.server.service;
 
+import com.project.server.model.entity.Module;
 import com.project.server.model.entity.User;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
@@ -26,8 +27,6 @@ public class ApplicationUDService implements UserDetailsService {
     private StudentApplicationRepository studentApplicationRepository;
     @Autowired
     private StudentRepository studentRepository;
-    @Autowired
-    private ModuleModeratorRepository moduleModeratorRepository;
     @Autowired
     private CourseModeratorRepository courseModeratorRepository;
 
@@ -59,25 +58,24 @@ public class ApplicationUDService implements UserDetailsService {
                                 .map(application -> new SimpleGrantedAuthority(String.format("course_%s_student",application.getCourse().getId().toString())))
                                 .toList()
                 );
-                System.out.println(authorities);
                 studentRepository.findByUserId(user.getId()).forEach(
                         (student) -> authorities.add(
                                 new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()))
                         )
                 );
                 break;
-            case ROLE_MODULE_MODERATOR:
-                moduleModeratorRepository.findByUserId(user.getId()).forEach(
-                        (moduleModerator) -> authorities.add(
-                                new SimpleGrantedAuthority(String.format("module_%s_moderator",moduleModerator.getModule().getId().toString()))
-                        )
-                );
-                break;
             case ROLE_COURSE_MODERATOR:
                 courseModeratorRepository.findByUserId(user.getId()).forEach(
-                        (courseModerator) -> authorities.add(
+                        (courseModerator) -> {
+                            authorities.add(
                                 new SimpleGrantedAuthority(String.format("course_%s_moderator",courseModerator.getCourse().getId().toString()))
-                        )
+                            );
+                            for (Module module: courseModerator.getCourse().getModules()) {
+                                authorities.add(
+                                    new SimpleGrantedAuthority(String.format("module_%s_moderator",module.getId().toString()))
+                                );
+                            }
+                        }
                 );
                 break;
             default:

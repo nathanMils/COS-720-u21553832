@@ -7,3 +7,9 @@
 # Version Control: GitHub
 # CI/CD: GitHub actions, DockerHub
 # Logging: ELK Stack: Elastic Search Logstash and Kibana
+
+TODO:
+Container Security
+Log analysis
+Front end UI
+Cloud Service IAM

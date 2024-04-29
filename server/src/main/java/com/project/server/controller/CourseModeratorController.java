@@ -1,10 +1,17 @@
 package com.project.server.controller;
 
+import com.project.server.constraint.Sanitize;
 import com.project.server.constraint.ValidUUID;
+import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.ModuleDTO;
+import com.project.server.model.dto.PostDTO;
+import com.project.server.request.admin.CreateCourseRequest;
 import com.project.server.request.courseModerator.CreateModuleRequest;
+import com.project.server.request.moduleModerator.AddPostRequest;
 import com.project.server.response.APIResponse;
+import com.project.server.response.courseModerator.FetchCourseResponse;
 import com.project.server.service.CourseModeratorService;
+import com.project.server.service.ModuleModeratorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +29,22 @@ import java.util.UUID;
 public class CourseModeratorController {
 
     private final CourseModeratorService courseModeratorService;
+    private final ModuleModeratorService moduleModeratorService;
+
+    @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
+    @GetMapping("/fetch/{courseId}")
+    public ResponseEntity<APIResponse<FetchCourseResponse>> fetchCourse(
+            @ValidUUID @PathVariable String courseId
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                courseModeratorService.fetchCourse(UUID.fromString(courseId)),
+                                "SUCCESS"
+                        )
+                );
+    }
 
     @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
     @GetMapping("/fetchModules/{courseId}")
@@ -38,17 +61,35 @@ public class CourseModeratorController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
-    @PostMapping("/createModule/{courseId}")
-    public ResponseEntity<APIResponse<ModuleDTO>> createModule(
+    @PreAuthorize("(hasAuthority('module_' + #moduleId + '_moderator') && hasAuthority('course_' + #courseId + '_moderator')) || hasRole('ADMIN')")
+    @PostMapping("/post/{courseId}/{moduleId}")
+    public ResponseEntity<APIResponse<PostDTO>> addPost(
             @ValidUUID @PathVariable String courseId,
-            @Valid @RequestBody CreateModuleRequest request
+            @ValidUUID @PathVariable String moduleId,
+            @Valid @RequestBody @Sanitize AddPostRequest request
     ) {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                courseModeratorService.createModule(UUID.fromString(courseId),request),
+                                moduleModeratorService.addPost(request,UUID.fromString(moduleId)),
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @PreAuthorize("hasAuthority('course_' + #courseId + '_moderator') || hasRole('ADMIN')")
+    @PostMapping("/createModule/{courseId}")
+    public ResponseEntity<APIResponse<Void>> createModule(
+            @ValidUUID @PathVariable String courseId,
+            @Valid @RequestBody @Sanitize CreateModuleRequest request
+    ) {
+        courseModeratorService.createModule(UUID.fromString(courseId), request);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
                                 "SUCCESS"
                         )
                 );
@@ -77,5 +118,35 @@ public class CourseModeratorController {
                     );
         }
 
+    }
+
+    @PreAuthorize("hasRole('ADMIN') || hasAuthority('course_' + #courseId + '_moderator')")
+    @DeleteMapping("/deleteCourse/{courseId}")
+    public ResponseEntity<APIResponse<Void>> deleteCourse(
+            @ValidUUID @PathVariable String courseId
+    ) {
+        courseModeratorService.deleteCourse(UUID.fromString(courseId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @PostMapping("/createCourse")
+    public ResponseEntity<APIResponse<CourseDTO>> createCourse(
+            @RequestBody @Valid @Sanitize CreateCourseRequest request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                courseModeratorService.createCourse(request),
+                                "SUCCESS"
+                        )
+                );
     }
 }

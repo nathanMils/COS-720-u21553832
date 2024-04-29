@@ -1,12 +1,19 @@
 import axiosInstance from '@/api/instance/axios'
 import type { APIResponse } from '@/api'
-import type { CourseDTO } from '@/types'
-import type { FetchStudentApplications } from '@/api/response/admin/FetchStudentApplications'
+import type { CourseDTO, StudentApplicationDTO } from '@/types'
 
 const base: string = '/admin'
 
+export const fetchCourses = () => {
+    return axiosInstance.get<APIResponse<CourseDTO[]>>(`${base}/fetchCourses`)
+}
+
+export const createModerator = (username: string, password: string, email: string, firstName: string, lastName: string) => {
+    return axiosInstance.post<APIResponse<void>>(`${base}/createModerator`, { username, password, email, firstName, lastName })
+}
+
 export const fetchApplications = () => {
-    return axiosInstance.get<APIResponse<FetchStudentApplications>>(`${base}/fetchStudentApplicants`)
+    return axiosInstance.get<APIResponse<StudentApplicationDTO[]>>(`${base}/fetchApplications`)
 }
 
 export const acceptStudent = (applicationId: number) => {
@@ -15,12 +22,4 @@ export const acceptStudent = (applicationId: number) => {
 
 export const denyStudent = (applicationId: number) => {
     return axiosInstance.post<APIResponse<void>>(`${base}/denyStudent`, { applicationId })
-}
-
-export const createCourse = (courseName: string, courseDescription: string) => {
-    return axiosInstance.post<APIResponse<CourseDTO>>(`${base}/createCourse`, { courseName, courseDescription })
-}
-
-export const deleteCourse = (courseID: string) => {
-    return axiosInstance.post<APIResponse<void>>(`${base}/${courseID}/deleteCourse`)
 }

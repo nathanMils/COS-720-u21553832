@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-screen bg-appPrimary-light dark:bg-appPrimary-dark">
-    <Modal v-show="show" :message="message" @close="handleClose"/>
+    <ErrorModal v-show="show" :message="message" @close="handleClose"/>
     <div class="w-1/2 flex flex-col justify-center items-center space-y-4 md:space-y-6">
       <h1
         class="text-xl font-bold leading-tight tracking-tight text-center text-appText-light md:text-2xl dark:text-appText-dark"
@@ -173,7 +173,7 @@
   import { validEmail, validName, validPassword, validUsername } from '@/validators'
   import { helpers, required, sameAs } from '@vuelidate/validators'
   import { AuthStore } from '@/stores'
-  import { Modal } from '@/components/modal'
+  import { ErrorModal } from '@/components/modal'
 
   const authStore = AuthStore()
 

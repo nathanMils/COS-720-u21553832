@@ -1,5 +1,6 @@
 package com.project.server.controller;
 
+import com.project.server.model.dto.CourseDTO;
 import com.project.server.response.APIResponse;
 import com.project.server.response.open.FetchCoursesResponse;
 import com.project.server.service.PublicService;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/public")
@@ -20,7 +23,7 @@ public class PublicController {
     private final PublicService publicService;
 
     @GetMapping("/fetchCourses")
-    public ResponseEntity<APIResponse<FetchCoursesResponse>> fetchAllCourses() {
+    public ResponseEntity<APIResponse<List<CourseDTO>>> fetchAllCourses() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(

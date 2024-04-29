@@ -52,9 +52,14 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<StudentApplication> studentApplications;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User moderator;
+
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<CourseModerator> courseModerators;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "course_id")
+    private CourseModerator courseModerator;
 
     @CreationTimestamp
     @Column(
@@ -76,6 +81,7 @@ public class Course {
                 .id(id)
                 .name(name)
                 .description(description)
+                .moderator(moderator.getUsername())
                 .build();
     }
 }

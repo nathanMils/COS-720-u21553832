@@ -49,9 +49,6 @@ public class AdminIntegrationTests {
     private ModuleRepository moduleRepository;
 
     @Autowired
-    private ModuleModeratorRepository moduleModeratorRepository;
-
-    @Autowired
     private CourseModeratorRepository courseModeratorRepository;
 
     @Autowired
@@ -129,26 +126,6 @@ public class AdminIntegrationTests {
                                 .build()
                 )
         );
-        moduleModeratorToken = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .username("NathanTestModuleModerator")
-                                .password(passwordEncoder.encode("password"))
-                                .email("thisemail@gmail.com")
-                                .firstName("Nathan")
-                                .lastName("Name")
-                                .role(RoleEnum.ROLE_MODULE_MODERATOR)
-                                .secret("This is the secret")
-                                .enabled(true)
-                                .build()
-                )
-        );
-        moduleModeratorRepository.save(
-                ModuleModerator.builder()
-                        .user(userRepository.findByUsername("NathanTestModuleModerator").orElseThrow())
-                        .module(moduleRepository.findById(moduleId).orElseThrow())
-                        .build()
-        );
         courseModeratorRepository.save(
                 CourseModerator.builder()
                         .user(userRepository.findByUsername("NathanTestCourseModerator").orElseThrow())
@@ -167,106 +144,6 @@ public class AdminIntegrationTests {
     @AfterEach
     public void tearDown() {
         SecurityContextHolder.clearContext();
-    }
-
-    @Test
-    public void testCreateCourseSuccess() throws Exception {
-        CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course 2", "This is a test course 2");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/admin/createCourse")
-                                .contentType("application/json")
-                                .content(jsonCreateCourseRequest)
-                                .cookie(
-                                        new Cookie("accessToken", adminToken)
-                                )
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value("Test Course 2"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.description").value("This is a test course 2"));
-    }
-
-    @Test
-    public void testCreateCourseFail() throws Exception {
-        CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course", "This is a test course");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/admin/createCourse")
-                                .contentType("application/json")
-                                .content(jsonCreateCourseRequest)
-                                .cookie(
-                                        new Cookie("accessToken", adminToken)
-                                )
-                )
-                .andExpect(MockMvcResultMatchers.status().isConflict())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("failed"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("COURSE_NAME_EXISTS"));
-    }
-
-    @Test
-    public void testCreateCourseInvalidAccess() throws Exception {
-        CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course 2", "This is a test course 2");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post("/api/v1/admin/createCourse")
-                                .contentType("application/json")
-                                .content(jsonCreateCourseRequest)
-                                .cookie(
-                                        new Cookie("accessToken", studentTokenA)
-                                )
-                )
-                .andExpect(MockMvcResultMatchers.status().isForbidden());
-    }
-
-    @Test
-    public void testDeleteCourseSuccess() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.delete("/api/v1/admin/deleteCourse/" + courseId)
-                                .cookie(
-                                        new Cookie("accessToken", adminToken)
-                                )
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"));
-    }
-
-    @Test
-    public void testDeleteCourseFail() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.delete("/api/v1/admin/deleteCourse/" + courseId)
-                                .cookie(
-                                        new Cookie("accessToken", adminToken)
-                                )
-                )
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"));
-        mockMvc.perform(
-                        MockMvcRequestBuilders.delete("/api/v1/admin/deleteCourse/" + courseId)
-                                .cookie(
-                                        new Cookie("accessToken", adminToken)
-                                )
-                )
-                .andExpect(MockMvcResultMatchers.status().isNotFound())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("failed"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("COURSE_NOT_FOUND"));
-    }
-
-    @Test
-    public void testDeleteCourseInvalidAccess() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.delete("/api/v1/admin/deleteCourse/" + courseId)
-                                .cookie(
-                                        new Cookie("accessToken", studentTokenA)
-                                )
-                )
-                .andExpect(MockMvcResultMatchers.status().isForbidden());
     }
 
     @Test

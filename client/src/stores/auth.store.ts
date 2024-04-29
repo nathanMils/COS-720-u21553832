@@ -2,10 +2,12 @@ import { defineStore } from 'pinia'
 
 import router from '@/router'
 import {
-  login, 
-  logout, 
+  login,
+  logout,
   apply,
-  verifyEmail
+  verifyEmail,
+  loggedIn,
+  getRole, forgotPassword, resetPassword
 } from '@/api'
 import { type UserDTO } from '@/types'
 import { Role } from '@/types/role'
@@ -13,20 +15,16 @@ import { Role } from '@/types/role'
 export const AuthStore = defineStore({
   id: 'auth',
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user')?? 'null') as UserDTO | null,
-    role: JSON.parse(localStorage.getItem('role')?? 'null') as Role | null,
-    returnUrl: null as string | null,
-    loginStatus: null as string | null
+    isLoggedIn: null as boolean | null,
+    role: null as Role | null,
+    returnUrl: null as string | null
   }),
   actions: {
     async Login(username: string, password: string): Promise<{ status: number, message: string }>{
       try {
         const response = await login(username, password);
-        if (response.status === 200 && response.data != null) {
-          this.user = response.data.data;
-          this.role = response.data.data!.role;
-          localStorage.setItem('user', JSON.stringify(this.user));
-          localStorage.setItem('role', JSON.stringify(this.role));
+        if (response.status === 200) {
+          this.isLoggedIn = true;
           router.push(this.returnUrl ?? '/dashboard');
           this.returnUrl = null;
           return { status: response.status, message: 'Success' };
@@ -43,10 +41,8 @@ export const AuthStore = defineStore({
     },
     Logout() {
       logout();
-      this.user = null;
+      this.isLoggedIn = false;
       this.role = null;
-      localStorage.removeItem('user');
-      localStorage.removeItem('role');
       router.push('/login');
     },
     async Apply(
@@ -71,6 +67,7 @@ export const AuthStore = defineStore({
           return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
         }
       } catch (error: any) {
+        console.log(error.response)
         if (error.response) {
           if (error.response.status === 409 && error.response.data.internalCode === 'USERNAME_EXISTS') {
             return { status: error.response.status, message: 'USERNAME_EXISTS' };
@@ -103,17 +100,82 @@ export const AuthStore = defineStore({
         }
       }
     },
-    isAdmin(): boolean {
-      return this.role === "ROLE_ADMIN"
+    async forgotPassword(username: string,email: string): Promise<{ status: number, message: string }>{
+      try {
+        const response = await forgotPassword(username,email);
+        if (response.status === 200) {
+          return { status: response.status, message: 'Success' };
+        } else {
+          return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
+        }
+      } catch (error: any) {
+        console.log(error.response)
+        return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
+      }
     },
-    isStudent(): boolean {
-      return this.role === "ROLE_STUDENT"
+    async resetPassword(token: string, password: string): Promise<{ status: number, message: string }>{
+      try {
+        const response = await resetPassword(token,password);
+        if (response.status === 200) {
+          return { status: response.status, message: 'Success' };
+        } else {
+          return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
+        }
+      } catch (error: any) {
+        console.log(error.response)
+        if (error.response.data.internalCode === 'PASSWORD_SAME') {
+          return { status: 400, message: 'PASSWORD_SAME' };
+        }
+        return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
+      }
     },
-    isModuleModerator(): boolean {
-      return this.role === "ROLE_MODULE_MODERATOR"
+    async loggedIn(): Promise<boolean> {
+      try {
+        if (this.isLoggedIn === null) {
+          const response = await loggedIn();
+          this.isLoggedIn = (response.status === 200);
+        }
+        return this.isLoggedIn;
+      } catch (error: any) {
+        this.isLoggedIn = false;
+        return this.isLoggedIn;
+      }
     },
-    isCourseModerator(): boolean {
-      return this.role === "ROLE_COURSE_MODERATOR"
+    async getRole(): Promise<Role|null> {
+      try {
+        if (this.role === null) {
+          const response = await getRole();
+          this.role = response.data.data;
+        }
+        return this.role;
+      } catch (error: any) {
+        this.role = null;
+        return this.role;
+      }
+    },
+    async isRole(role: Role): Promise<boolean> {
+      try {
+        if (this.role === null) {
+          const response = await getRole();
+          this.role = response.data.data;
+        }
+        return this.role === role;
+      } catch (error: any) {
+        this.role = null;
+        return false;
+      }
+    },
+    async isRoleIncluded(roles: Role[]): Promise<boolean> {
+      try {
+        if (this.role === null) {
+          const response = await getRole();
+          this.role = response.data.data;
+        }
+        return roles.includes(this.role!);
+      } catch (error: any) {
+        this.role = null;
+        return false;
+      }
     }
   }
 })

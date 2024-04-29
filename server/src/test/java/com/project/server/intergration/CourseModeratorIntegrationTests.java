@@ -6,6 +6,7 @@ import com.project.server.model.entity.Module;
 import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
+import com.project.server.request.admin.CreateCourseRequest;
 import com.project.server.request.courseModerator.CreateModuleRequest;
 import com.project.server.service.EmailService;
 import com.project.server.service.TokenService;
@@ -50,9 +51,6 @@ public class CourseModeratorIntegrationTests {
     private ModuleRepository moduleRepository;
 
     @Autowired
-    private ModuleModeratorRepository moduleModeratorRepository;
-
-    @Autowired
     private CourseModeratorRepository courseModeratorRepository;
 
     @Autowired
@@ -71,19 +69,9 @@ public class CourseModeratorIntegrationTests {
     private String studentTokenB;
     private String courseModeratorTokenA;
     private String courseModeratorTokenB;
-    private String moduleModeratorTokenA;
-    private String moduleModeratorTokenB;
 
     @BeforeEach
     public void setUp() {
-
-        courseId = courseRepository.saveAndFlush(
-                Course.builder()
-                        .name("Test Course")
-                        .description("This is a test course")
-                        .build()
-        ).getId();
-
         studentTokenA = tokenService.genToken(
                 userRepository.save(
                         User.builder()
@@ -129,6 +117,14 @@ public class CourseModeratorIntegrationTests {
                 )
         );
 
+        courseId = courseRepository.save(
+                Course.builder()
+                        .name("Test Course")
+                        .description("This is a test course")
+                        .moderator(userRepository.findByUsername("courseModerator").orElseThrow())
+                        .build()
+        ).getId();
+
         courseModeratorTokenB = tokenService.genToken(
                 userRepository.save(
                         User.builder()
@@ -152,43 +148,6 @@ public class CourseModeratorIntegrationTests {
                         .build()
         ).getId();
 
-        moduleModeratorTokenA = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .firstName("Module")
-                                .lastName("Moderator")
-                                .username("moduleModerator")
-                                .role(RoleEnum.ROLE_MODULE_MODERATOR)
-                                .email("emailtest@gmail.com")
-                                .enabled(true)
-                                .secret("secret")
-                                .password(passwordEncoder.encode("passwordModuleModerator!1"))
-                                .build()
-                )
-        );
-
-        moduleModeratorTokenB = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .firstName("Module")
-                                .lastName("Moderator")
-                                .username("moduleModerator2")
-                                .role(RoleEnum.ROLE_MODULE_MODERATOR)
-                                .email("emailtest@gmail.com")
-                                .enabled(true)
-                                .secret("secret")
-                                .password(passwordEncoder.encode("passwordModuleModerator!2"))
-                                .build()
-                )
-        );
-
-        moduleModeratorRepository.save(
-                ModuleModerator.builder()
-                        .module(moduleRepository.findById(moduleId).orElseThrow())
-                        .user(userRepository.findByUsername("moduleModerator").orElseThrow())
-                        .build()
-        );
-
         courseModeratorRepository.save(
                 CourseModerator.builder()
                         .course(courseRepository.findById(courseId).orElseThrow())
@@ -206,6 +165,106 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
+    public void testCreateCourseSuccess() throws Exception {
+        CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course 2", "This is a test course 2");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/courseModerator/createCourse")
+                                .contentType("application/json")
+                                .content(jsonCreateCourseRequest)
+                                .cookie(
+                                        new Cookie("accessToken", courseModeratorTokenA)
+                                )
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.name").value("Test Course 2"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data.description").value("This is a test course 2"));
+    }
+
+    @Test
+    public void testCreateCourseFail() throws Exception {
+        CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course", "This is a test course");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/courseModerator/createCourse")
+                                .contentType("application/json")
+                                .content(jsonCreateCourseRequest)
+                                .cookie(
+                                        new Cookie("accessToken", courseModeratorTokenA)
+                                )
+                )
+                .andExpect(MockMvcResultMatchers.status().isConflict())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("failed"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("COURSE_NAME_EXISTS"));
+    }
+
+    @Test
+    public void testCreateCourseInvalidAccess() throws Exception {
+        CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course 2", "This is a test course 2");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post("/api/v1/courseModerator/createCourse")
+                                .contentType("application/json")
+                                .content(jsonCreateCourseRequest)
+                                .cookie(
+                                        new Cookie("accessToken", studentTokenA)
+                                )
+                )
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
+    public void testDeleteCourseSuccess() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteCourse/" + courseId)
+                                .cookie(
+                                        new Cookie("accessToken", courseModeratorTokenA)
+                                )
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"));
+    }
+
+    @Test
+    public void testDeleteCourseFail() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteCourse/" + courseId)
+                                .cookie(
+                                        new Cookie("accessToken", courseModeratorTokenA)
+                                )
+                )
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"));
+        mockMvc.perform(
+                        MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteCourse/" + courseId)
+                                .cookie(
+                                        new Cookie("accessToken", courseModeratorTokenA)
+                                )
+                )
+                .andExpect(MockMvcResultMatchers.status().isForbidden())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("failed"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("ACCESS_DENIED"));
+    }
+
+    @Test
+    public void testDeleteCourseInvalidAccess() throws Exception {
+        mockMvc.perform(
+                        MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteCourse/" + courseId)
+                                .cookie(
+                                        new Cookie("accessToken", studentTokenA)
+                                )
+                )
+                .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+
+    @Test
     public void testFetchModulesInCourseSuccess() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/courseModerator/fetchModules/" + courseId)
@@ -218,14 +277,14 @@ public class CourseModeratorIntegrationTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data").isArray())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].moduleId").value(moduleId.toString()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].moduleName").value("Test Module"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].id").value(moduleId.toString()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].name").value("Test Module"));
     }
 
     @Test
     public void testFetchModulesInCourseFailure() throws Exception {
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/v1/courseModerator/fetchModules/" + UUID.randomUUID().toString())
+                MockMvcRequestBuilders.get("/api/v1/courseModerator/fetch/" + UUID.randomUUID().toString())
                         .contentType("application/json")
                         .cookie(
                                 new Cookie("accessToken", courseModeratorTokenA)
@@ -238,7 +297,7 @@ public class CourseModeratorIntegrationTests {
     @Test
     public void testFetchModulesCourseInvalidAccessCourseModeratorFail() throws Exception {
         mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/v1/courseModerator/fetchModules/" + courseId)
+                MockMvcRequestBuilders.get("/api/v1/courseModerator/fetch/" + courseId)
                         .contentType("application/json")
                         .cookie(
                                 new Cookie("accessToken", courseModeratorTokenB)
@@ -262,18 +321,6 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testFetchModulesCourseInvalidAccessModuleModeratorFail() throws Exception {
-        mockMvc.perform(
-                MockMvcRequestBuilders.get("/api/v1/courseModerator/fetchModules/" + courseId)
-                        .contentType("application/json")
-                        .cookie(
-                                new Cookie("accessToken", moduleModeratorTokenA)
-                        )
-                )
-                .andExpect(MockMvcResultMatchers.status().isForbidden());
-    }
-
-    @Test
     public void testCreateModuleSuccess() throws Exception {
         CreateModuleRequest request = new CreateModuleRequest("Test Module 2", "This is a test module 2");
         ObjectMapper objectMapper = new ObjectMapper();
@@ -287,9 +334,7 @@ public class CourseModeratorIntegrationTests {
                 )
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("success"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.moduleId").isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.moduleName").value("Test Module 2"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("SUCCESS"));
     }
 
     @Test
@@ -333,21 +378,6 @@ public class CourseModeratorIntegrationTests {
                         .contentType("application/json")
                         .cookie(
                                 new Cookie("accessToken", studentTokenA)
-                        )
-                        .content(objectMapper.writeValueAsString(request))
-                )
-                .andExpect(MockMvcResultMatchers.status().isForbidden());
-    }
-
-    @Test
-    public void testCreateModuleInvalidAccessModuleModeratorFail() throws Exception {
-        CreateModuleRequest request = new CreateModuleRequest("Test Module 2", "This is a test module 2");
-        ObjectMapper objectMapper = new ObjectMapper();
-        mockMvc.perform(
-                MockMvcRequestBuilders.post("/api/v1/courseModerator/createModule/" + courseId)
-                        .contentType("application/json")
-                        .cookie(
-                                new Cookie("accessToken", moduleModeratorTokenA)
                         )
                         .content(objectMapper.writeValueAsString(request))
                 )
@@ -403,20 +433,6 @@ public class CourseModeratorIntegrationTests {
                         .contentType("application/json")
                         .cookie(
                                 new Cookie("accessToken", studentTokenA)
-                        )
-                )
-                .andExpect(MockMvcResultMatchers.status().isForbidden())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("failed"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.internalCode").value("ACCESS_DENIED"));
-    }
-
-    @Test
-    public void testDeleteModuleInvalidAccessModuleModeratorFail() throws Exception {
-        mockMvc.perform(
-                MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteModule/" + courseId + "/" + moduleId)
-                        .contentType("application/json")
-                        .cookie(
-                                new Cookie("accessToken", moduleModeratorTokenA)
                         )
                 )
                 .andExpect(MockMvcResultMatchers.status().isForbidden())

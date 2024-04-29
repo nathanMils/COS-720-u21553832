@@ -1,19 +1,50 @@
 import axiosInstance from '@/api/instance/axios'
+import type { CourseDTO, ModuleDTO, StudentApplicationDTO } from '@/types'
+import type { APIResponse } from '@/api'
+import type { FetchStudentCourseResponse } from '@/api/response/courseModerator/FetchStudentCourseResponse'
 
 const base: string = '/student'
 
 export const fetchStudentModules = () => {
-    return axiosInstance.get(`${base}/fetchModules`)
+    return axiosInstance.get<APIResponse<ModuleDTO[]>>(`${base}/fetchModules`)
 }
 
-export const registerModule = (moduleId: string) => {
-    return axiosInstance.post(`${base}/register/${moduleId}`)
+export const fetchStudentCourses = () => {
+    return axiosInstance.get<APIResponse<CourseDTO[]>>(`${base}/fetchCourses`)
 }
 
-export const deregisterModule = (moduleId: string) => {
-    return axiosInstance.post(`${base}/deregister/${moduleId}`)
+export const fetchOtherCourses = () => {
+    return axiosInstance.get<APIResponse<CourseDTO[]>>(`${base}/fetchOtherCourses`)
+}
+
+export const fetchStudentCourse = (courseID: string) => {
+    return axiosInstance.get<APIResponse<FetchStudentCourseResponse>>(`${base}/fetch/${courseID}`)
+}
+
+export const registerModule = (courseId: string,moduleId: string) => {
+    return axiosInstance.post<APIResponse<void>>(`${base}/register/${courseId}/${moduleId}`)
+}
+
+export const deregisterModule = (courseId: string,moduleId: string) => {
+    return axiosInstance.post<APIResponse<void>>(`${base}/deRegister/${courseId}/${moduleId}`)
 }
 
 export const fetchCourseModules = (courseId: string) => {
-    return axiosInstance.get(`${base}/fetchCourseModules/${courseId}`)
+    return axiosInstance.get<APIResponse<ModuleDTO>[]>(`${base}/fetchCourseModules/${courseId}`)
+}
+
+export const applyCourse = (courseId: string) => {
+    return axiosInstance.post<APIResponse<void>>(`${base}/apply/${courseId}`)
+}
+
+export const dropCourse = (courseId: string) => {
+    return axiosInstance.post<APIResponse<void>>(`${base}/drop/${courseId}`)
+}
+
+export const dropApplication = (applicationId: string) => {
+    return axiosInstance.post<APIResponse<void>>(`${base}/dropApplication/${applicationId}`)
+}
+
+export const fetchMyApplications = () => {
+    return axiosInstance.get<APIResponse<StudentApplicationDTO[]>>(`${base}/fetchApplications`)
 }

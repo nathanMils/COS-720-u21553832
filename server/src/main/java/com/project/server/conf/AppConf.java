@@ -2,6 +2,8 @@ package com.project.server.conf;
 
 import com.project.server.service.ApplicationUDService;
 import dev.samstevens.totp.code.*;
+import dev.samstevens.totp.qr.QrGenerator;
+import dev.samstevens.totp.qr.ZxingPngQrGenerator;
 import dev.samstevens.totp.secret.DefaultSecretGenerator;
 import dev.samstevens.totp.secret.SecretGenerator;
 import dev.samstevens.totp.time.SystemTimeProvider;
@@ -90,9 +92,14 @@ public class AppConf {
     }
 
     @Bean
+    public QrGenerator qrGenerator() {
+        return new ZxingPngQrGenerator();
+    }
+
+    @Bean
     public CodeVerifier codeVerifier(CodeGenerator codeGenerator, TimeProvider timeProvider) {
         DefaultCodeVerifier codeVerifier = new DefaultCodeVerifier(codeGenerator,timeProvider);
-        codeVerifier.setTimePeriod(5*60);
+        codeVerifier.setTimePeriod(1);
         codeVerifier.setAllowedTimePeriodDiscrepancy(2);
         return codeVerifier;
     }

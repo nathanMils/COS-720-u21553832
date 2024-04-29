@@ -5,7 +5,9 @@ import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.response.APIResponse;
+import com.project.server.response.courseModerator.FetchCourseResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
+import com.project.server.response.student.FetchStudentCourseResponse;
 import com.project.server.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,21 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class StudentController {
     private final StudentService studentService;
+
+    @PreAuthorize("hasRole('ADMIN') || hasAuthority('course_' + #courseId + '_student')")
+    @GetMapping("/fetch/{courseId}")
+    public ResponseEntity<APIResponse<FetchStudentCourseResponse>> fetchCourse(
+            @ValidUUID @PathVariable String courseId
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                studentService.fetchCourse(UUID.fromString(courseId)),
+                                "SUCCESS"
+                        )
+                );
+    }
 
     @GetMapping("/fetchApplications")
     public ResponseEntity<APIResponse<List<StudentApplicationDTO>>> fetchApplications() {
@@ -64,6 +81,21 @@ public class StudentController {
                 );
     }
 
+    @PostMapping("/dropApplication/{applicationId}")
+    public ResponseEntity<APIResponse<Void>> dropApplication(
+            @PathVariable String applicationId
+    ) {
+        studentService.dropApplication(Long.parseLong(applicationId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
+                                "SUCCESS"
+                        )
+                );
+    }
+
     @GetMapping("/fetchCourses")
     public ResponseEntity<APIResponse<List<CourseDTO>>> getCourses() {
         return ResponseEntity
@@ -72,6 +104,18 @@ public class StudentController {
                         APIResponse.success(
                             studentService.fetchStudentCourses(),
                             "SUCCESS"
+                        )
+                );
+    }
+
+    @GetMapping("/fetchOtherCourses")
+    public ResponseEntity<APIResponse<List<CourseDTO>>> fetchCourses() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                studentService.fetchOtherCourses(),
+                                "SUCCESS"
                         )
                 );
     }
@@ -138,10 +182,9 @@ public class StudentController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('course_' + #courseId + '_module_' + #moduleId + '_student')")
-    @GetMapping("/fetchContent/{courseId}/{moduleId}")
+    @PreAuthorize("hasAuthority('_module_' + #moduleId + '_student') || hasRole('ADMIN')")
+    @GetMapping("/fetchContent/{moduleId}")
     public ResponseEntity<APIResponse<FetchModuleContentResponse>> fetchModuleContent(
-            @ValidUUID @PathVariable String courseId,
             @ValidUUID @PathVariable String moduleId
     ) {
         return ResponseEntity

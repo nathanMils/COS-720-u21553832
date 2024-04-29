@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { Status, type StudentApplicationDTO } from '@/types'
-import { LoadingComponent, Modal, StudentApplicationCard } from '@/components'
+import { LoadingComponent, MissingIcon, StudentApplicationCard } from '@/components'
 import { fetchApplications } from '@/api'
 
 onMounted( async () => {
@@ -11,12 +11,14 @@ onMounted( async () => {
       console.error('Error:', response);
       return;
     }
-    studentApplications.value = response.data.data?.studentApplicationDTOS || [];
+    studentApplications.value = response.data.data || [];
   } catch (error: any) {
     console.error('Error:', error.response);
   }
-
+  loading.value = false;
 })
+
+const loading = ref(true);
 
 const updateStatus = (applicationId: number, newStatus: Status) => {
   const application = studentApplications.value.find(app => app.applicationId === applicationId);
@@ -29,23 +31,25 @@ const studentApplications = ref<StudentApplicationDTO[]>([])
 </script>
 
 <template>
-  <Suspense>
-    <template #default>
-      <div class="flex-grow overflow-auto px-10 py-10">
-        <h1 class="text-2xl font-bold">Welcome to my dashboard!</h1>
-        <p class="mt-2 text-gray-600">This is an example dashboard using Tailwind CSS.</p>
-        <div class="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2 lg:grid-cols-3">
-          <StudentApplicationCard
-            v-for="application in studentApplications"
-            :application="application"
-            :key="application.applicationId"
-            @updateStatus="updateStatus(application.applicationId, $event)"
-          />
-        </div>
-      </div>
-    </template>
-    <template #fallback>
-      <LoadingComponent />
-    </template>
-  </Suspense>
+  <div v-if="!loading" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
+    <div>
+      <h1 class="text-4xl font-bold">Student Applications</h1>
+      <p class="mt-2 text-gray-600">All pending student applications</p>
+    </div>
+    <div v-if="studentApplications.length" class="grid grid-cols-1 gap-4 mt-4">
+      <StudentApplicationCard
+        v-for="application in studentApplications"
+        :application="application"
+        :key="application.applicationId"
+        @updateStatus="updateStatus(application.applicationId, $event)"
+      />
+    </div>
+    <div v-else class="flex flex-col items-center justify-center">
+      <MissingIcon />
+      <p class="text-gray-400 dark:text-gray-600">No new Student Applications</p>
+    </div>
+  </div>
+  <div v-else class="flex items-center justify-center h-full">
+    <LoadingComponent />
+  </div>
 </template>

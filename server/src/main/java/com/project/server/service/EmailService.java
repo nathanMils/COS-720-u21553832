@@ -50,6 +50,35 @@ public class EmailService {
     }
 
     @Async
+    public void sendModeratorEmail(
+            String userEmail,
+            String username,
+            String password,
+            String firstName,
+            String lastName
+    ) {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        try {
+            helper.setFrom(emailSource);
+            helper.setTo(userEmail);
+            helper.setSubject("Moderator Account Created");
+            String content = loadEmailHtml("moderatorTemplate");
+            message.setContent(
+                    content
+                            .replace("[[PASSWORD]]",password)
+                            .replace("[[USERNAME]]",username)
+                            .replace("[[FIRST_NAME]]",firstName)
+                            .replace("[[LAST_NAME]]",lastName),
+                    "text/html; charset=utf-8"
+            );
+            javaMailSender.send(message);
+        } catch (MessagingException | IOException e) {
+            logger.atInfo().log("Email Failed");
+        }
+    }
+
+    @Async
     public void sendEmailVerificationEmail(String userEmail, String code) {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -79,6 +108,25 @@ public class EmailService {
             String content = loadEmailHtml("userNotification");
             message.setContent(
                     content.replace("[User]",userName).replace("[Email Address]",userEmail),
+                    "text/html; charset=utf-8"
+            );
+            javaMailSender.send(message);
+        } catch (MessagingException | IOException e) {
+            logger.atInfo().log("Email Failed");
+        }
+    }
+
+    @Async
+    public void sendPasswordResetEmail(String userEmail, String token) {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+        try {
+            helper.setFrom(emailSource);
+            helper.setTo(userEmail);
+            helper.setSubject("Reset Your Password");
+            String content = loadEmailHtml("resetTemplate");
+            message.setContent(
+                    content.replace("[[URL]]",baseUrl+"/reset?token="+token),
                     "text/html; charset=utf-8"
             );
             javaMailSender.send(message);

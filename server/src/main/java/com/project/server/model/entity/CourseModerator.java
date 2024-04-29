@@ -2,6 +2,8 @@ package com.project.server.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter
 @Setter
@@ -19,7 +21,8 @@ public class CourseModerator {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToOne
     @JoinColumn(name = "course_id")
     private Course course;
 }

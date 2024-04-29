@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Modal v-show="show" :message="message" @close="handleClose"/>
+    <ErrorModal v-show="show" :message="message" @close="handleClose"/>
     <section class="bg-appPrimary-light dark:bg-appPrimary-dark">
       <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <div class="flex flex-row items-center justify-evenly text-4xl mb-8 font-bold text-appText-light dark:text-appText-dark">
@@ -58,11 +58,15 @@
                 <span v-if="formData.error" class="text-xs text-red-500 dark:text-red-400">{{formData.error}}</span>
               </div>
               <div class="flex items-center justify-between">
-                <a
-                  href="#"
+                <RouterLink
+                  :to="{name: 'forgot'}"
                   class="text-sm font-medium text-primaryButton-600 hover:underline dark:text-primaryButton-500"
+                  >
+                  <a
+                    class="text-sm font-medium text-primaryButton-600 hover:underline dark:text-primaryButton-500"
                   >Forgot password?</a
-                >
+                  >
+                </RouterLink>
               </div>
               <button type="submit" class="w-full text-white bg-primaryButton-600 hover:bg-primaryButton-700 focus:ring-4 focus:outline-none focus:ring-primaryButton-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primaryButton-600 dark:hover:bg-primaryButton-700 dark:focus:ring-primaryButton-800">Sign in</button>
               <p class="text-sm font-light text-gray-500 dark:text-gray-400">
@@ -90,7 +94,7 @@ import { AuthStore } from '@/stores';
 import useVuelidate from '@vuelidate/core'
 import { reactive, ref } from 'vue'
 import { helpers, required } from '@vuelidate/validators'
-import { Modal } from '@/components/modal'
+import { ErrorModal } from '@/components/modal'
 import router from '@/router'
 
 const authStore = AuthStore();

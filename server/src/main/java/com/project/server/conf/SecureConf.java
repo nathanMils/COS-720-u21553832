@@ -1,8 +1,10 @@
 package com.project.server.conf;
 
 import com.project.server.filter.AuthFilter;
+import com.project.server.filter.XSSFilter;
 import com.project.server.service.LogoutService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -36,9 +38,17 @@ public class SecureConf {
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        String hierarchy = "ROLE_ADMIN > ROLE_COURSE_MODERATOR \n ROLE_COURSE_MODERATOR > ROLE_MODULE_MODERATOR \n ROLE_MODULE_MODERATOR > ROLE_STUDENT";
+        String hierarchy = "ROLE_ADMIN > ROLE_COURSE_MODERATOR \n ROLE_COURSE_MODERATOR > ROLE_STUDENT";
         roleHierarchy.setHierarchy(hierarchy);
         return roleHierarchy;
+    }
+
+    @Bean
+    public FilterRegistrationBean<XSSFilter> filterRegistrationBean() {
+        FilterRegistrationBean<XSSFilter> registrationBean = new FilterRegistrationBean<>();
+        registrationBean.setFilter(new XSSFilter());
+        registrationBean.addUrlPatterns("/*");
+        return registrationBean;
     }
 
     @Bean
@@ -51,15 +61,13 @@ public class SecureConf {
                         authorizationManagerRequestMatcherRegistry ->
                                 authorizationManagerRequestMatcherRegistry
                                         .requestMatchers(PREFIX+"public/**")
-                                        .permitAll()
+                                        .authenticated()
                                         .requestMatchers(PREFIX+"auth/**")
                                         .permitAll()
                                         .requestMatchers(PREFIX+"user/**")
                                         .authenticated()
                                         .requestMatchers(PREFIX+"student/**")
                                         .hasRole("STUDENT")
-                                        .requestMatchers(PREFIX+"moduleModerator/**")
-                                        .hasRole("MODULE_MODERATOR")
                                         .requestMatchers(PREFIX+"courseModerator/**")
                                         .hasRole("COURSE_MODERATOR")
                                         .requestMatchers(PREFIX+"admin/**")
@@ -100,5 +108,4 @@ public class SecureConf {
         ;
         return httpSecurity.build();
     }
-
 }

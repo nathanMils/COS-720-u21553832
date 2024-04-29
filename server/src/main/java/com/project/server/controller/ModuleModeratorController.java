@@ -13,11 +13,5 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ModuleModeratorController {
 
-    @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator')")
-    @PostMapping("/{moduleId}/addPost")
-    public ResponseEntity<APIResponse<Void>> addPost(
-            @ValidUUID @PathVariable String moduleId
-    ) {
-        return null;
-    }
+
 }

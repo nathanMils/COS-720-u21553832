@@ -15,4 +15,5 @@ public class CourseDTO {
     private UUID id;
     private String name;
     private String description;
+    private String moderator;
 }

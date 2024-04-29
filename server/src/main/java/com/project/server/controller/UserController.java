@@ -1,5 +1,6 @@
 package com.project.server.controller;
 
+import com.project.server.model.enums.RoleEnum;
 import com.project.server.response.APIResponse;
 import com.project.server.response.user.GetProfileResponse;
 import com.project.server.service.UserService;
@@ -16,14 +17,28 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
+
     private final UserService userService;
-    @GetMapping("/getProfile")
+
+    @GetMapping("/profile")
     public ResponseEntity<APIResponse<GetProfileResponse>> getProfile() {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
                                 userService.getProfile(),
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @GetMapping("/role")
+    public ResponseEntity<APIResponse<RoleEnum>> getRole() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                userService.getRole(),
                                 "SUCCESS"
                         )
                 );
