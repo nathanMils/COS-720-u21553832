@@ -6,4 +6,4 @@ spring:
 app:
   cookie:
     sameSite: Strict
-    secure: true
+    secure: false
