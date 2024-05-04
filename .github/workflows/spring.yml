@@ -2,11 +2,13 @@ name: Spring
 
 on:
     push:
-        branches: ["main","dev"]
-        paths:
-            - server/**
-            - 'compose.yml'
-
+      branches:
+        - main
+        - dev
+    pull_request:
+      branches:
+        - main
+       
 jobs:
     compile:
         runs-on: ubuntu-latest
@@ -35,12 +37,10 @@ jobs:
               uses: actions/setup-java@v4
               with:
                 java-version: '21'
-                distribution: 'corretto'
+                distribution: 'temurin'
             
             - name: Running Tests
-              run: |
-               cd server
-               ./mvnw clean compile
+              run: mvn -B package --file ./server/pom.xml
     tests:
         runs-on: ubuntu-latest
         name: Tests
@@ -68,7 +68,5 @@ jobs:
                 distribution: 'corretto'
         
             - name: Running Tests
-              run: |
-                cd server
-                ./mvnw clean test
+              run: mvn test --file ./server/pom.xml
                 
