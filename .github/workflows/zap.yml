@@ -36,9 +36,28 @@ jobs:
               with:
                 java-version: '21'
                 distribution: 'temurin'
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v2
+              with:
+                node-version: '20'
             
             - name: Build
               run: mvn -B package -DskipTests --file ./server/pom.xml
+      
+            - name: Build Vue.js Application
+              run: |
+                cd client
+                npm install
+                VITE_APP_API_KEY=http://localhost:8080/api/v1
+                npm run build
+      
+            # Serve the built Vue.js application
+            - name: Serve Vue.js Application
+              run: |
+                cd client/dist
+                npx serve &
+              continue-on-error: true
 
             - name: Run Spring Application
               run: java -jar ./server/target/server-0.0.1-SNAPSHOT.jar &
@@ -46,6 +65,6 @@ jobs:
             - name: ZAP Baseline Scan
               uses: zaproxy/action-baseline@v0.12.0
               with:
-                target: 'http://localhost:8080/api/v1'
+                target: 'http://localhost:3000/'
 
             
