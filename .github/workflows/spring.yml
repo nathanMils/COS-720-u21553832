@@ -13,7 +13,7 @@ jobs:
         runs-on: ubuntu-latest
         name: compile spring
         env:
-          SPRING_ACTIVE_PROFILE: prod
+          SPRING_PROFILES_ACTIVE: prod
           SPRING_DATASOURCE_URL: ${{ secrets.TEST_DATABASE_URL}}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.TEST_DATABASE_USERNAME }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.TEST_DATABASE_PASSWORD }}
@@ -44,7 +44,6 @@ jobs:
         runs-on: ubuntu-latest
         name: Tests
         env:
-          SPRING_ACTIVE_PROFILE: test
           SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
           APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}

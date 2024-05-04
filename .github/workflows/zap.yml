@@ -14,10 +14,7 @@ jobs:
         runs-on: ubuntu-latest
         name: Spring Rest API ZAP Test
         env:
-            SPRING_ACTIVE_PROFILE: prod
-            SPRING_DATASOURCE_URL: ${{ secrets.TEST_DATABASE_URL}}
-            SPRING_DATASOURCE_USERNAME: ${{ secrets.TEST_DATABASE_USERNAME }}
-            SPRING_DATASOURCE_PASSWORD: ${{ secrets.TEST_DATABASE_PASSWORD }}
+            SPRING_PROFILES_ACTIVE: zap
             SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
             APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
             APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
