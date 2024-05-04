@@ -14,7 +14,8 @@
           "client_access_logs-*",
           "server_access_logs-*",
           "kibana_access_logs-*",
-          "server_logs-*"
+          "server_auth_logs-*",
+          "server_error_logs-*"
         ],
         "privileges": [
           "write",

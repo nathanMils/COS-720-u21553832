@@ -53,7 +53,7 @@ const clearError = () => {
   showError.value = false
   error.value = ''
 }
-const showConfirmation = ref(false)
+const showConfirmation = ref('')
 
 </script>
 
@@ -75,23 +75,24 @@ const showConfirmation = ref(false)
         </GreenButton>
       </RouterLink>
     </div>
-    <div v-if="courses.length" class="grid grid-cols-1 gap-4 mt-4">
+    <div v-if="courses.length" class="mt-4">
       <CourseCardLink
         v-for="course in courses"
         :course="course"
         :key="course.id"
         :edit="true"
+        class="mb-4"
       >
         <RedButton
-          @click="showConfirmation = true"
+          @click="showConfirmation = course.id"
         >
           Remove Course
         </RedButton>
         <ConfirmDialog
-          :show="showConfirmation"
+          :show="showConfirmation === course.id"
           message="Are you sure you want to delete this course?"
-          @confirm="removeCourse(course.id); showConfirmation = false"
-          @close="showConfirmation = false"
+          @confirm="removeCourse(course.id); showConfirmation = ''"
+          @close="showConfirmation = ''"
         />
       </CourseCardLink>
     </div>

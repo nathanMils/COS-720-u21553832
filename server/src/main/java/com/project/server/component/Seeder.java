@@ -6,6 +6,7 @@ import com.project.server.repository.UserRepository;
 import com.project.server.service.OTPService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,21 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
     private UserRepository userRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Value("${app.admin.username}")
+    private String adminUsername;
+
+    @Value("${app.admin.password}")
+    private String adminPassword;
+
+    @Value("${app.admin.email}")
+    private String adminEmail;
+
+    @Value("${app.admin.name.first}")
+    private String adminFirstName;
+
+    @Value("${app.admin.name.last}")
+    private String adminLastName;
 
     @Autowired
     private OTPService otpService;
@@ -36,17 +52,17 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
 
     @Transactional
-    private void createAdministrator() {
+    public void createAdministrator() {
         userRepository.findByUsername("admin").ifPresentOrElse(
                 (admin) -> {},
                 () -> {
                     userRepository.save(
                             User.builder()
-                                    .username("NathanOpp")
-                                    .email("nathanopperman123@gmail.com")
-                                    .firstName("Nathan")
-                                    .lastName("Opperman")
-                                    .password(passwordEncoder.encode("Stupidcat12!"))
+                                    .username(adminUsername)
+                                    .email(adminEmail)
+                                    .firstName(adminFirstName)
+                                    .lastName(adminLastName)
+                                    .password(passwordEncoder.encode(adminPassword))
                                     .role(RoleEnum.ROLE_ADMIN)
                                     .secret(otpService.generateSecret())
                                     .enabled(true)

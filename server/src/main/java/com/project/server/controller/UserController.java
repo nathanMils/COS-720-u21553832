@@ -43,4 +43,16 @@ public class UserController {
                         )
                 );
     }
+
+    @GetMapping("/test")
+    public ResponseEntity<APIResponse<String>> test() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                "Test",
+                                "SUCCESS"
+                        )
+                );
+    }
 }

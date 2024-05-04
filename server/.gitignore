@@ -34,3 +34,6 @@ build/
 
 geolite/
 geolite/README.txt
+logs/
+application-local.yml
+application-dockerlocal.yml

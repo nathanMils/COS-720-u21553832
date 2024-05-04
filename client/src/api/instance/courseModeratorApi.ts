@@ -1,5 +1,5 @@
 import axiosInstance from '@/api/instance/axios'
-import type { APIResponse, FetchCourseResponse } from '@/api'
+import type { APIResponse, FetchCourseResponse, FetchModuleContentResponse } from '@/api'
 import type { CourseDTO } from '@/types'
 
 const base: string = '/courseModerator'
@@ -31,4 +31,8 @@ export const createCourse = (name: string, description: string) => {
 
 export const deleteCourse = (courseID: string) => {
     return axiosInstance.delete<APIResponse<void>>(`${base}/deleteCourse/${courseID}`)
+}
+
+export const fetchModuleContent = (moduleID: string) => {
+    return axiosInstance.get<APIResponse<FetchModuleContentResponse>>(`${base}/fetchModule/${moduleID}`)
 }

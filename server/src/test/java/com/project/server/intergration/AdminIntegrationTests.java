@@ -77,19 +77,20 @@ public class AdminIntegrationTests {
                         .build()
         ).getId();
         // Generate tokens
+        User admin = userRepository.saveAndFlush(
+                User.builder()
+                        .username("NathanTestAdmin")
+                        .password(passwordEncoder.encode("password"))
+                        .email("email@email.com")
+                        .firstName("Nathan")
+                        .lastName("Name")
+                        .enabled(true)
+                        .role(RoleEnum.ROLE_ADMIN)
+                        .secret("This is the secret")
+                        .build()
+        );
         adminToken = tokenService.genToken(
-                userRepository.saveAndFlush(
-                        User.builder()
-                                .username("NathanTestAdmin")
-                                .password(passwordEncoder.encode("password"))
-                                .email("email@email.com")
-                                .firstName("Nathan")
-                                .lastName("Name")
-                                .enabled(true)
-                                .role(RoleEnum.ROLE_ADMIN)
-                                .secret("This is the secret")
-                                .build()
-                )
+                admin.getId(),admin.getUsername()
         );
         UUID moduleId = moduleRepository.save(
                 Module.builder()
@@ -98,33 +99,35 @@ public class AdminIntegrationTests {
                         .course(courseRepository.findById(courseId).orElseThrow())
                         .build()
         ).getId();
+        User student = userRepository.save(
+                User.builder()
+                        .username("NathanTestStudent")
+                        .password(passwordEncoder.encode("password"))
+                        .email("email@email.com")
+                        .firstName("Nathan")
+                        .lastName("Name")
+                        .enabled(true)
+                        .role(RoleEnum.ROLE_STUDENT)
+                        .secret("This is the secret")
+                        .build()
+        );
         studentTokenA = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .username("NathanTestStudent")
-                                .password(passwordEncoder.encode("password"))
-                                .email("email@email.com")
-                                .firstName("Nathan")
-                                .lastName("Name")
-                                .enabled(true)
-                                .role(RoleEnum.ROLE_STUDENT)
-                                .secret("This is the secret")
-                                .build()
-                )
+                student.getId(),student.getUsername()
+        );
+        User courseModerator =  userRepository.save(
+                User.builder()
+                        .username("NathanTestCourseModerator")
+                        .password(passwordEncoder.encode("password"))
+                        .email("thisemail@gmail.com")
+                        .enabled(true)
+                        .role(RoleEnum.ROLE_COURSE_MODERATOR)
+                        .firstName("Nathan")
+                        .lastName("Name")
+                        .secret("This is the secret")
+                        .build()
         );
         courseModeratorToken = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .username("NathanTestCourseModerator")
-                                .password(passwordEncoder.encode("password"))
-                                .email("thisemail@gmail.com")
-                                .enabled(true)
-                                .role(RoleEnum.ROLE_COURSE_MODERATOR)
-                                .firstName("Nathan")
-                                .lastName("Name")
-                                .secret("This is the secret")
-                                .build()
-                )
+               courseModerator.getId(),courseModerator.getUsername()
         );
         courseModeratorRepository.save(
                 CourseModerator.builder()

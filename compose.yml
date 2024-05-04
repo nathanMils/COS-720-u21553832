@@ -30,11 +30,18 @@ services:
     build: ./server
     container_name: server
     volumes:
-      - ./logs:/var/log/server
+      - ./server/logs:/usr/app/logs
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/cos
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=1234
+      SPRING_PROFILES_ACTIVE: ${PROFILE}
+      SPRING_DATASOURCE_URL: ${DATABASE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
+      APP_BASE_URL: ${BASE_URL}
+      APP_ADMIN_USERNAME: ${ADMIN_USERNAME}
+      APP_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      APP_ADMIN_EMAIL: ${ADMIN_EMAIL}
+      APP_ADMIN_NAME_FIRST: ${ADMIN_FIRST_NAME}
+      APP_ADMIN_NAME_LAST: ${ADMIN_LAST_NAME}
     depends_on:
       - postgres
     networks:
@@ -44,9 +51,9 @@ services:
   postgres:
     image: 'postgres:latest'
     environment:
-      - POSTGRES_DB=cos
-      - POSTGRES_PASSWORD=1234
-      - POSTGRES_USER=postgres
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_USER: ${DATABASE_USERNAME}
     ports:
       - "5432:5432"
     networks:
@@ -57,7 +64,7 @@ services:
     build: ./client
     container_name: client
     environment:
-      VITE_API_BASE_URL: http://localhost/api/v1
+      VITE_API_BASE_URL: ${BASE_URL}${SERVER_EXTENTION}
     depends_on:
       - server
     networks:
@@ -95,12 +102,7 @@ services:
     environment:
       node.name: elasticsearch
       ES_JAVA_OPTS: -Xms512m -Xmx512m
-      # Bootstrap password.
-      # Used to initialize the keystore during the initial startup of
-      # Elasticsearch. Ignored on subsequent runs.
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
-      # Use single node discovery in order to disable production mode and avoid bootstrap checks.
-      # see: https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
     networks:
       - elk
@@ -151,21 +153,15 @@ services:
       context: filebeat/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
-    # Run as 'root' instead of 'filebeat' (uid 1000) to allow reading
-    # 'docker.sock' and the host's filesystem.
     container_name: filebeat
     user: root
     command:
-      # Log to stderr.
       - -e
-      # Disable config file permissions checks. Allows mounting
-      # 'config/filebeat.yml' even if it's not owned by root.
-      # see: https://www.elastic.co/guide/en/beats/libbeat/current/config-file-permissions.html
       - --strict.perms=false
     volumes:
       - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,Z
       - ./nginx/logs:/var/log/nginx
-      - /logs:/var/log/server
+      - ./server/logs:/usr/app/logs
       - type: bind
         source: /var/lib/docker/containers
         target: /var/lib/docker/containers

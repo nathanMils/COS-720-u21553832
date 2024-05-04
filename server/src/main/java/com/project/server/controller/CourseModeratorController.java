@@ -10,6 +10,7 @@ import com.project.server.request.courseModerator.CreateModuleRequest;
 import com.project.server.request.moduleModerator.AddPostRequest;
 import com.project.server.response.APIResponse;
 import com.project.server.response.courseModerator.FetchCourseResponse;
+import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.service.CourseModeratorService;
 import com.project.server.service.ModuleModeratorService;
 import jakarta.validation.Valid;
@@ -145,6 +146,21 @@ public class CourseModeratorController {
                 .body(
                         APIResponse.success(
                                 courseModeratorService.createCourse(request),
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator') || hasRole('ADMIN')")
+    @GetMapping("/fetchModule/{moduleId}")
+    public ResponseEntity<APIResponse<FetchModuleContentResponse>> fetchModule(
+            @ValidUUID @PathVariable String moduleId
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                courseModeratorService.fetchModule(UUID.fromString(moduleId)),
                                 "SUCCESS"
                         )
                 );

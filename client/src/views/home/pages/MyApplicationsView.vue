@@ -62,12 +62,13 @@ const displayError = (msg: string) => {
       <h1 class="text-4xl font-bold">Student Applications</h1>
       <p class="mt-2 text-gray-600">All pending student applications</p>
     </div>
-    <div v-if="applications.length" class="grid grid-cols-1 gap-4 mt-4">
+    <div v-if="applications.length" class="mt-4">
       <ApplicationCard
         v-for="application in applications"
         :application="application"
         :key="application.applicationId"
         @drop="drop(application.applicationId)"
+        class="mb-4"
       />
     </div>
     <div v-else class="flex flex-col items-center justify-center">

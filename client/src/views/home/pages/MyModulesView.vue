@@ -29,12 +29,13 @@ const loading = ref(true)
         <h1 class="text-4xl font-bold">My Modules</h1>
         <p class="mt-2 text-gray-600">All Student Modules</p>
       </div>
-      <div v-if="modules.length" class="grid grid-cols-1 gap-4 mt-4">
+      <div v-if="modules.length" class="mt-4">
         <ModuleCard
           v-for="module in modules"
           :module="module"
           :key="module.id"
           :edit="false"
+          class="mb-4"
         />
       </div>
       <div v-else class="flex flex-col items-center justify-center">

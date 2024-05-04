@@ -2,6 +2,7 @@ package com.project.server.service;
 
 import com.project.server.model.entity.*;
 import com.project.server.model.enums.RoleEnum;
+import com.project.server.model.projections.auth.UserAuthProjection;
 import com.project.server.repository.*;
 import com.project.server.request.auth.ApplicationRequest;
 import com.project.server.request.auth.ForgotPasswordRequest;
@@ -25,6 +26,10 @@ import java.sql.Date;
 import java.time.Instant;
 import java.util.Arrays;
 
+
+/**
+ * Service class for handling authentication related operations.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -41,12 +46,18 @@ public class AuthService {
     private final PasswordTokenRepository passwordTokenRepository;
 
 
+    /**
+     * Method for handling user application requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the application request
+     */
     @Transactional
     public void apply(
             HttpServletRequest servletRequest,
             ApplicationRequest request
     ) {
-        if (userRepository.findByUsername(request.username()).isPresent()) {
+        if (userRepository.existsByUsername(request.username())) {
             throw new EntityExistsException("USERNAME_EXISTS");
         }
         User user = userRepository.save(
@@ -62,11 +73,9 @@ public class AuthService {
                         .build()
         );
         log.atInfo().log(
-                String.format(
-                        "Student application submitted successfully: IP='%s' UserId='%s'",
-                        servletRequest.getRemoteAddr(),
-                        user.getId()
-                )
+            "Student application submitted successfully: IP='{}' UserId='{}'",
+            servletRequest.getRemoteAddr(),
+            user.getId()
         );
         emailService.sendEmailVerificationEmail(
                 user.getEmail(),
@@ -74,32 +83,35 @@ public class AuthService {
         );
     }
 
+    /**
+     * Method for handling user login requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the login request
+     * @return the authentication response
+     */
     public AuthResponse login (
             HttpServletRequest servletRequest,
             LoginRequest request
     ) {
-        User user = userRepository.findByUsername(request.username()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS"));
+        UserAuthProjection user = userRepository.findUserProjectedByUsername(request.username()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS"));
         if (
                 passwordEncoder.matches(request.password(), user.getPassword()) &&
-                user.isEnabled()
+                user.getEnabled()
         ) {
             log.atInfo().log(
-                    String.format(
-                            "User login successful: IP='%s' Role='%s', UserId='%s'",
-                            servletRequest.getRemoteAddr(),
-                            user.getRole(),
-                            user.getId()
-                    )
+                "User login successful: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
             );
             return buildAuthResponse(user);
-        } else if (passwordEncoder.matches(request.password(), user.getPassword()) && !user.isEnabled()) {
+        } else if (passwordEncoder.matches(request.password(), user.getPassword()) && !user.getEnabled()) {
             log.atInfo().log(
-                    String.format(
-                            "Unverified User login: IP='%s' Role='%s', UserId='%s'",
-                            servletRequest.getRemoteAddr(),
-                            user.getRole(),
-                            user.getId()
-                    )
+                "Unverified User login: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
             );
             emailService.sendEmailVerificationEmail(
                     user.getEmail(),
@@ -111,12 +123,10 @@ public class AuthService {
             );
         } else {
             log.atWarn().log(
-                    String.format(
-                            "User login failed: IP='%s' Role='%s', UserId='%s'",
-                            servletRequest.getRemoteAddr(),
-                            user.getRole(),
-                            user.getId()
-                    )
+                "User login failed: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
             );
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
@@ -125,7 +135,12 @@ public class AuthService {
         }
     }
 
-    @Transactional
+    /**
+     * Method for checking if a user is logged in.
+     *
+     * @param servletRequest the HTTP request
+     * @return a boolean indicating if the user is logged in
+     */
     public boolean isLoggedIn(HttpServletRequest servletRequest) {
         try {
             Cookie[] cookies = servletRequest.getCookies();
@@ -160,6 +175,12 @@ public class AuthService {
         return null;
     }
 
+    /**
+     * Method for handling token refresh requests.
+     *
+     * @param servletRequest the HTTP request
+     * @return the authentication response
+     */
     @Transactional
     public AuthResponse refresh(HttpServletRequest servletRequest) {
         Cookie[] cookies = servletRequest.getCookies();
@@ -175,38 +196,48 @@ public class AuthService {
 
         RefreshToken token = refreshTokenService.verifyExpiration(refresh);
         if (token.isRevoked()) {
-            log.atWarn().log(String.format("User refresh failed: IP='%s' Role='%s', UserId='%s'", servletRequest.getRemoteAddr(), token.getUser().getRole(), token.getUser().getId()));
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID");
         }
-
-        log.atInfo().log(String.format("User refresh successful: IP='%s' Role='%s', UserId='%s'", servletRequest.getRemoteAddr(), token.getUser().getRole(), token.getUser().getId()));
-        return buildAuthResponse(token.getUser());
+        return buildAuthResponse(userRepository.findUserProjectedById(token.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN")));
     }
 
+
+    /**
+     * Method for verifying the email verification code.
+     *
+     * @param servletRequest the HTTP request
+     * @param uuid the verification token
+     */
     public void verifyToken(
             HttpServletRequest servletRequest,
             String uuid
     ) {
         ConfirmationToken token = confirmationTokenService.getToken(uuid);
         if (token != null && token.getExpiryDate().compareTo(Date.from(Instant.now())) >= 0) {
-            User user = token.getUser();
-            user.setEnabled(true);
-            userRepository.save(user);
-            log.atInfo().log(
-                    String.format(
-                            "User email verification successful: IP='%s' Role='%s', UserId='%s'",
+            userRepository.findById(token.getUserId()).ifPresentOrElse(
+                user -> {
+                    log.atInfo().log(
+                            "User email verification successful: IP='{}' Role='{}', UserId='{}'",
                             servletRequest.getRemoteAddr(),
                             user.getRole(),
                             user.getId()
-                    )
+                    );
+                    user.setEnabled(true);
+                    userRepository.save(user);
+                },
+                () -> {
+                    throw new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED,
+                            "INVALID_TOKEN"
+                    );
+                }
             );
         } else {
             log.atWarn().log(
-                    String.format(
-                            "Email verification failed: IP='%s' token:'%s'",
-                            servletRequest.getRemoteAddr(),
-                            uuid
-                    )
+                "Email verification failed: IP='{}' token:'{}'",
+                servletRequest.getRemoteAddr(),
+                uuid
+
             );
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
@@ -215,38 +246,77 @@ public class AuthService {
         }
     }
 
+    /**
+     * Method for handling password reset requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the password reset request
+     */
     public void forgot(
             HttpServletRequest servletRequest,
             ForgotPasswordRequest request
     ) {
-        User user = userRepository.findByUsername(request.username()).orElse(null);
-        if (user == null || !user.getEmail().equals(request.email())) {
-            // Dont throw exception to prevent user enumeration
+        UserAuthProjection user = userRepository.findUserProjectedByUsername(request.username()).orElse(null);
+        if (user == null || !user.getEmail().equals(request.email()) || !user.getEnabled()) {
+            log.atWarn().log(
+                "Password reset failed: IP='{}' Username='{}'",
+                servletRequest.getRemoteAddr(),
+                request.username()
+            );
+            // Don't throw exception to prevent user enumeration
             return;
         }
+        log.atInfo().log(
+            "Password reset successful: IP='{}' Username='{}'",
+            servletRequest.getRemoteAddr(),
+            request.username()
+        );
         emailService.sendPasswordResetEmail(
                 user.getEmail(),
                 passwordTokenService.createPasswordToken(user)
         );
     }
 
+    /**
+     * Method for verifying the validity of the password reset token.
+     *
+     * @param servletRequest the HTTP request
+     * @param token the password reset token
+     */
     public void isValid(HttpServletRequest servletRequest, String token) {
         PasswordToken passwordToken = passwordTokenService.getPasswordToken(token);
         if (passwordToken == null || passwordToken.getExpiryDate().compareTo(Date.from(Instant.now())) < 0) {
+            log.atWarn().log(
+                "Password token invalid: IP='{}' token:'{}'",
+                servletRequest.getRemoteAddr(),
+                token
+            );
             throw new ResponseStatusException(
                     HttpStatus.UNAUTHORIZED,
                     "INVALID_TOKEN"
             );
         }
+        log.atInfo().log(
+            "Password token valid: IP='{}' token:'{}'",
+            servletRequest.getRemoteAddr(),
+            token
+        );
     }
 
+    /**
+     * Method for handling password change requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the password change request
+     */
+    @Transactional
     public void changePassword(
             HttpServletRequest servletRequest,
             PasswordChangeRequest request
     ) {
         PasswordToken token = passwordTokenService.getPasswordToken(request.token());
         if (token != null && token.getExpiryDate().compareTo(Date.from(Instant.now())) >= 0) {
-            User user = token.getUser();
+            User user = userRepository.findById(token.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN"));
             if (passwordEncoder.matches(request.password(), user.getPassword())) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -257,45 +327,37 @@ public class AuthService {
             userRepository.save(user);
             passwordTokenRepository.deleteByToken(request.token());
             log.atInfo().log(
-                    String.format(
-                            "Password reset successful: IP='%s' Role='%s', UserId='%s'",
-                            servletRequest.getRemoteAddr(),
-                            user.getRole(),
-                            user.getId()
-                    )
+                "Password reset successful: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
             );
+            return;
         } else if (token != null && token.getExpiryDate().compareTo(Date.from(Instant.now())) < 0) {
-            log.atWarn().log(
-                    String.format(
-                            "Password reset failed: IP='%s' token:'%s'",
-                            servletRequest.getRemoteAddr(),
-                            request.token()
-                    )
-            );
             passwordTokenRepository.deleteByToken(request.token());
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "INVALID_TOKEN"
-            );
-        } else {
-            log.atWarn().log(
-                    String.format(
-                            "Password reset failed: IP='%s' token:'%s'",
-                            servletRequest.getRemoteAddr(),
-                            request.token()
-                    )
-            );
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "INVALID_TOKEN"
-            );
         }
+        log.atWarn().log(
+            "Password reset failed: IP='{}' token:'{}'",
+            servletRequest.getRemoteAddr(),
+            request.token()
+        );
+        throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "INVALID_TOKEN"
+        );
+
     }
 
-    private AuthResponse buildAuthResponse(User user) {
+    /**
+     * Helper method for building the authentication response.
+     *
+     * @param user the user
+     * @return the authentication response
+     */
+    private AuthResponse buildAuthResponse(UserAuthProjection user) {
         return AuthResponse.builder()
                 .accessToken(
-                        tokenService.genToken(user)
+                        tokenService.genToken(user.getId(), user.getUsername())
                 )
                 .refreshToken(
                         refreshTokenService.createRefreshToken(user)

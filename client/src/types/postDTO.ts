@@ -1,4 +1,5 @@
 export interface PostDTO {
   id: string,
-  content: string
+  content: string,
+  createdAt: string,
 }

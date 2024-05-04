@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Data
@@ -14,4 +15,5 @@ import java.util.UUID;
 public class PostDTO {
     private UUID id;
     private String content;
+    private Date createdAt;
 }

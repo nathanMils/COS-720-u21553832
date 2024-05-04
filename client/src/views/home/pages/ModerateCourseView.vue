@@ -11,6 +11,7 @@ import {
   ModuleCard,
   RedButton
 } from '@/components'
+import { NotFoundView } from '@/views'
 
 
 const route = useRoute()
@@ -32,18 +33,21 @@ onMounted( async () => {
     const response = await fetchCourse(courseId as string)
     if (response.status !== 200) {
       displayError('An error occurred while fetching course')
+      notFound.value = true
       console.error("An error occurred while fetching course modules")
       return
     }
     course.value = response.data.data
   } catch (error: any) {
     displayError('An error occurred while fetching course')
+    notFound.value = true
     console.error(error)
   }
   loading.value = false
 })
 
 const loading = ref(true)
+const notFound = ref(false)
 const course = ref<FetchCourseResponse | null>(null)
 
 const removeModule = async (moduleId: string) => {
@@ -61,7 +65,7 @@ const removeModule = async (moduleId: string) => {
   }
 }
 
-const showConfirmation = ref(false)
+const showConfirmation = ref('')
 </script>
 
 <template>
@@ -70,7 +74,11 @@ const showConfirmation = ref(false)
     :message="error"
     @close="handleClose"
   />
-  <div v-if="!loading" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
+  <NotFoundView v-show="notFound"/>
+  <div v-show="loading" class="flex items-center justify-center h-full">
+    <LoadingComponent />
+  </div>
+  <div v-if="!loading && !notFound" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-4xl font-bold">{{ course!.courseName }}</h1>
@@ -83,23 +91,24 @@ const showConfirmation = ref(false)
         </GreenButton>
       </RouterLink>
     </div>
-    <div v-if="course!.modules.length" class="grid grid-cols-1 gap-4 mt-4">
+    <div v-if="course!.modules.length" class="mt-4">
       <ModuleCard
         v-for="module in course!.modules"
         :module="module"
         :key="module.id"
         :edit="true"
+        class="mb-4"
       >
         <RedButton
-          @click="showConfirmation = true"
+          @click="showConfirmation = module.id"
         >
           Remove Module
         </RedButton>
         <ConfirmDialog
-          :show="showConfirmation"
+          :show="showConfirmation === module.id"
           message="Are you sure you want to delete this module?"
-          @confirm="removeModule(module.id); showConfirmation = false"
-          @close="showConfirmation = false"
+          @confirm="removeModule(module.id); showConfirmation = ''"
+          @close="showConfirmation = ''"
         />
       </ModuleCard>
     </div>
@@ -107,8 +116,5 @@ const showConfirmation = ref(false)
       <MissingIcon />
       <p class="text-gray-400 dark:text-gray-600">No Modules</p>
     </div>
-  </div>
-  <div v-else class="flex items-center justify-center h-full">
-    <LoadingComponent />
   </div>
 </template>

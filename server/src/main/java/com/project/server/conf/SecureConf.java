@@ -1,6 +1,7 @@
 package com.project.server.conf;
 
 import com.project.server.filter.AuthFilter;
+import com.project.server.filter.JWTExceptionHandlingFilter;
 import com.project.server.filter.XSSFilter;
 import com.project.server.service.LogoutService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 @RequiredArgsConstructor
 public class SecureConf {
     private final AuthFilter authFilter;
+    private final JWTExceptionHandlingFilter jwtExceptionHandlingFilter;
     private final AuthenticationProvider authProvider;
     private final LogoutService logoutService;
     private static final String PREFIX = "/api/v1/";
@@ -94,6 +96,10 @@ public class SecureConf {
                 .addFilterBefore(
                         authFilter,
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterBefore(
+                        jwtExceptionHandlingFilter,
+                        AuthFilter.class
                 )
                 .logout(
                         logout -> logout

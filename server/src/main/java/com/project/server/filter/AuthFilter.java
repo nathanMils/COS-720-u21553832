@@ -18,11 +18,27 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filter for handling authentication.
+ * This filter intercepts each request and performs authentication based on the access token.
+ */
 @Component
 @RequiredArgsConstructor
 public class AuthFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
     private final TokenService tokenService;
+
+    /**
+     * Handles authentication.
+     * This method is called for each request. It retrieves the access token from the cookie,
+     * validates it, and sets the authentication in the security context.
+     *
+     * @param request the HTTP request
+     * @param response the HTTP response
+     * @param filterChain the filter chain
+     * @throws ServletException if a servlet exception occurred
+     * @throws IOException if an input or output exception occurred
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -46,6 +62,13 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request,response);
     }
 
+    /**
+     * Retrieves the access token from the cookie.
+     * This method is called to retrieve the access token from the cookie in the request.
+     *
+     * @param request the HTTP request
+     * @return the access token, or null if not found
+     */
     private String getAccessTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {

@@ -1,6 +1,7 @@
 package com.project.server.repository;
 
 import com.project.server.model.entity.Student;
+import com.project.server.model.projections.authorizationProjections.AuthStudentProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,4 +13,7 @@ public interface StudentRepository extends JpaRepository<Student,Long> {
     List<Student> findByUserIdAndCourseId(Long userId, UUID courseId);
     Optional<Student> findByUserIdAndModuleId(Long userId, UUID moduleId);
     void deleteAllByUserIdAndCourseId(Long userId, UUID courseId);
+
+    // Authorizations
+    List<AuthStudentProjection> findAuthProjectionByUserId(Long userId);
 }

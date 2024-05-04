@@ -72,49 +72,35 @@ public class CourseModeratorIntegrationTests {
 
     @BeforeEach
     public void setUp() {
+        User studentA = userRepository.save(
+                User.builder()
+                        .firstName("Student")
+                        .lastName("Test")
+                        .username("studentTest1")
+                        .role(RoleEnum.ROLE_STUDENT)
+                        .email("emailtest@gmail.com")
+                        .enabled(true)
+                        .secret("secret")
+                        .password(passwordEncoder.encode("studentTest!1"))
+                        .build()
+        );
         studentTokenA = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .firstName("Student")
-                                .lastName("Test")
-                                .username("studentTest1")
-                                .role(RoleEnum.ROLE_STUDENT)
-                                .email("emailtest@gmail.com")
-                                .enabled(true)
-                                .secret("secret")
-                                .password(passwordEncoder.encode("studentTest!1"))
-                                .build()
-                )
+                studentA.getId(), studentA.getUsername()
         );
-
-        studentTokenB = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .firstName("Student")
-                                .lastName("Test")
-                                .username("studentTest2")
-                                .role(RoleEnum.ROLE_STUDENT)
-                                .email("emailtest@gmail.com")
-                                .enabled(true)
-                                .secret("secret")
-                                .password(passwordEncoder.encode("studentTest!2"))
-                                .build()
-                )
+        User courseModeratorA = userRepository.save(
+                User.builder()
+                        .firstName("Course")
+                        .lastName("Moderator")
+                        .username("courseModerator")
+                        .role(RoleEnum.ROLE_COURSE_MODERATOR)
+                        .email("emailtest@gmail.com")
+                        .enabled(true)
+                        .secret("secret")
+                        .password(passwordEncoder.encode("passwordCourseModerator!1"))
+                        .build()
         );
-
         courseModeratorTokenA = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .firstName("Course")
-                                .lastName("Moderator")
-                                .username("courseModerator")
-                                .role(RoleEnum.ROLE_COURSE_MODERATOR)
-                                .email("emailtest@gmail.com")
-                                .enabled(true)
-                                .secret("secret")
-                                .password(passwordEncoder.encode("passwordCourseModerator!1"))
-                                .build()
-                )
+                courseModeratorA.getId(), courseModeratorA.getUsername()
         );
 
         courseId = courseRepository.save(
@@ -124,20 +110,20 @@ public class CourseModeratorIntegrationTests {
                         .moderator(userRepository.findByUsername("courseModerator").orElseThrow())
                         .build()
         ).getId();
-
+        User courseModeratorB = userRepository.save(
+                User.builder()
+                        .firstName("Course")
+                        .lastName("Moderator")
+                        .username("courseModerator2")
+                        .role(RoleEnum.ROLE_COURSE_MODERATOR)
+                        .email("emailtest@gmail.com")
+                        .enabled(true)
+                        .secret("secret")
+                        .password(passwordEncoder.encode("passwordCourseModerator!2"))
+                        .build()
+        );
         courseModeratorTokenB = tokenService.genToken(
-                userRepository.save(
-                        User.builder()
-                                .firstName("Course")
-                                .lastName("Moderator")
-                                .username("courseModerator2")
-                                .role(RoleEnum.ROLE_COURSE_MODERATOR)
-                                .email("emailtest@gmail.com")
-                                .enabled(true)
-                                .secret("secret")
-                                .password(passwordEncoder.encode("passwordCourseModerator!2"))
-                                .build()
-                )
+             courseModeratorB.getId(), courseModeratorB.getUsername()
         );
 
         moduleId = moduleRepository.save(

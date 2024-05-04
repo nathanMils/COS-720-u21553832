@@ -36,12 +36,13 @@ const studentApplications = ref<StudentApplicationDTO[]>([])
       <h1 class="text-4xl font-bold">Student Applications</h1>
       <p class="mt-2 text-gray-600">All pending student applications</p>
     </div>
-    <div v-if="studentApplications.length" class="grid grid-cols-1 gap-4 mt-4">
+    <div v-if="studentApplications.length" class="mt-4">
       <StudentApplicationCard
         v-for="application in studentApplications"
         :application="application"
         :key="application.applicationId"
         @updateStatus="updateStatus(application.applicationId, $event)"
+        class="mb-4"
       />
     </div>
     <div v-else class="flex flex-col items-center justify-center">

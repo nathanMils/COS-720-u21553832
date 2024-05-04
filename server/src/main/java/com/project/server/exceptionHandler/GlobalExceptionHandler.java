@@ -3,10 +3,9 @@ package com.project.server.exceptionHandler;
 import com.project.server.exception.RefreshTokenException;
 import com.project.server.response.APIResponse;
 import com.project.server.response.ResponseCode;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +20,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/**
+ * Global exception handler for the application.
+ * This class handles all the exceptions thrown across the application and sends appropriate responses.
+ */
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
+    /**
+     * Handles ResponseStatusException.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<APIResponse<Void>> handleResponseStatusException(
             ResponseStatusException ex
@@ -38,6 +48,12 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    /**
+     * Handles AuthenticationException.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<APIResponse<String>> handleAuthenticationException(AuthenticationException ex) {
         return ResponseEntity
@@ -51,34 +67,12 @@ public class GlobalExceptionHandler {
                 );
     }
 
-    @ExceptionHandler(ExpiredJwtException.class)
-    public ResponseEntity<APIResponse<Void>> handleExpiredJWT(
-            ExpiredJwtException ex
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(
-                        APIResponse.<Void>builder()
-                                .status(ResponseCode.failed)
-                                .internalCode("AUTH_TOKEN_EXPIRED")
-                                .build()
-                );
-    }
-
-    @ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<APIResponse<Void>> handleMalformedJWT(
-            MalformedJwtException ex
-    ) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(
-                        APIResponse.<Void>builder()
-                                .status(ResponseCode.failed)
-                                .internalCode("AUTH_TOKEN_MALFORMED")
-                                .build()
-                );
-    }
-
+    /**
+     * Handles EntityExistsException.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<APIResponse<Void>> entityExists(
             EntityExistsException ex
@@ -93,6 +87,12 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    /**
+     * Handles EntityNotFoundException.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<APIResponse<Void>> entityNotFound(
             EntityNotFoundException ex
@@ -107,6 +107,12 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    /**
+     * Handles MethodArgumentNotValidException.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<APIResponse<Void>> validationExceptions(
             MethodArgumentNotValidException ex
@@ -131,6 +137,12 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    /**
+     * Handles RefreshTokenException.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
     @ExceptionHandler(RefreshTokenException.class)
     public ResponseEntity<APIResponse<Void>> tokenRefreshException(
             RefreshTokenException ex
@@ -145,27 +157,18 @@ public class GlobalExceptionHandler {
                 );
 
     }
-    // Unknown Errors
-//    @ExceptionHandler(RuntimeException.class)
-//    public ResponseEntity<APIResponse<Void>> runtimeErrorException(
-//            RuntimeException ex
-//    ) {
-//        ex.printStackTrace();
-//        return ResponseEntity
-//                .status(HttpStatus.EXPECTATION_FAILED)
-//                .body(
-//                        APIResponse.<Void>builder()
-//                                .status(ResponseCode.server_error)
-//                                .internalCode("UNKNOWN_SERVER_ERROR")
-//                                .build()
-//                );
-//    }
 
-    // Database violations
+    /**
+     * Handles DataIntegrityViolationException.
+     *
+     * @param ex the exception
+     * @return the response entity
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<APIResponse<Void>> dataIntegrityViolationException(
             DataIntegrityViolationException ex
     ) {
+        log.atError().log("Data integrity violation exception: {}", ex.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(
@@ -176,6 +179,12 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    /**
+     * Handles UsernameNotFoundException.
+     *
+     * @param usernameNotFoundException the exception
+     * @return the response entity
+     */
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<APIResponse<Void>> usernameNotFound(
             UsernameNotFoundException usernameNotFoundException

@@ -52,12 +52,13 @@ const drop = async (courseId: string) => {
         </GreenButton>
       </RouterLink>
     </div>
-    <div v-if="courses.length" class="grid grid-cols-1 gap-4 mt-4">
+    <div v-if="courses.length" class="mt-4">
       <CourseCardLink
         v-for="course in courses"
         :course="course"
         :key="course.id"
         :edit="false"
+        class="mb-4"
       >
       </CourseCardLink>
     </div>

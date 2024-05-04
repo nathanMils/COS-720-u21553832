@@ -18,7 +18,13 @@ import {
   CourseView,
   AllCoursesView,
   NotFoundView,
-  CreateCourseView, UnderConstructionView, ModerateCourseView, CreateModuleView, ForgotPasswordView, ResetPasswordView
+  CreateCourseView,
+  UnderConstructionView,
+  ModerateCourseView,
+  CreateModuleView,
+  ForgotPasswordView,
+  ResetPasswordView,
+  ModerateModuleView
 } from '@/views'
 import { AuthStore } from '@/stores'
 import { Role } from '@/types'
@@ -100,6 +106,17 @@ const router = createRouter({
           component: CreateModuleView
         },
         {
+          path: 'module/:moduleId',
+          name: 'studentModule',
+          component: UnderConstructionView
+        },
+        {
+          path: 'module/:moduleId/edit',
+          name: 'moderateModule',
+          component: ModerateModuleView,
+          meta: { roles: [Role.ROLE_COURSE_MODERATOR,Role.ROLE_ADMIN] }
+        },
+        {
           path: '',
           name: 'default',
           redirect: { name: 'dashboard' }
@@ -170,6 +187,19 @@ router.beforeEach(async (to) => {
     return '/login'
   }
   isLoading.value = false
+})
+
+router.beforeEach(async (to, from, next) => {
+  const auth = AuthStore()
+  const loggedIn = await auth.loggedIn()
+
+  const guardedPaths = ['/login', '/apply', '/forgot', '/reset', '/confirm', '/verifyEmail']
+
+  if (loggedIn && guardedPaths.includes(to.path)) {
+    next('/dashboard')
+  } else {
+    next() // Otherwise, proceed as normal
+  }
 })
 
 router.beforeEach(async (to, from, next) => {

@@ -1,7 +1,6 @@
 package com.project.server.service;
 
 import com.project.server.repository.RefreshTokenRepository;
-import com.project.server.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class LogoutService implements LogoutHandler {
-    private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenService tokenService;
 
@@ -48,7 +46,6 @@ public class LogoutService implements LogoutHandler {
                                 refreshTokenRepository.save(
                                         RToken
                                 );
-                                log.info("Refresh token for user {} revoked", RToken.getUser().getUsername());
                             },
                             () -> {
                                 throw new EntityNotFoundException("TOKEN_NOT_FOUND");

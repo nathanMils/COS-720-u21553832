@@ -1,6 +1,7 @@
 package com.project.server.service;
 
 import com.project.server.model.entity.User;
+import com.project.server.model.projections.auth.UserAuthProjection;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -46,15 +47,15 @@ public class TokenService {
     }
 
     public String genToken(
-            User details
+            Long userId, String username
     ) {
         HashMap<String,Object> Claims = new HashMap<>();
         return Jwts
                 .builder()
                 .setClaims(Claims)
-                .setSubject(details.getUsername())
+                .setSubject(username)
                 .setIssuer("http://localhost")
-                .setAudience(details.getId().toString())
+                .setAudience(userId.toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis()+(Long.parseLong(expireTime)*1000)))
                 .signWith(getKey(), SignatureAlgorithm.HS512)

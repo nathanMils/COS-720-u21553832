@@ -26,7 +26,7 @@ public class Post {
     @Convert(converter = StringConverter.class)
     private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "module_id")
     private Module module;
 
@@ -49,6 +49,7 @@ public class Post {
         return PostDTO.builder()
                 .id(id)
                 .content(content)
+                .createdAt(createdAt)
                 .build();
     }
 }

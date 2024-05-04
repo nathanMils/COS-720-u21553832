@@ -32,9 +32,15 @@ filebeat.inputs:
 - type: log
   enabled: true
   paths:
-    - /var/log/server.log
+    - /usr/app/logs/auth.log
   fields:
-    source: server.log
+    source: auth.log
+- type: log
+  enabled: true
+  paths:
+    - /usr/app/logs/error.log
+  fields:
+    source: error.log
 
 
 # processors:

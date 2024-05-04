@@ -9,6 +9,7 @@ import {
   MissingIcon,
   ModuleCard, RedButton
 } from '@/components'
+import { NotFoundView } from '@/views'
 
 
 const route = useRoute()
@@ -30,18 +31,21 @@ onMounted( async () => {
     const response = await fetchStudentCourse(courseId as string)
     if (response.status !== 200) {
       displayError('An error occurred while fetching course')
+      notFound.value = true
       console.error("An error occurred while fetching course modules")
       return
     }
     course.value = response.data.data
   } catch (error: any) {
     displayError('An error occurred while fetching course')
+    notFound.value = true
     console.error(error)
   }
   loading.value = false
 })
 
 const loading = ref(true)
+const notFound = ref(false)
 const course = ref<FetchStudentCourseResponse | null>(null)
 
 const register = async (moduleId: string) => {
@@ -87,20 +91,25 @@ const drop = async (moduleId: string) => {
     :message="error"
     @close="handleClose"
   />
-  <div v-if="!loading" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
+  <NotFoundView v-show="notFound"/>
+  <div v-show="loading" class="flex items-center justify-center h-full">
+    <LoadingComponent />
+  </div>
+  <div v-if="!loading && !notFound" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-4xl font-bold">{{ course!.courseName }}</h1>
-        <p class="mt-2 text-gray-600 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ course!.courseDescription }}</p>
-        <p class="mt-2 text-gray-600 overflow-ellipsis overflow-hidden whitespace-nowrap">Moderator: {{ course!.courseModerator }}</p>
+        <h1 class="text-4xl font-bold">{{ course?.courseName }}</h1>
+        <p class="mt-2 text-gray-600 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ course?.courseDescription }}</p>
+        <p class="mt-2 text-gray-600 overflow-ellipsis overflow-hidden whitespace-nowrap">Moderator: {{ course?.courseModerator }}</p>
       </div>
     </div>
-    <div v-if="course!.modules.length" class="grid grid-cols-1 gap-4 mt-4">
+    <div v-if="course?.modules.length" class="mt-4">
       <ModuleCard
-        v-for="module in course!.modules"
+        v-for="module in course?.modules"
         :module="module"
         :key="module.id"
         :edit="false"
+        class="mb-4"
       >
         <GreenFuncButton v-if="!module.registered"
           @click="register(module.id)"
@@ -118,8 +127,5 @@ const drop = async (moduleId: string) => {
       <MissingIcon />
       <p class="text-gray-400 dark:text-gray-600">No Modules</p>
     </div>
-  </div>
-  <div v-else class="flex items-center justify-center h-full">
-    <LoadingComponent />
   </div>
 </template>

@@ -77,12 +77,6 @@ public class User {
     @Column(nullable = false)
     private boolean enabled;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private RefreshToken token;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private ConfirmationToken confirmationToken;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Student> student;
 

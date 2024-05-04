@@ -22,6 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+/**
+ * Controller for handling authentication related requests.
+ */
 @RestController
 @CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/auth")
@@ -42,6 +45,13 @@ public class AuthController {
     @Value("${app.cookie.secure}")
     private String secure;
 
+    /**
+     * Endpoint for handling application requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the application request
+     * @return the response entity
+     */
     @PostMapping("/apply")
     public ResponseEntity<APIResponse<Void>> apply(
             HttpServletRequest servletRequest,
@@ -59,6 +69,14 @@ public class AuthController {
 
     }
 
+    /**
+     * Endpoint for handling login requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param servletResponse the HTTP response
+     * @param request the login request
+     * @return the response entity
+     */
     @PostMapping("/login")
     public ResponseEntity<APIResponse<Void>> login(
             HttpServletRequest servletRequest,
@@ -78,6 +96,13 @@ public class AuthController {
 
     }
 
+    /**
+     * Endpoint for handling token refresh requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param servletResponse the HTTP response
+     * @return the response entity
+     */
     @PostMapping("/refresh")
     public ResponseEntity<APIResponse<Void>> refresh(
             HttpServletRequest servletRequest,
@@ -95,6 +120,13 @@ public class AuthController {
                 );
     }
 
+    /**
+     * Endpoint for verifying the email verification code.
+     *
+     * @param servletRequest the HTTP request
+     * @param token the verification token
+     * @return the response entity
+     */
     @PostMapping("/verifyEmail")
     public ResponseEntity<APIResponse<Void>> verifyCode(
             HttpServletRequest servletRequest,
@@ -111,6 +143,12 @@ public class AuthController {
                 );
     }
 
+    /**
+     * Endpoint for checking if the user is logged in.
+     *
+     * @param servletRequest the HTTP request
+     * @return the response entity
+     */
     @GetMapping("/loggedIn")
     public ResponseEntity<APIResponse<Void>> loggedIn(
             HttpServletRequest servletRequest
@@ -126,6 +164,13 @@ public class AuthController {
                 );
     }
 
+    /**
+     * Endpoint for handling password reset requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the password reset request
+     * @return the response entity
+     */
     @PostMapping("/forgot")
     public ResponseEntity<APIResponse<Void>> reset(
             HttpServletRequest servletRequest,
@@ -142,6 +187,13 @@ public class AuthController {
                 );
     }
 
+    /**
+     * Endpoint for verifying the password reset token.
+     *
+     * @param servletRequest the HTTP request
+     * @param token the password reset token
+     * @return the response entity
+     */
     @GetMapping("/isValid/{token}")
     public ResponseEntity<APIResponse<Void>> verifyToken(
             HttpServletRequest servletRequest,
@@ -158,6 +210,13 @@ public class AuthController {
                 );
     }
 
+    /**
+     * Endpoint for handling password change requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the password change request
+     * @return the response entity
+     */
     @PostMapping("/reset")
     public ResponseEntity<APIResponse<Void>> changePassword(
             HttpServletRequest servletRequest,
@@ -174,6 +233,12 @@ public class AuthController {
                 );
     }
 
+    /**
+     * Helper method for setting the access and refresh tokens as cookies in the response.
+     *
+     * @param servletResponse the HTTP response
+     * @param response the authentication response containing the tokens
+     */
     private void setCookies(HttpServletResponse servletResponse, AuthResponse response) {
         ResponseCookie accessTokenCookie = ResponseCookie.from("accessToken",response.getAccessToken())
                         .httpOnly(true)
