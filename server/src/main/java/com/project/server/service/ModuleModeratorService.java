@@ -10,6 +10,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -21,7 +23,7 @@ public class ModuleModeratorService {
 
     @Transactional
     public PostDTO addPost(AddPostRequest request, UUID moduleId) {
-        return postRepository.save(
+        PostDTO postDTO = postRepository.save(
                 Post.builder()
                         .content(request.content())
                         .module(
@@ -30,5 +32,12 @@ public class ModuleModeratorService {
                         )
                         .build()
         ).convert();
+        postDTO.setCreatedAt(Date.from(Instant.now()));
+        return postDTO;
+    }
+
+    @Transactional
+    public void deletePost(UUID postId) {
+        postRepository.deleteById(postId);
     }
 }

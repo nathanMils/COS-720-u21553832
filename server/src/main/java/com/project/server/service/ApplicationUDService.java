@@ -61,8 +61,11 @@ public class ApplicationUDService implements UserDetailsService {
                                 .toList()
                 );
                 studentRepository.findAuthProjectionByUserId(user.getId()).forEach(
-                        (student) -> authorities.add(
-                                new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString()))
+                        (student) -> authorities.addAll(
+                                List.of(
+                                    new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString())),
+                                    new SimpleGrantedAuthority(String.format("module_%s_student",student.getModule().getId().toString()))
+                                )
                         )
                 );
                 break;

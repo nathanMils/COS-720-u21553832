@@ -24,7 +24,7 @@ import {
   CreateModuleView,
   ForgotPasswordView,
   ResetPasswordView,
-  ModerateModuleView
+  ModerateModuleView, ModuleView
 } from '@/views'
 import { AuthStore } from '@/stores'
 import { Role } from '@/types'
@@ -108,7 +108,8 @@ const router = createRouter({
         {
           path: 'module/:moduleId',
           name: 'studentModule',
-          component: UnderConstructionView
+          component: ModuleView,
+          meta: { roles: [Role.ROLE_STUDENT] }
         },
         {
           path: 'module/:moduleId/edit',
