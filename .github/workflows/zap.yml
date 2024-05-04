@@ -41,7 +41,7 @@ jobs:
               run: mvn -B package -DskipTests --file ./server/pom.xml
 
             - name: Run Spring Application
-              run: java -jar ./server/target/server-0.0.1-SNAPSHOT.jar
+              run: java -jar ./server/target/server-0.0.1-SNAPSHOT.jar &
             
             - name: ZAP Baseline Scan
               uses: zaproxy/action-baseline@v0.12.0
