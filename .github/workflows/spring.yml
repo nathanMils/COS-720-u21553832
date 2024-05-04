@@ -2,9 +2,7 @@ name: Spring
 
 on:
     push:
-        branches:
-            - main
-            - dev
+        branches: ["main","dev"]
         paths:
             - server/**
             - 'compose.yml'
