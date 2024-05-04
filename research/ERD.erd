@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram version="1" name="ERD.erd">
+	<entities>
+		<data-source id="postgres-jdbc-18df4c18bd9-79799d794e93267">
+			<entity id="1" name="_user" fq-name="public.&quot;_user&quot;" order="0" x="252" y="539">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="2" name="course" fq-name="public.course" order="1" x="450" y="247">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="3" name="course_moderator" fq-name="public.course_moderator" order="2" x="428" y="523">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="4" name="course_modules" fq-name="public.course_modules" order="3" x="441" y="64">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="5" name="module" fq-name="public.&quot;module&quot;" order="4" x="257" y="21">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="6" name="module_moderator" fq-name="public.module_moderator" order="5" x="13" y="284">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="7" name="post" fq-name="public.post" order="6" x="20" y="20">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="8" name="refresh_token" fq-name="public.refresh_token" order="7" x="45" y="596">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="9" name="student" fq-name="public.student" order="8" x="257" y="255">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+			<entity id="10" name="student_application" fq-name="public.student_application" order="9" x="624" y="601">
+				<path name="public"/>
+				<path name="cos720"/>
+			</entity>
+		</data-source>
+	</entities>
+	<relations>
+		<relation name="fk101a9s99jwv51rs18ydvmv3b4" fq-name="public.course_moderator.fk101a9s99jwv51rs18ydvmv3b4" type="fk" pk-ref="1" fk-ref="3"/>
+		<relation name="fkoj4aytqymej387rms5oc7r5so" fq-name="public.module_moderator.fkoj4aytqymej387rms5oc7r5so" type="fk" pk-ref="1" fk-ref="6"/>
+		<relation name="fkbws85up72jgwebb6ttkjiytg3" fq-name="public.refresh_token.fkbws85up72jgwebb6ttkjiytg3" type="fk" pk-ref="1" fk-ref="8"/>
+		<relation name="fkk4ktpoqafwmlcxamw40yq9i6v" fq-name="public.student.fkk4ktpoqafwmlcxamw40yq9i6v" type="fk" pk-ref="1" fk-ref="9"/>
+		<relation name="fkb8mon947antvl8n3y00okfm26" fq-name="public.student_application.fkb8mon947antvl8n3y00okfm26" type="fk" pk-ref="1" fk-ref="10"/>
+		<relation name="fk5fe9r9uuwyq07ff9j29qh1dg7" fq-name="public.course_moderator.fk5fe9r9uuwyq07ff9j29qh1dg7" type="fk" pk-ref="2" fk-ref="3"/>
+		<relation name="fklr5ysf9t0n6t7mfjs73qvrk7u" fq-name="public.course_modules.fklr5ysf9t0n6t7mfjs73qvrk7u" type="fk" pk-ref="2" fk-ref="4"/>
+		<relation name="fkdfypyqt0stgfc0aij9kcxm99s" fq-name="public.student.fkdfypyqt0stgfc0aij9kcxm99s" type="fk" pk-ref="2" fk-ref="9"/>
+		<relation name="fkowmsegq4mutjdlivq92k54jnc" fq-name="public.student_application.fkowmsegq4mutjdlivq92k54jnc" type="fk" pk-ref="2" fk-ref="10"/>
+		<relation name="fkg4ttp3ej7qlcs525aqprl5tf7" fq-name="public.course_modules.fkg4ttp3ej7qlcs525aqprl5tf7" type="fk" pk-ref="5" fk-ref="4"/>
+		<relation name="fko7y4oca843dsfpprcf4tx6fmw" fq-name="public.module_moderator.fko7y4oca843dsfpprcf4tx6fmw" type="fk" pk-ref="5" fk-ref="6"/>
+		<relation name="fkj75o2b1dq2tryjdofr9yx9gpi" fq-name="public.post.fkj75o2b1dq2tryjdofr9yx9gpi" type="fk" pk-ref="5" fk-ref="7"/>
+		<relation name="fk17kiwwvyflvqidu37tjv3h9xp" fq-name="public.student.fk17kiwwvyflvqidu37tjv3h9xp" type="fk" pk-ref="5" fk-ref="9"/>
+	</relations>
+</diagram>

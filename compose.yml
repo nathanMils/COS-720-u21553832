@@ -1,26 +1,70 @@
 version: '3.8'
 
 services:
+
+  setup:
+    profiles:
+      - setup
+    build:
+      context: setup/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: setup
+    init: true
+    volumes:
+      - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
+      - ./setup/lib.sh:/lib.sh:ro,Z
+      - ./setup/roles:/roles:ro,Z
+    environment:
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+      BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
   server:
     build: ./server
-    container_name: "server"
+    container_name: server
+    volumes:
+      - ./server/logs:/usr/app/logs
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://${DB_URL}/${DB_NAME}?sslmode=require
-      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: "false"
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      APP_KEY: ${JWT_KEY}
-      APP_TOKEN_EXPIRE_FACTOR: "90"
-      APP_CONNECTION_TIMEOUT: "3000"
-      APP_REQUEST_TIMEOUT: "3000"
+      SPRING_PROFILES_ACTIVE: ${PROFILE}
+      SPRING_DATASOURCE_URL: ${DATABASE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
+      APP_BASE_URL: ${BASE_URL}
+      APP_ADMIN_USERNAME: ${ADMIN_USERNAME}
+      APP_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      APP_ADMIN_EMAIL: ${ADMIN_EMAIL}
+      APP_ADMIN_NAME_FIRST: ${ADMIN_FIRST_NAME}
+      APP_ADMIN_NAME_LAST: ${ADMIN_LAST_NAME}
+    depends_on:
+      - postgres
     networks:
       - proxy-server
+      - postgres-server
+  
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres-server
+    
   
   client:
     build: ./client
-    container_name: "client"
+    container_name: client
+    environment:
+      VITE_API_BASE_URL: ${BASE_URL}${SERVER_EXTENTION}
     depends_on:
       - server
     networks:
@@ -29,17 +73,119 @@ services:
 
   proxy:
     build: ./nginx
-    container_name: "proxy"
+    container_name: proxy
     restart: always
     ports:
       - "80:80"
+    volumes:
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - client
+      - server
     networks:
       - proxy-client
       - proxy-server
+      - proxy-kibana
+    
+  elasticsearch:
+    build:
+      context: elasticsearch/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: elasticsearch
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - elasticsearch:/usr/share/elasticsearch/data:Z
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      node.name: elasticsearch
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
+      discovery.type: single-node
+    networks:
+      - elk
+    restart: unless-stopped
+
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: logstash
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+    ports:
+      - 5044:5044
+      - 50000:50000/tcp
+      - 50000:50000/udp
+      - 9600:9600
+    environment:
+      LS_JAVA_OPTS: -Xms256m -Xmx256m
+      LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  kibana:
+    build:
+      context: kibana/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: kibana
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+    environment:
+      KIBANA_SYSTEM_PASSWORD: ${KIBANA_SYSTEM_PASSWORD:-}
+    networks:
+      - elk
+      - proxy-kibana
+    depends_on:
+      - elasticsearch
+    restart: unless-stopped
+
+  filebeat:
+    build:
+      context: filebeat/
+      args:
+        ELASTIC_VERSION: ${ELASTIC_VERSION}
+    container_name: filebeat
+    user: root
+    command:
+      - -e
+      - --strict.perms=false
+    volumes:
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,Z
+      - ./nginx/logs:/var/log/nginx
+      - ./server/logs:/usr/app/logs
+      - type: bind
+        source: /var/lib/docker/containers
+        target: /var/lib/docker/containers
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+    environment:
+      FILEBEAT_INTERNAL_PASSWORD: ${FILEBEAT_INTERNAL_PASSWORD:-}
+      BEATS_SYSTEM_PASSWORD: ${BEATS_SYSTEM_PASSWORD:-}
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+      - proxy
 
 volumes:
-  postgres-data:
+  elasticsearch:
 
 networks:
   proxy-client:
   proxy-server:
+  proxy-kibana:
+  postgres-server:
+  elk:
+    driver: bridge

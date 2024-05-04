@@ -1,76 +1,367 @@
 package com.project.server.service;
 
-import com.project.server.entity.Role;
-import com.project.server.entity.UserEntity;
-import com.project.server.repository.UserRepository;
-import com.project.server.request.LoginRequest;
-import com.project.server.request.RegistrationRequest;
-import com.project.server.response.Code;
-import com.project.server.response.LoginResponse;
-import com.project.server.response.RegistrationResponse;
+import com.project.server.model.entity.*;
+import com.project.server.model.enums.RoleEnum;
+import com.project.server.model.projections.auth.UserAuthProjection;
+import com.project.server.repository.*;
+import com.project.server.request.auth.ApplicationRequest;
+import com.project.server.request.auth.ForgotPasswordRequest;
+import com.project.server.request.auth.LoginRequest;
+import com.project.server.request.auth.PasswordChangeRequest;
+import com.project.server.response.auth.AuthResponse;
+import jakarta.persistence.EntityExistsException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Date;
+import java.time.Instant;
+import java.util.Arrays;
+
+
+/**
+ * Service class for handling authentication related operations.
+ */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
-    private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
+    private final OTPService otpService;
+    private final ConfirmationTokenService confirmationTokenService;
+    private final ApplicationUDService userDetailsService;
+    private final EmailService emailService;
+    private final PasswordTokenService passwordTokenService;
+    private final PasswordTokenRepository passwordTokenRepository;
 
-    public RegistrationResponse registerStudent(
-            RegistrationRequest request
+
+    /**
+     * Method for handling user application requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the application request
+     */
+    @Transactional
+    public void apply(
+            HttpServletRequest servletRequest,
+            ApplicationRequest request
     ) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            return RegistrationResponse.builder()
-                    .code(Code.failed)
-                    .build();
+        if (userRepository.existsByUsername(request.username())) {
+            throw new EntityExistsException("USERNAME_EXISTS");
         }
-        UserEntity user = UserEntity.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.STUDENT)
-                .enabled(true)
-                .build();
-        userRepository.save(
-                user
+        User user = userRepository.save(
+                User.builder()
+                        .username(request.username())
+                        .firstName(request.firstName())
+                        .lastName(request.lastName())
+                        .password(passwordEncoder.encode(request.password()))
+                        .email(request.email())
+                        .role(RoleEnum.ROLE_STUDENT)
+                        .enabled(false)
+                        .secret(otpService.generateSecret())
+                        .build()
         );
-        return RegistrationResponse.builder()
-                .code(Code.success)
-                .token(
-                        tokenService.genToken(user)
-                )
-                .build();
+        log.atInfo().log(
+            "Student application submitted successfully: IP='{}' UserId='{}'",
+            servletRequest.getRemoteAddr(),
+            user.getId()
+        );
+        emailService.sendEmailVerificationEmail(
+                user.getEmail(),
+                confirmationTokenService.generateConfirmationToken(user)
+        );
     }
 
-    public LoginResponse login (
+    /**
+     * Method for handling user login requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the login request
+     * @return the authentication response
+     */
+    public AuthResponse login (
+            HttpServletRequest servletRequest,
             LoginRequest request
     ) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            UserEntity user = userRepository.findByUsername(request.getUsername()).orElseThrow();
-            if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-                return LoginResponse.builder()
-                        .token(
-                                tokenService.genToken(
-                                        user
-                                )
-                        )
-                        .code(Code.success)
-                        .build();
-            } else {
-                return LoginResponse.builder()
-                        .code(Code.incorrectPassword)
-                        .build();
+        UserAuthProjection user = userRepository.findUserProjectedByUsername(request.username()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS"));
+        if (
+                passwordEncoder.matches(request.password(), user.getPassword()) &&
+                user.getEnabled()
+        ) {
+            log.atInfo().log(
+                "User login successful: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
+            );
+            return buildAuthResponse(user);
+        } else if (passwordEncoder.matches(request.password(), user.getPassword()) && !user.getEnabled()) {
+            log.atInfo().log(
+                "Unverified User login: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
+            );
+            emailService.sendEmailVerificationEmail(
+                    user.getEmail(),
+                    confirmationTokenService.generateConfirmationToken(user)
+            );
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "EMAIL_NOT_VERIFIED"
+            );
+        } else {
+            log.atWarn().log(
+                "User login failed: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
+            );
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "INVALID_CREDENTIALS"
+            );
+        }
+    }
+
+    /**
+     * Method for checking if a user is logged in.
+     *
+     * @param servletRequest the HTTP request
+     * @return a boolean indicating if the user is logged in
+     */
+    public boolean isLoggedIn(HttpServletRequest servletRequest) {
+        try {
+            Cookie[] cookies = servletRequest.getCookies();
+            if (cookies == null) {
+                return false;
             }
 
-        } else {
-            return LoginResponse.builder()
-                    .code(Code.failed)
-                    .build();
+            String accessToken = getAccessTokenFromCookie(servletRequest);
+
+            if (accessToken != null) {
+                final String username = tokenService.getUserName(accessToken);
+                if (username != null) {
+                    UserDetails details = userDetailsService.loadUserByUsername(username);
+                    return tokenService.validate(accessToken, details);
+                }
+            }
+            return false;
+        } catch (UsernameNotFoundException e) {
+            return false;
         }
+    }
+
+    private String getAccessTokenFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Method for handling token refresh requests.
+     *
+     * @param servletRequest the HTTP request
+     * @return the authentication response
+     */
+    @Transactional
+    public AuthResponse refresh(HttpServletRequest servletRequest) {
+        Cookie[] cookies = servletRequest.getCookies();
+        if (cookies == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID");
+        }
+
+        String refresh = Arrays.stream(cookies)
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID"));
+
+        RefreshToken token = refreshTokenService.verifyExpiration(refresh);
+        if (token.isRevoked()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID");
+        }
+        return buildAuthResponse(userRepository.findUserProjectedById(token.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN")));
+    }
+
+
+    /**
+     * Method for verifying the email verification code.
+     *
+     * @param servletRequest the HTTP request
+     * @param uuid the verification token
+     */
+    public void verifyToken(
+            HttpServletRequest servletRequest,
+            String uuid
+    ) {
+        ConfirmationToken token = confirmationTokenService.getToken(uuid);
+        if (token != null && token.getExpiryDate().compareTo(Date.from(Instant.now())) >= 0) {
+            userRepository.findById(token.getUserId()).ifPresentOrElse(
+                user -> {
+                    log.atInfo().log(
+                            "User email verification successful: IP='{}' Role='{}', UserId='{}'",
+                            servletRequest.getRemoteAddr(),
+                            user.getRole(),
+                            user.getId()
+                    );
+                    user.setEnabled(true);
+                    userRepository.save(user);
+                },
+                () -> {
+                    throw new ResponseStatusException(
+                            HttpStatus.UNAUTHORIZED,
+                            "INVALID_TOKEN"
+                    );
+                }
+            );
+        } else {
+            log.atWarn().log(
+                "Email verification failed: IP='{}' token:'{}'",
+                servletRequest.getRemoteAddr(),
+                uuid
+
+            );
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "INVALID_TOKEN"
+            );
+        }
+    }
+
+    /**
+     * Method for handling password reset requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the password reset request
+     */
+    public void forgot(
+            HttpServletRequest servletRequest,
+            ForgotPasswordRequest request
+    ) {
+        UserAuthProjection user = userRepository.findUserProjectedByUsername(request.username()).orElse(null);
+        if (user == null || !user.getEmail().equals(request.email()) || !user.getEnabled()) {
+            log.atWarn().log(
+                "Password reset failed: IP='{}' Username='{}'",
+                servletRequest.getRemoteAddr(),
+                request.username()
+            );
+            // Don't throw exception to prevent user enumeration
+            return;
+        }
+        log.atInfo().log(
+            "Password reset successful: IP='{}' Username='{}'",
+            servletRequest.getRemoteAddr(),
+            request.username()
+        );
+        emailService.sendPasswordResetEmail(
+                user.getEmail(),
+                passwordTokenService.createPasswordToken(user)
+        );
+    }
+
+    /**
+     * Method for verifying the validity of the password reset token.
+     *
+     * @param servletRequest the HTTP request
+     * @param token the password reset token
+     */
+    public void isValid(HttpServletRequest servletRequest, String token) {
+        PasswordToken passwordToken = passwordTokenService.getPasswordToken(token);
+        if (passwordToken == null || passwordToken.getExpiryDate().compareTo(Date.from(Instant.now())) < 0) {
+            log.atWarn().log(
+                "Password token invalid: IP='{}' token:'{}'",
+                servletRequest.getRemoteAddr(),
+                token
+            );
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "INVALID_TOKEN"
+            );
+        }
+        log.atInfo().log(
+            "Password token valid: IP='{}' token:'{}'",
+            servletRequest.getRemoteAddr(),
+            token
+        );
+    }
+
+    /**
+     * Method for handling password change requests.
+     *
+     * @param servletRequest the HTTP request
+     * @param request the password change request
+     */
+    @Transactional
+    public void changePassword(
+            HttpServletRequest servletRequest,
+            PasswordChangeRequest request
+    ) {
+        PasswordToken token = passwordTokenService.getPasswordToken(request.token());
+        if (token != null && token.getExpiryDate().compareTo(Date.from(Instant.now())) >= 0) {
+            User user = userRepository.findById(token.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN"));
+            if (passwordEncoder.matches(request.password(), user.getPassword())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "PASSWORD_SAME"
+                );
+            }
+            user.setPassword(passwordEncoder.encode(request.password()));
+            userRepository.save(user);
+            passwordTokenRepository.deleteByToken(request.token());
+            log.atInfo().log(
+                "Password reset successful: IP='{}' Role='{}', UserId='{}'",
+                servletRequest.getRemoteAddr(),
+                user.getRole(),
+                user.getId()
+            );
+            return;
+        } else if (token != null && token.getExpiryDate().compareTo(Date.from(Instant.now())) < 0) {
+            passwordTokenRepository.deleteByToken(request.token());
+        }
+        log.atWarn().log(
+            "Password reset failed: IP='{}' token:'{}'",
+            servletRequest.getRemoteAddr(),
+            request.token()
+        );
+        throw new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "INVALID_TOKEN"
+        );
+
+    }
+
+    /**
+     * Helper method for building the authentication response.
+     *
+     * @param user the user
+     * @return the authentication response
+     */
+    private AuthResponse buildAuthResponse(UserAuthProjection user) {
+        return AuthResponse.builder()
+                .accessToken(
+                        tokenService.genToken(user.getId(), user.getUsername())
+                )
+                .refreshToken(
+                        refreshTokenService.createRefreshToken(user)
+                )
+                .build();
     }
 }

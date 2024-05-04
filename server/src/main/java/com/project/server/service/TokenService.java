@@ -1,10 +1,13 @@
 package com.project.server.service;
 
+import com.project.server.model.entity.User;
+import com.project.server.model.projections.auth.UserAuthProjection;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -16,10 +19,10 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class TokenService {
-
-    @Value("${app.token.expire.factor}")
-    private String expireFactor;
+    @Value("${app.token.authExpire}")
+    private String expireTime;
     @Value("${app.key}")
     private String key;
 
@@ -44,15 +47,17 @@ public class TokenService {
     }
 
     public String genToken(
-            UserDetails details
+            Long userId, String username
     ) {
         HashMap<String,Object> Claims = new HashMap<>();
         return Jwts
                 .builder()
                 .setClaims(Claims)
-                .setSubject(details.getUsername())
+                .setSubject(username)
+                .setIssuer("http://localhost")
+                .setAudience(userId.toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000L *60 *Integer.parseInt(expireFactor)))
+                .setExpiration(new Date(System.currentTimeMillis()+(Long.parseLong(expireTime)*1000)))
                 .signWith(getKey(), SignatureAlgorithm.HS512)
                 .compact();
     }

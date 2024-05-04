@@ -1,0 +1,37 @@
+<configuration>
+    <!-- STDOUT appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="AUTH_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/auth.log</file>
+        <encoder>
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Appender for ERROR level logs -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/error.log</file>
+        <encoder>
+            <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logger for Auth Info and Warn level logs -->
+    <logger name="com.project.server.service.AuthService" level="INFO">
+        <appender-ref ref="AUTH_FILE" />
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+
+
+    <!-- Root error logger -->
+    <root level="error">
+        <appender-ref ref="STDOUT" /> <!-- Reference to STDOUT appender (for console logging) -->
+        <appender-ref ref="ERROR_FILE" />   <!-- Reference to FILE appender (for file logging) -->
+    </root>
+</configuration>

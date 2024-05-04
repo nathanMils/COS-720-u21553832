@@ -1,11 +1,60 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,jsx,ts,tsx}",
-  ],
+export default {
+  darkMode: 'class',
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        appPrimary: {
+          light: '#f9fafb',
+          dark: '#111827',
+        },
+        appSecondary: {
+          light: '#ffffff',
+          dark: '#1f2937',
+        },
+        appTertiary: {
+          light: '#f3f4f6',
+          dark: '#374151',
+        },
+        appHover: {
+          light: '#e5e7eb',
+          dark: '#374151',
+        },
+        appText: {
+          light: '#111827',
+          dark: '#ffffff',
+        },
+        appBorder: {
+          light: '#d1d5db',
+          dark: '#374151',
+        },
+        primaryButton: {
+          50: "#eafdf6",
+          100: "#c9f8e2",
+          200: "#96f3c0",
+          300: "#52eaa0",
+          400: "#1ed985",
+          500: "#1ccf5d",
+          600: "#1abe42",
+          700: "#179531",
+          800: "#147c28",
+          900: "#10621e",
+          950: "#0d5019"
+        }
+      }
+    },
+    fontFamily: {
+      Roboto: ['Roboto, sans-serif']
+    },
+    container: {
+      padding: '2rem',
+      center: true
+    },
+    screens: {
+      sm: '640px',
+      md: '768px'
+    }
   },
-  plugins: [],
+  plugins: []
 }
-

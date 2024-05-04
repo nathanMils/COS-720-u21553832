@@ -1,19 +1,39 @@
 spring:
+  profiles:
+    active: local
   datasource:
-    url: jdbc:postgresql://${DATABASE_URL}?sslmode=require
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: false
     properties:
       hibernate:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-app.key: ${JWT_SIGNING_KEY}
-app.token.expire.factor: 90
-app.connection.timeout: 3000
-app.request.timeout: 3000
+  mail:
+    username: portalcos720@gmail.com
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          starttls:
+            required: true
+            enable: true
+          auth: true
+        transport:
+          protocol: smtp
+logging:
+  config: classpath:logback-spring.xml
+app:
+  token:
+    authExpire: 3600
+    refreshExpire: 4000
+    confirmationExpire: 600
+    passwordExpire: 600
+  connection:
+    timeout: 3000
+  request:
+    timeout: 3000
+  otp:
+    length: 6
+    duration: 60

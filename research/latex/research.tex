@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage[a4paper, total={7.5in, 10in}]{geometry}
+\usepackage{cite}
+\usepackage{enumitem}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\font\tfont=cmr12 at 16pt
+\font\stfont=cmr12 at 14pt
+\font\qfont=cmr12 at 12pt
+\font\afont=cmr12 at 12pt
+\font\subsfont=cmr12 at 15pt
+\author{\stfont \begin{tabular}{r@{ }l}
+Name: &Nathan Opperman\\[1ex]
+Student No:& u21553832
+\end{tabular}}
+\date{\today}
+\title{\tfont COS 720 Project}
+\newcommand{\spa}{\\[1ex]}
+\begin{document}
+\maketitle
+\noindent
+\section{\subsfont Research Overview}
+Some of the more recent developments of Cloud Computing Security is the adoption of Zero Trust cybersecurity paradigms. This is because in Cloud Computing network location is no longer a factor in the security of resources and so permitter security is not viable. According to \cite{NIST_SP_800_207}, Zero Trust Architecture (ZTA) emphasizes a principle of 'never trust, always verify,' shifting the security paradigm from perimeter-based trust assumptions to a model where no user/entity is implicitly trusted regardless of their location on the network and must always be continuously verified. Another important development is the use of micro-segmentation where the network is divided into smaller segments where access is restricted between them. According to \cite{Joo_et_al_2023} this mitigates the spread of threats/damage across the network. One development specific to data privacy has been the use of homomorphic encryption of sensitive data which allows computations of encrypted data without decrypting it.\spa Cloud Computing Security entails guaranteeing the confidentiality, integrity and availability of data and applications in the cloud though techniques and procedures that are independent of the physical infrastructures location(s) and other users of said cloud resources.
+\bibliography{research.bib}{}
+\bibliographystyle{plain}
+\end{document}

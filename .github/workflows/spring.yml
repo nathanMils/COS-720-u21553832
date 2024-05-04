@@ -1,0 +1,75 @@
+name: Spring
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - server/**
+            - 'compose.yml'
+
+jobs:
+    compile:
+        runs-on: ubuntu-latest
+        name: compile spring
+        env:
+          SPRING_ACTIVE_PROFILE: prod
+          SPRING_DATASOURCE_URL: ${{ secrets.TEST_DATABASE_URL}}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.TEST_DATABASE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.TEST_DATABASE_PASSWORD }}
+          SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+          APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          APP_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          APP_ADMIN_NAME_FIRST: Nathan
+          APP_ADMIN_NAME_LAST: Opperman
+          APP_BASE_URL: http://localhost
+          APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
+          APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+            
+            - name: Set JDK
+              uses: actions/setup-java@v4
+              with:
+                java-version: '21'
+                distribution: 'corretto'
+            
+            - name: Running Tests
+              run: |
+               cd server
+               ./mvn clean compile
+    tests:
+        runs-on: ubuntu-latest
+        name: Tests
+        env:
+          SPRING_ACTIVE_PROFILE: test
+          SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+          APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          APP_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          APP_ADMIN_NAME_FIRST: Nathan
+          APP_ADMIN_NAME_LAST: Opperman
+          APP_BASE_URL: http://localhost
+          APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
+          APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+
+            - name: Set JDK
+              uses: actions/setup-java@v4
+              with:
+                java-version: '21'
+                distribution: 'corretto'
+        
+            - name: Running Tests
+              run: |
+                cd book-network
+                ./mvnw clean test
+                

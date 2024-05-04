@@ -1,2 +1,5 @@
 secret.json
 .env
+.vscode
+*.log
+/postgres
