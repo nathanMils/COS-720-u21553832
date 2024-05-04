@@ -1,15 +1,21 @@
-# Frontend: Vue.js
-# CSS Framework: Tailwindcss
-# Backend: Spring Boot
-# Database: Postgres => Neon Tech Db project
-# Proxy: NGINX
-# Cloud Service Provider: AWS -> AWS EC2 Instance
-# Version Control: GitHub
-# CI/CD: GitHub actions, DockerHub
-# Logging: ELK Stack: Elastic Search Logstash and Kibana
+# Project Overview
 
-TODO:
-Container Security
-Log analysis
-Front end UI
-Cloud Service IAM
+## Frontend
+- **Framework**: Vue.js
+- **CSS Framework**: Tailwind CSS
+
+## Backend
+- **Framework**: Spring Boot
+- **Database**: Postgres (Neon Tech DB and Azure Postgres DB)
+- **Proxy**: NGINX
+
+## Cloud Service Provider
+- **Platform**: Azure
+- **Deployment**: Serverless multi-container deployment
+
+## Version Control
+- **Repository**: GitHub
+
+## Logging
+- **Stack**: ELK (Elasticsearch, Logstash, and Kibana)
+- **Log Collector**: Filebeat
