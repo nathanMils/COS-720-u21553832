@@ -10,7 +10,7 @@ on:
 
 jobs:
     compile:
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-latest
         name: compile spring
         env:
           SPRING_ACTIVE_PROFILE: prod
@@ -43,7 +43,7 @@ jobs:
                cd server
                ./mvn clean compile
     tests:
-        runs-on: ubuntu-18.04
+        runs-on: ubuntu-latest
         name: Tests
         env:
           SPRING_ACTIVE_PROFILE: test
