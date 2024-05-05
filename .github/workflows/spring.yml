@@ -7,25 +7,11 @@ on:
     pull_request:
       branches:
         - main
-       
+      
 jobs:
     compile:
         runs-on: ubuntu-latest
         name: compile spring
-        env:
-          SPRING_PROFILES_ACTIVE: prod
-          SPRING_DATASOURCE_URL: ${{ secrets.TEST_DATABASE_URL}}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.TEST_DATABASE_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.TEST_DATABASE_PASSWORD }}
-          SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
-          APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          APP_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-          APP_ADMIN_NAME_FIRST: Nathan
-          APP_ADMIN_NAME_LAST: Opperman
-          APP_BASE_URL: http://localhost
-          APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
-          APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -88,5 +74,5 @@ jobs:
             username: ${{ secrets.AZURE_CLIENT_ID }}
             password: ${{ secrets.AZURE_CLIENT_SECRET }}
         - run: |
-            docker build ./server/Dockerfile . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
+            docker build ./server/Dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
