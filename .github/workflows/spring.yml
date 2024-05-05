@@ -74,5 +74,5 @@ jobs:
             username: ${{ secrets.AZURE_CLIENT_ID }}
             password: ${{ secrets.AZURE_CLIENT_SECRET }}
         - run: |
-            docker build ./server/Dockerfile -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
+            docker build ./server -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
