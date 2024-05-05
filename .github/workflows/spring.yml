@@ -68,48 +68,25 @@ jobs:
             - name: Running Tests
               run: mvn test --file ./server/pom.xml
     
-    # build-image:
-    #   runs-on: ubuntu-latest
-    #   name: Create Docker Image
-    #   needs: [compile,tests]
-    #   env:
-    #     SPRING_ACTIVE_PROFILE: prod
-    #     SPRING_DATASOURCE_URL: ${{ secrets.TEST_DATABASE_URL}}
-    #     SPRING_DATASOURCE_USERNAME: ${{ secrets.TEST_DATABASE_USERNAME }}
-    #     SPRING_DATASOURCE_PASSWORD: ${{ secrets.TEST_DATABASE_PASSWORD }}
-    #     SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-    #     APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
-    #     APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-    #     APP_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-    #     APP_ADMIN_NAME_FIRST: Nathan
-    #     APP_ADMIN_NAME_LAST: Opperman
-    #     APP_BASE_URL: http://localhost
-    #     APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
-    #     APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
-    #   steps:
-    #     - name: Checkout code
-    #       uses: actions/checkout@v4
-
-    #     - name: Set JDK
-    #       uses: actions/setup-java@v4
-    #       with:
-    #         java-version: '21'
-    #         distribution: 'temurin'
+    build-image:
+      runs-on: ubuntu-latest
+      name: Create Docker Image
+      needs: [compile,tests]
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
         
-    #     - name: Login To Azure Container Registry
-    #       uses: azure/docker-login@v1
-    #       with:
-    #         login-server:
-    #         username:
-    #         password:
-        
-    #     - name: Build and Push
-    #       uses: docker/build-push-action@v2
-    #       with:
-    #         push: true
-    #         tags: 
-    #         file: ./server/Dockerfile
-
-
-
-                
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+        - name: 'Build and push image'
+          uses: docker/login-action@v3
+          with:
+            registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+            username: ${{ secrets.AZURE_CLIENT_ID }}
+            password: ${{ secrets.AZURE_CLIENT_SECRET }}
+        - run: |
+            docker build ./server/Dockerfile . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
