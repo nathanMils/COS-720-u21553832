@@ -1,6 +1,6 @@
 import axiosInstance from '@/api/instance/axios'
 import type { CourseDTO, ModuleDTO, StudentApplicationDTO } from '@/types'
-import type { APIResponse } from '@/api'
+import type { APIResponse, FetchModuleContentResponse } from '@/api'
 import type { FetchStudentCourseResponse } from '@/api/response/courseModerator/FetchStudentCourseResponse'
 
 const base: string = '/student'
@@ -47,4 +47,8 @@ export const dropApplication = (applicationId: string) => {
 
 export const fetchMyApplications = () => {
     return axiosInstance.get<APIResponse<StudentApplicationDTO[]>>(`${base}/fetchApplications`)
+}
+
+export const fetchStudentModuleContent = (moduleID: string) => {
+    return axiosInstance.get<APIResponse<FetchModuleContentResponse>>(`${base}/fetchContent/${moduleID}`)
 }

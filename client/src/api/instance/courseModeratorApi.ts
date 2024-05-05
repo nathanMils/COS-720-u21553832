@@ -1,6 +1,6 @@
 import axiosInstance from '@/api/instance/axios'
 import type { APIResponse, FetchCourseResponse, FetchModuleContentResponse } from '@/api'
-import type { CourseDTO } from '@/types'
+import type { CourseDTO, PostDTO } from '@/types'
 
 const base: string = '/courseModerator'
 
@@ -14,10 +14,6 @@ export const deleteModule = (courseID: string, moduleID: string) => {
 
 export const fetchModules = (courseID: string) => {
     return axiosInstance.get<APIResponse<CourseDTO[]>>(`${base}/fetch/${courseID}`)
-}
-
-export const addPost = (content: string, courseId: string, moduleId: string) => {
-    return axiosInstance.post(`${base}/post/${courseId}/${moduleId}`, content)
 }
 
 export const fetchCourse = (courseID: string) => {
@@ -35,4 +31,12 @@ export const deleteCourse = (courseID: string) => {
 
 export const fetchModuleContent = (moduleID: string) => {
     return axiosInstance.get<APIResponse<FetchModuleContentResponse>>(`${base}/fetchModule/${moduleID}`)
+}
+
+export const createPost = (moduleID: string, content: string) => {
+    return axiosInstance.post<APIResponse<PostDTO>>(`${base}/post/${moduleID}`, { content })
+}
+
+export const deletePost = (moduleID: string, postID: string) => {
+    return axiosInstance.delete<APIResponse<void>>(`${base}/deletePost/${moduleID}/${postID}`)
 }

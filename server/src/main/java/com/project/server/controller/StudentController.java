@@ -182,7 +182,7 @@ public class StudentController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('_module_' + #moduleId + '_student') || hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('module_' + #moduleId + '_student') || hasRole('ADMIN')")
     @GetMapping("/fetchContent/{moduleId}")
     public ResponseEntity<APIResponse<FetchModuleContentResponse>> fetchModuleContent(
             @ValidUUID @PathVariable String moduleId

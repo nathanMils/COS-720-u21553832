@@ -62,10 +62,9 @@ public class CourseModeratorController {
                 );
     }
 
-    @PreAuthorize("(hasAuthority('module_' + #moduleId + '_moderator') && hasAuthority('course_' + #courseId + '_moderator')) || hasRole('ADMIN')")
-    @PostMapping("/post/{courseId}/{moduleId}")
+    @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator') || hasRole('ADMIN')")
+    @PostMapping("/post/{moduleId}")
     public ResponseEntity<APIResponse<PostDTO>> addPost(
-            @ValidUUID @PathVariable String courseId,
             @ValidUUID @PathVariable String moduleId,
             @Valid @RequestBody @Sanitize AddPostRequest request
     ) {
@@ -74,6 +73,23 @@ public class CourseModeratorController {
                 .body(
                         APIResponse.success(
                                 moduleModeratorService.addPost(request,UUID.fromString(moduleId)),
+                                "SUCCESS"
+                        )
+                );
+    }
+
+    @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator') || hasRole('ADMIN')")
+    @DeleteMapping("/deletePost/{moduleId}/{postId}")
+    public ResponseEntity<APIResponse<Void>> deletePost(
+            @ValidUUID @PathVariable String moduleId,
+            @ValidUUID @PathVariable String postId
+    ) {
+        moduleModeratorService.deletePost(UUID.fromString(postId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(
+                                null,
                                 "SUCCESS"
                         )
                 );

@@ -7,7 +7,8 @@ import {
   InnerErrorModal,
   LoadingComponent,
   MissingIcon,
-  ModuleCard, RedButton
+  ModuleCardNoLink,
+  RedButton
 } from '@/components'
 import { NotFoundView } from '@/views'
 
@@ -104,7 +105,7 @@ const drop = async (moduleId: string) => {
       </div>
     </div>
     <div v-if="course?.modules.length" class="mt-4">
-      <ModuleCard
+      <ModuleCardNoLink
         v-for="module in course?.modules"
         :module="module"
         :key="module.id"
@@ -121,7 +122,7 @@ const drop = async (moduleId: string) => {
         >
           Drop
         </RedButton>
-      </ModuleCard>
+      </ModuleCardNoLink>
     </div>
     <div v-else class="flex flex-col items-center justify-center">
       <MissingIcon />
