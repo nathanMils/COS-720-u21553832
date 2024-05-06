@@ -35,11 +35,11 @@ jobs:
 
             # Bulding springboot application with a different maven profile to bring H2 database into runtime scope
             - name: Build Mvn Application
-              run: mvn clean install -Ptest -DskipTests
+              run: mvn clean install -Ptest -DskipTests -file ./server/pom.xml
             
             # Running the JAR with the test configuration, runs in background
             - name: Run Spring Jar
-              run: java -jar -Dspring.profiles.active=test target/server-0.0.1-SNAPSHOT.jar &
+              run: java -jar -Dspring.profiles.active=test ./server/target/server-0.0.1-SNAPSHOT.jar &
             
             - name: ZAP API Scan
               uses: zaproxy/action-api-scan@v0.7.0
