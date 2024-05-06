@@ -37,3 +37,4 @@ app:
   otp:
     length: 6
     duration: 60
+

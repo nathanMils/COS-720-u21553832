@@ -7,13 +7,11 @@ import com.project.server.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
@@ -25,10 +23,7 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                userService.getProfile(),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(userService.getProfile())
                 );
     }
 
@@ -37,22 +32,7 @@ public class UserController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                userService.getRole(),
-                                "SUCCESS"
-                        )
-                );
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<APIResponse<String>> test() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(
-                        APIResponse.success(
-                                "Test",
-                                "SUCCESS"
-                        )
+                        APIResponse.success(userService.getRole())
                 );
     }
 }

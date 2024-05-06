@@ -4,7 +4,7 @@ import com.project.server.model.dto.PostDTO;
 import com.project.server.model.entity.Post;
 import com.project.server.repository.ModuleRepository;
 import com.project.server.repository.PostRepository;
-import com.project.server.request.moduleModerator.AddPostRequest;
+import com.project.server.request.moderator.AddPostRequest;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

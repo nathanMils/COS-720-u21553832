@@ -1,5 +1,6 @@
 package com.project.server.service;
 
+import com.project.server.exception.InvalidUserException;
 import com.project.server.model.entity.User;
 import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.enums.StatusEnum;
@@ -51,6 +52,6 @@ public class UserService {
             String currentUserName = authentication.getName();
             return userRepository.findByUsername(currentUserName).orElseThrow(() -> new UsernameNotFoundException("USER_NOT_FOUND"));
         }
-        throw new RuntimeException("ERROR");
+        throw new InvalidUserException();
     }
 }

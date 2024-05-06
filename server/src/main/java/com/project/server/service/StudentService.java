@@ -1,5 +1,7 @@
 package com.project.server.service;
 
+import com.project.server.exception.InvalidUserException;
+import com.project.server.exception.ModuleNotFoundException;
 import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.StudentApplicationDTO;
@@ -7,14 +9,12 @@ import com.project.server.model.entity.*;
 import com.project.server.model.entity.Module;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
-import com.project.server.response.courseModerator.FetchCourseResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.response.student.FetchStudentCourseResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -83,7 +83,7 @@ public class StudentService {
                 getAuthenticatedUser().getId(),
                 courseId
         ).ifPresentOrElse(
-                (application) -> {
+                application -> {
                     studentRepository.deleteAllByUserIdAndCourseId(getAuthenticatedUser().getId(), courseId);
                     studentApplicationRepository.delete(application);
                 },
@@ -96,7 +96,7 @@ public class StudentService {
     @Transactional
     public void dropApplication(Long applicationId) {
         studentApplicationRepository.findById(applicationId).ifPresentOrElse(
-                (application) -> {
+                application -> {
                     studentRepository.deleteAllByUserIdAndCourseId(application.getUser().getId(), application.getCourse().getId());
                     studentApplicationRepository.delete(application);
                 },
@@ -112,7 +112,7 @@ public class StudentService {
                 .map(
                         application -> application.getCourse().convert()
                 )
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<CourseDTO> fetchOtherCourses() {
@@ -125,7 +125,7 @@ public class StudentService {
                         ).isEmpty()
                 )
                 .map(Course::convert)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -133,7 +133,7 @@ public class StudentService {
         return moduleRepository.findByCourseId(courseId)
                 .stream()
                 .map(Module::convert)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -141,7 +141,7 @@ public class StudentService {
         return studentRepository.findByUserId(getAuthenticatedUser().getId())
                 .stream()
                 .map(student -> student.getModule().convert())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -151,10 +151,10 @@ public class StudentService {
             throw new EntityExistsException("STUDENT_ALREADY_REGISTERED");
         }
         // ignore course must exist for execution to get here
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
+        Course course = courseRepository.findById(courseId).orElseThrow(ModuleNotFoundException::new);
 
         if (!containsModule(course.getModules().stream().toList(),moduleId)) return false;
-        Module module = moduleRepository.findById(moduleId).get();
+        Module module = moduleRepository.findById(moduleId).orElseThrow(ModuleNotFoundException::new);
         studentRepository.save(
                 Student.builder()
                         .course(course)
@@ -168,7 +168,7 @@ public class StudentService {
     @Transactional
     public void deRegisterStudent(UUID moduleId) {
         moduleRepository.findById(moduleId).ifPresentOrElse(
-                (module) -> {
+                module -> {
                     User user = getAuthenticatedUser();
                     studentRepository.findByUserIdAndModuleId(user.getId(),moduleId).ifPresentOrElse(
                             studentRepository::delete,
@@ -178,7 +178,7 @@ public class StudentService {
                     );
                 },
                 () -> {
-                    throw new EntityNotFoundException("MODULE_NOT_FOUND");
+                    throw new ModuleNotFoundException();
                 }
         );
 
@@ -194,7 +194,7 @@ public class StudentService {
                         postRepository.findByModuleId(moduleId)
                                 .stream()
                                 .map(Post::convert)
-                                .collect(Collectors.toList())
+                                .toList()
                 )
                 .build();
     }
@@ -204,7 +204,7 @@ public class StudentService {
             String currentUserName = authentication.getName();
             return userRepository.findByUsername(currentUserName).orElseThrow(() -> new UsernameNotFoundException("USER_NOT_FOUND"));
         }
-        throw new RuntimeException("ERROR");
+        throw new InvalidUserException();
     }
 
     private boolean containsModule(List<Module> modules,UUID moduleId) {

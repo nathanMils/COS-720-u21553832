@@ -41,10 +41,10 @@ public class LogoutService implements LogoutHandler {
                 } else if ("refreshToken".equals(cookie.getName())) {
                     String token = cookie.getValue();
                     refreshTokenRepository.findByToken(token).ifPresentOrElse(
-                            (RToken) -> {
-                                RToken.setRevoked(true);
+                            rToken -> {
+                                rToken.setRevoked(true);
                                 refreshTokenRepository.save(
-                                        RToken
+                                        rToken
                                 );
                             },
                             () -> {

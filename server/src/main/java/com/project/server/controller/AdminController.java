@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/admin")
 @RequiredArgsConstructor
 public class AdminController {
@@ -28,10 +27,7 @@ public class AdminController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                adminService.fetchStudentApplications(),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(adminService.fetchStudentApplications())
                 );
     }
 
@@ -43,10 +39,7 @@ public class AdminController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -58,10 +51,7 @@ public class AdminController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -70,10 +60,7 @@ public class AdminController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                adminService.fetchCourses(),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(adminService.fetchCourses())
                 );
     }
 
@@ -85,10 +72,7 @@ public class AdminController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 }

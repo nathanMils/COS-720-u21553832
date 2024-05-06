@@ -35,13 +35,13 @@ public class AdminService {
         return studentApplicationRepository.findByStatus(StatusEnum.PENDING)
                 .stream()
                 .map(StudentApplication::convert)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
     public void acceptApplicant(AcceptRequest request) {
         studentApplicationRepository.findById(request.applicationId()).ifPresentOrElse(
-                (application) -> {
+                application -> {
                     application.setStatus(StatusEnum.ACCEPTED);
                     studentApplicationRepository.save(application);
                 },
@@ -52,7 +52,7 @@ public class AdminService {
     @Transactional
     public void rejectApplicant(DenyRequest request) {
         studentApplicationRepository.findById(request.applicationId()).ifPresentOrElse(
-                (application) -> {
+                application -> {
                     application.setStatus(StatusEnum.DENIED);
                     studentApplicationRepository.save(application);
                 },
@@ -65,25 +65,22 @@ public class AdminService {
         return courseRepository.findAll()
                 .stream()
                 .map(Course::convert)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
     public void createModerator(CreateModeratorRequest request) {
         userRepository.findByUsername(request.username()).ifPresentOrElse(
-                (user) -> {throw new EntityExistsException("USERNAME_EXISTS");},
-                () -> {
-
-                    userRepository.save(
-                            User.builder()
-                                    .username(request.username())
-                                    .password(UUID.randomUUID().toString())
-                                    .email(request.email())
-                                    .role(RoleEnum.ROLE_COURSE_MODERATOR)
-                                    .enabled(false)
-                                    .build()
-                    );
-                }
+                user -> {throw new EntityExistsException("USERNAME_EXISTS");},
+                () -> userRepository.save(
+                        User.builder()
+                                .username(request.username())
+                                .password(UUID.randomUUID().toString())
+                                .email(request.email())
+                                .role(RoleEnum.ROLE_COURSE_MODERATOR)
+                                .enabled(false)
+                                .build()
+                )
         );
     }
 }

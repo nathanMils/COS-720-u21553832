@@ -1,6 +1,5 @@
 package com.project.server.service;
 
-import com.project.server.exception.ConfirmationTokenException;
 import com.project.server.model.entity.ConfirmationToken;
 import com.project.server.model.entity.User;
 import com.project.server.model.projections.auth.UserAuthProjection;

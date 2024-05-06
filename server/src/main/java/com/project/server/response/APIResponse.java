@@ -43,6 +43,35 @@ public class APIResponse<T> {
     }
 
     /**
+     * Creates a success APIResponse with the given data and message.
+     *
+     * @param data the data of the response
+     * @param <T> the type of the data in the response
+     * @return a success APIResponse
+     */
+    public static <T> APIResponse<T> success(T data) {
+        return APIResponse.<T> builder()
+                .data(data)
+                .status(ResponseCode.success)
+                .internalCode("SUCCESS")
+                .build();
+    }
+
+    /**
+     * Creates a success APIResponse with the given data and message.
+     *
+     * @param <T> the type of the data in the response
+     * @return a success APIResponse
+     */
+    public static <T> APIResponse<T> success() {
+        return APIResponse.<T> builder()
+                .data(null)
+                .status(ResponseCode.success)
+                .internalCode("SUCCESS")
+                .build();
+    }
+
+    /**
      * Creates an error APIResponse with the given error message.
      *
      * @param errorMessage the error message of the response

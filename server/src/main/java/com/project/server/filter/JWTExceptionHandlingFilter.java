@@ -46,9 +46,9 @@ public class JWTExceptionHandlingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
-            handleJwtException(response, "JWT_EXPIRED", e);
+            handleJwtException(response, "JWT_EXPIRED");
         } catch (MalformedJwtException e) {
-            handleJwtException(response, "JWT_MALFORMED", e);
+            handleJwtException(response, "JWT_MALFORMED");
         } catch (Exception e) {
             log.error("An error occurred while processing the request", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -67,10 +67,9 @@ public class JWTExceptionHandlingFilter extends OncePerRequestFilter {
      *
      * @param response the HTTP response
      * @param internalCode the internal code for the exception
-     * @param e the exception that was caught
      * @throws IOException if an input or output exception occurred
      */
-    private void handleJwtException(HttpServletResponse response, String internalCode, Exception e) throws IOException {
+    private void handleJwtException(HttpServletResponse response, String internalCode) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
         APIResponse<Void> apiResponse = APIResponse.<Void>builder()

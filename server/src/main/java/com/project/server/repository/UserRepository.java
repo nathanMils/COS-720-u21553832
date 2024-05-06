@@ -2,7 +2,7 @@ package com.project.server.repository;
 
 import com.project.server.model.entity.User;
 import com.project.server.model.projections.auth.UserAuthProjection;
-import com.project.server.model.projections.authorizationProjections.AuthUserProjection;
+import com.project.server.model.projections.authorization.AuthUserProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

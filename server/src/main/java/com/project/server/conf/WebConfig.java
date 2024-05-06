@@ -1,6 +1,6 @@
 package com.project.server.conf;
 
-import com.project.server.exceptionHandler.SanitizingHandlerResolver;
+import com.project.server.exception.handler.SanitizingHandlerResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

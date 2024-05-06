@@ -54,8 +54,8 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
     @Transactional
     public void createAdministrator() {
         userRepository.findByUsername("admin").ifPresentOrElse(
-                (admin) -> {},
-                () -> {
+                admin -> {},
+                () ->
                     userRepository.save(
                             User.builder()
                                     .username(adminUsername)
@@ -67,8 +67,8 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
                                     .secret(otpService.generateSecret())
                                     .enabled(true)
                                     .build()
-                    );
-                }
+                    )
+
         );
     }
 }

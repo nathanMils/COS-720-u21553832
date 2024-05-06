@@ -1,7 +1,7 @@
 package com.project.server.repository;
 
 import com.project.server.model.entity.CourseModerator;
-import com.project.server.model.projections.authorizationProjections.AuthCourseModeratorProjection;
+import com.project.server.model.projections.authorization.AuthCourseModeratorProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

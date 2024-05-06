@@ -5,7 +5,6 @@ import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.response.APIResponse;
-import com.project.server.response.courseModerator.FetchCourseResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.response.student.FetchStudentCourseResponse;
 import com.project.server.service.StudentService;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/student")
 @RequiredArgsConstructor
 public class StudentController {
@@ -33,10 +31,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                studentService.fetchCourse(UUID.fromString(courseId)),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(studentService.fetchCourse(UUID.fromString(courseId)))
                 );
     }
 
@@ -45,10 +40,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                studentService.fetchStudentApplications(),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(studentService.fetchStudentApplications())
                 );
     }
     @PostMapping("/apply/{courseId}")
@@ -59,10 +51,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -74,10 +63,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -89,10 +75,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -101,10 +84,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                            studentService.fetchStudentCourses(),
-                            "SUCCESS"
-                        )
+                        APIResponse.success(studentService.fetchStudentCourses())
                 );
     }
 
@@ -113,10 +93,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                studentService.fetchOtherCourses(),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(studentService.fetchOtherCourses())
                 );
     }
 
@@ -128,10 +105,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                studentService.fetchCourseModules(UUID.fromString(courseId)),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(studentService.fetchCourseModules(UUID.fromString(courseId)))
                 );
     }
 
@@ -140,10 +114,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                studentService.fetchStudentModules(),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(studentService.fetchStudentModules())
                 );
     }
 
@@ -157,7 +128,7 @@ public class StudentController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(
-                            APIResponse.success(null,"SUCCESS")
+                            APIResponse.success()
                     );
         }
         return ResponseEntity
@@ -178,7 +149,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(null,"SUCCESS")
+                        APIResponse.success()
                 );
     }
 
@@ -190,10 +161,7 @@ public class StudentController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                studentService.fetchModuleContent(UUID.fromString(moduleId)),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(studentService.fetchModuleContent(UUID.fromString(moduleId)))
                 );
     }
 }

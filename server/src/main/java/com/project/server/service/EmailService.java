@@ -3,6 +3,7 @@ package com.project.server.service;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ import java.io.InputStreamReader;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailService {
     private final JavaMailSender javaMailSender;
     @Value("${spring.mail.username}")
@@ -27,7 +29,6 @@ public class EmailService {
     @Value("${app.base.url}")
     private String baseUrl;
     private final ResourceLoader resourceLoader;
-    private final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Async
     public void sendDeviceVerificationEmail(String userEmail, String code) {
@@ -44,8 +45,7 @@ public class EmailService {
             );
             javaMailSender.send(message);
         } catch (MessagingException | IOException e) {
-
-            logger.atInfo().log("Email Failed");
+            emailFailed();
         }
     }
 
@@ -74,7 +74,7 @@ public class EmailService {
             );
             javaMailSender.send(message);
         } catch (MessagingException | IOException e) {
-            logger.atInfo().log("Email Failed");
+            emailFailed();
         }
     }
 
@@ -93,7 +93,7 @@ public class EmailService {
             );
             javaMailSender.send(message);
         } catch (MessagingException | IOException e) {
-            logger.atInfo().log("Email Failed");
+            emailFailed();
         }
     }
 
@@ -112,7 +112,7 @@ public class EmailService {
             );
             javaMailSender.send(message);
         } catch (MessagingException | IOException e) {
-            logger.atInfo().log("Email Failed");
+            emailFailed();
         }
     }
 
@@ -131,7 +131,7 @@ public class EmailService {
             );
             javaMailSender.send(message);
         } catch (MessagingException | IOException e) {
-            logger.atInfo().log("Email Failed");
+            emailFailed();
         }
     }
 
@@ -145,5 +145,9 @@ public class EmailService {
             stringBuilder.append(line);
         }
         return stringBuilder.toString();
+    }
+
+    private void emailFailed() {
+        log.atInfo().log("Email Failed");
     }
 }

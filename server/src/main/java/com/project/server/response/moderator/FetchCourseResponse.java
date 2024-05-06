@@ -1,4 +1,4 @@
-package com.project.server.response.courseModerator;
+package com.project.server.response.moderator;
 
 import com.project.server.model.dto.ModuleDTO;
 import lombok.AllArgsConstructor;

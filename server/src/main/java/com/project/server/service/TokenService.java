@@ -1,7 +1,5 @@
 package com.project.server.service;
 
-import com.project.server.model.entity.User;
-import com.project.server.model.projections.auth.UserAuthProjection;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -49,10 +47,10 @@ public class TokenService {
     public String genToken(
             Long userId, String username
     ) {
-        HashMap<String,Object> Claims = new HashMap<>();
+        HashMap<String,Object> claims = new HashMap<>();
         return Jwts
                 .builder()
-                .setClaims(Claims)
+                .setClaims(claims)
                 .setSubject(username)
                 .setIssuer("http://localhost")
                 .setAudience(userId.toString())

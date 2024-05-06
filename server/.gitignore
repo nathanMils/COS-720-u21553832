@@ -37,3 +37,5 @@ geolite/README.txt
 logs/
 application-local.yml
 application-dockerlocal.yml
+sonar-project.properties
+runSonar.bat
