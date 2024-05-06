@@ -1,5 +1,6 @@
 package com.project.server.model.entity;
 
+import com.project.server.converter.TokenConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class RefreshToken {
             nullable = false,
             unique = true
     )
+    @Convert(converter = TokenConverter.class)
     private String token;
 
     @Column(

@@ -31,7 +31,6 @@ public class Course {
             nullable = false,
             unique = true
     )
-    @Convert(converter = StringConverter.class)
     private String name;
 
     @Column(

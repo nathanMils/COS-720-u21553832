@@ -1,7 +1,7 @@
 package com.project.server.repository;
 
 import com.project.server.model.entity.Student;
-import com.project.server.model.projections.authorizationProjections.AuthStudentProjection;
+import com.project.server.model.projections.authorization.AuthStudentProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

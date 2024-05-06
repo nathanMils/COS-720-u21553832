@@ -9,6 +9,7 @@ import java.util.UUID;
 public class UUIDConstraintValidator implements ConstraintValidator<ValidUUID, String> {
     @Override
     public void initialize(ValidUUID constraintAnnotation) {
+        // This method is not used
     }
 
     @Override

@@ -26,7 +26,6 @@ import org.springframework.web.server.ResponseStatusException;
  * Controller for handling authentication related requests.
  */
 @RestController
-@CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
@@ -61,10 +60,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
 
     }
@@ -88,10 +84,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
 
     }
@@ -113,10 +106,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -136,10 +126,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -157,10 +144,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -180,10 +164,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -203,10 +184,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -226,10 +204,7 @@ public class AuthController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 

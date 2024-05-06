@@ -1,6 +1,6 @@
-package com.project.server.exceptionHandler;
+package com.project.server.exception.handler;
 
-import com.project.server.exception.RefreshTokenException;
+import com.project.server.exception.*;
 import com.project.server.response.APIResponse;
 import com.project.server.response.ResponseCode;
 import jakarta.persistence.EntityExistsException;
@@ -107,6 +107,48 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(ModuleNotFoundException.class)
+    public ResponseEntity<APIResponse<Void>> moduleNotFound(
+            ModuleNotFoundException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(CourseNotFoundException.class)
+    public ResponseEntity<APIResponse<Void>> courseNotFound(
+            CourseNotFoundException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<APIResponse<Void>> invalidToken(
+            InvalidTokenException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getMessage())
+                                .build()
+                );
+    }
+
     /**
      * Handles MethodArgumentNotValidException.
      *
@@ -179,6 +221,21 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(CryptographicException.class)
+    public ResponseEntity<APIResponse<Void>> encryptionException(
+            CryptographicException ex
+    ) {
+        log.atError().log("Cryptographic exception: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.server_error)
+                                .internalCode("CRYPTOGRAPHIC_ERROR")
+                                .build()
+                );
+    }
+
     /**
      * Handles UsernameNotFoundException.
      *
@@ -195,6 +252,20 @@ public class GlobalExceptionHandler {
                         APIResponse.<Void>builder()
                                 .status(ResponseCode.failed)
                                 .internalCode("USER_NOT_FOUND")
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(InvalidUserException.class)
+    public ResponseEntity<APIResponse<Void>> invalidUser(
+            InvalidUserException ex
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        APIResponse.<Void>builder()
+                                .status(ResponseCode.failed)
+                                .internalCode(ex.getMessage())
                                 .build()
                 );
     }

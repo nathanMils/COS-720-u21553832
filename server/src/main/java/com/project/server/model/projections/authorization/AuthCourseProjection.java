@@ -1,4 +1,4 @@
-package com.project.server.model.projections.authorizationProjections;
+package com.project.server.model.projections.authorization;
 
 import java.util.Set;
 import java.util.UUID;

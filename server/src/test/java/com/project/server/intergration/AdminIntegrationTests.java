@@ -1,13 +1,10 @@
 package com.project.server.intergration;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.server.model.entity.*;
 import com.project.server.model.entity.Module;
 import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
-import com.project.server.request.admin.CreateCourseRequest;
 import com.project.server.service.EmailService;
 import com.project.server.service.TokenService;
 import jakarta.servlet.http.Cookie;
@@ -31,7 +28,7 @@ import java.util.UUID;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class AdminIntegrationTests {
+class AdminIntegrationTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -150,7 +147,7 @@ public class AdminIntegrationTests {
     }
 
     @Test
-    public void testAcceptStudentSuccess() throws Exception {
+    void testAcceptStudentSuccess() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/v1/admin/acceptStudent")
                                 .contentType("application/json")
@@ -165,7 +162,7 @@ public class AdminIntegrationTests {
     }
 
     @Test
-    public void testAcceptStudentFail() throws Exception {
+    void testAcceptStudentFail() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/v1/admin/acceptStudent")
                                 .contentType("application/json")
@@ -180,7 +177,7 @@ public class AdminIntegrationTests {
     }
 
     @Test
-    public void testAcceptStudentInvalidAccess() throws Exception {
+    void testAcceptStudentInvalidAccess() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/v1/admin/acceptStudent")
                                 .contentType("application/json")

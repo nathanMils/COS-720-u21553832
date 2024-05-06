@@ -1,4 +1,4 @@
-package com.project.server.request.moduleModerator;
+package com.project.server.request.moderator;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

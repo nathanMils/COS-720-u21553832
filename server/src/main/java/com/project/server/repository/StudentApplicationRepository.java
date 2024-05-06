@@ -2,7 +2,7 @@ package com.project.server.repository;
 
 import com.project.server.model.entity.StudentApplication;
 import com.project.server.model.enums.StatusEnum;
-import com.project.server.model.projections.authorizationProjections.AuthApplicationProjection;
+import com.project.server.model.projections.authorization.AuthApplicationProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

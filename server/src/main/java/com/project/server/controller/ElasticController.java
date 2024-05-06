@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(value="*")
 @RequestMapping(path = "/elastic")
 @RequiredArgsConstructor
 public class ElasticController {
@@ -23,10 +22,7 @@ public class ElasticController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 }

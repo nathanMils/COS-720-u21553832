@@ -24,14 +24,13 @@
     <!-- Logger for Auth Info and Warn level logs -->
     <logger name="com.project.server.service.AuthService" level="INFO">
         <appender-ref ref="AUTH_FILE" />
-        <appender-ref ref="STDOUT" />
     </logger>
 
 
 
     <!-- Root error logger -->
     <root level="error">
-        <appender-ref ref="STDOUT" /> <!-- Reference to STDOUT appender (for console logging) -->
-        <appender-ref ref="ERROR_FILE" />   <!-- Reference to FILE appender (for file logging) -->
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="ERROR_FILE" />
     </root>
 </configuration>

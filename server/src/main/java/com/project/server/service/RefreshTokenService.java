@@ -2,7 +2,6 @@ package com.project.server.service;
 
 import com.project.server.exception.RefreshTokenException;
 import com.project.server.model.entity.RefreshToken;
-import com.project.server.model.entity.User;
 import com.project.server.model.projections.auth.UserAuthProjection;
 import com.project.server.repository.RefreshTokenRepository;
 

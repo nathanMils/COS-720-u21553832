@@ -1,4 +1,4 @@
-package com.project.server.exceptionHandler;
+package com.project.server.exception.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.server.response.APIResponse;

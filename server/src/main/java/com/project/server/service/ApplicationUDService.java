@@ -1,10 +1,8 @@
 package com.project.server.service;
 
-import com.project.server.model.entity.Module;
-import com.project.server.model.entity.User;
 import com.project.server.model.enums.StatusEnum;
-import com.project.server.model.projections.authorizationProjections.AuthModuleProjection;
-import com.project.server.model.projections.authorizationProjections.AuthUserProjection;
+import com.project.server.model.projections.authorization.AuthModuleProjection;
+import com.project.server.model.projections.authorization.AuthUserProjection;
 import com.project.server.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -61,7 +59,7 @@ public class ApplicationUDService implements UserDetailsService {
                                 .toList()
                 );
                 studentRepository.findAuthProjectionByUserId(user.getId()).forEach(
-                        (student) -> authorities.addAll(
+                        student -> authorities.addAll(
                                 List.of(
                                     new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString())),
                                     new SimpleGrantedAuthority(String.format("module_%s_student",student.getModule().getId().toString()))
@@ -71,7 +69,7 @@ public class ApplicationUDService implements UserDetailsService {
                 break;
             case ROLE_COURSE_MODERATOR:
                 courseModeratorRepository.findProjectedByUserId(user.getId()).forEach(
-                        (courseModerator) -> {
+                        courseModerator -> {
                             authorities.add(
                                 new SimpleGrantedAuthority(String.format("course_%s_moderator",courseModerator.getCourse().getId().toString()))
                             );

@@ -6,10 +6,10 @@ import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.PostDTO;
 import com.project.server.request.admin.CreateCourseRequest;
-import com.project.server.request.courseModerator.CreateModuleRequest;
-import com.project.server.request.moduleModerator.AddPostRequest;
+import com.project.server.request.moderator.CreateModuleRequest;
+import com.project.server.request.moderator.AddPostRequest;
 import com.project.server.response.APIResponse;
-import com.project.server.response.courseModerator.FetchCourseResponse;
+import com.project.server.response.moderator.FetchCourseResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.service.CourseModeratorService;
 import com.project.server.service.ModuleModeratorService;
@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin(value="*")
 @RequestMapping(path = "/api/v1/courseModerator")
 @RequiredArgsConstructor
 public class CourseModeratorController {
@@ -41,8 +40,7 @@ public class CourseModeratorController {
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                courseModeratorService.fetchCourse(UUID.fromString(courseId)),
-                                "SUCCESS"
+                                courseModeratorService.fetchCourse(UUID.fromString(courseId))
                         )
                 );
     }
@@ -56,8 +54,7 @@ public class CourseModeratorController {
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                courseModeratorService.fetchModulesInCourse(UUID.fromString(courseId)),
-                                "SUCCESS"
+                                courseModeratorService.fetchModulesInCourse(UUID.fromString(courseId))
                         )
                 );
     }
@@ -72,8 +69,7 @@ public class CourseModeratorController {
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(
-                                moduleModeratorService.addPost(request,UUID.fromString(moduleId)),
-                                "SUCCESS"
+                                moduleModeratorService.addPost(request,UUID.fromString(moduleId))
                         )
                 );
     }
@@ -88,10 +84,7 @@ public class CourseModeratorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -105,10 +98,7 @@ public class CourseModeratorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -122,10 +112,7 @@ public class CourseModeratorController {
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(
-                            APIResponse.success(
-                                    null,
-                                    "SUCCESS"
-                            )
+                            APIResponse.success()
                     );
         } else {
             return ResponseEntity
@@ -146,10 +133,7 @@ public class CourseModeratorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                null,
-                                "SUCCESS"
-                        )
+                        APIResponse.success()
                 );
     }
 
@@ -160,10 +144,7 @@ public class CourseModeratorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                courseModeratorService.createCourse(request),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(courseModeratorService.createCourse(request))
                 );
     }
 
@@ -175,10 +156,7 @@ public class CourseModeratorController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success(
-                                courseModeratorService.fetchModule(UUID.fromString(moduleId)),
-                                "SUCCESS"
-                        )
+                        APIResponse.success(courseModeratorService.fetchModule(UUID.fromString(moduleId)))
                 );
     }
 }

@@ -26,7 +26,6 @@ public class User {
             unique = true,
             nullable = false
     )
-    @Convert(converter = StringConverter.class)
     private String username;
 
     @Column(

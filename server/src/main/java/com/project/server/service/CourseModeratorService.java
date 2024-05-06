@@ -1,5 +1,7 @@
 package com.project.server.service;
 
+import com.project.server.exception.CourseNotFoundException;
+import com.project.server.exception.InvalidUserException;
 import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.entity.*;
@@ -9,8 +11,8 @@ import com.project.server.repository.CourseRepository;
 import com.project.server.repository.ModuleRepository;
 import com.project.server.repository.UserRepository;
 import com.project.server.request.admin.CreateCourseRequest;
-import com.project.server.request.courseModerator.CreateModuleRequest;
-import com.project.server.response.courseModerator.FetchCourseResponse;
+import com.project.server.request.moderator.CreateModuleRequest;
+import com.project.server.response.moderator.FetchCourseResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,7 +38,7 @@ public class CourseModeratorService {
     private final CourseModeratorRepository courseModeratorRepository;
 
     public FetchCourseResponse fetchCourse(UUID courseId) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
+        Course course = courseRepository.findById(courseId).orElseThrow(CourseNotFoundException::new);
         return FetchCourseResponse.builder()
                 .courseName(course.getName())
                 .courseDescription(course.getDescription())
@@ -52,7 +54,7 @@ public class CourseModeratorService {
 
     @Transactional
     public List<ModuleDTO> fetchModulesInCourse(UUID courseId) {
-        return courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"))
+        return courseRepository.findById(courseId).orElseThrow(CourseNotFoundException::new)
                 .getModules()
                 .stream()
                 .map(Module::convert)
@@ -61,9 +63,8 @@ public class CourseModeratorService {
     @Transactional
     public void createModule(UUID courseId, CreateModuleRequest request) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
-        moduleRepository.findByName(request.name()).ifPresent((module) -> {throw new EntityExistsException("MODULE_NAME_EXISTS");});
-        System.out.println("Course: " + course.getName() + " " + course.getId());
+                .orElseThrow(CourseNotFoundException::new);
+        moduleRepository.findByName(request.name()).ifPresent(module -> {throw new EntityExistsException("MODULE_NAME_EXISTS");});
         Module module = Module.builder()
                 .name(request.name())
                 .description(request.description())
@@ -85,7 +86,7 @@ public class CourseModeratorService {
 
     @Transactional
     public CourseDTO createCourse(CreateCourseRequest request) {
-        courseRepository.findByName(request.name()).ifPresent((course) -> {throw new EntityExistsException("COURSE_NAME_EXISTS");});
+        courseRepository.findByName(request.name()).ifPresent(course -> {throw new EntityExistsException("COURSE_NAME_EXISTS");});
         Course course = courseRepository.save(
                 Course.builder()
                         .name(request.name())
@@ -105,14 +106,14 @@ public class CourseModeratorService {
     @Transactional
     public void deleteCourse(UUID courseId) {
         courseRepository.findById(courseId).ifPresentOrElse(
-                (course) -> {
+                course -> {
                     courseRepository.delete(course);
                     log.atInfo().log(
                             "Course {} deleted",
                             course.getName()
                     );
                 },
-                () -> {throw new EntityNotFoundException("COURSE_NOT_FOUND");}
+                () -> {throw new CourseNotFoundException();}
         );
     }
 
@@ -122,7 +123,7 @@ public class CourseModeratorService {
             String currentUserName = authentication.getName();
             return userRepository.findByUsername(currentUserName).orElseThrow(() -> new UsernameNotFoundException("USER_NOT_FOUND"));
         }
-        throw new RuntimeException("ERROR");
+        throw new InvalidUserException();
     }
 
     public FetchModuleContentResponse fetchModule(UUID moduleId) {

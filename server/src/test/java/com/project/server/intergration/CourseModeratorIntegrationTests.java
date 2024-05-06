@@ -7,7 +7,7 @@ import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
 import com.project.server.request.admin.CreateCourseRequest;
-import com.project.server.request.courseModerator.CreateModuleRequest;
+import com.project.server.request.moderator.CreateModuleRequest;
 import com.project.server.service.EmailService;
 import com.project.server.service.TokenService;
 import jakarta.servlet.http.Cookie;
@@ -33,7 +33,7 @@ import java.util.UUID;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class CourseModeratorIntegrationTests {
+class CourseModeratorIntegrationTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -151,7 +151,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testCreateCourseSuccess() throws Exception {
+    void testCreateCourseSuccess() throws Exception {
         CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course 2", "This is a test course 2");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
@@ -171,7 +171,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testCreateCourseFail() throws Exception {
+    void testCreateCourseFail() throws Exception {
         CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course", "This is a test course");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
@@ -189,7 +189,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testCreateCourseInvalidAccess() throws Exception {
+    void testCreateCourseInvalidAccess() throws Exception {
         CreateCourseRequest createCourseRequest = new CreateCourseRequest("Test Course 2", "This is a test course 2");
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonCreateCourseRequest = objectMapper.writeValueAsString(createCourseRequest);
@@ -205,7 +205,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteCourseSuccess() throws Exception {
+    void testDeleteCourseSuccess() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteCourse/" + courseId)
                                 .cookie(
@@ -218,7 +218,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteCourseFail() throws Exception {
+    void testDeleteCourseFail() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteCourse/" + courseId)
                                 .cookie(
@@ -240,7 +240,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteCourseInvalidAccess() throws Exception {
+    void testDeleteCourseInvalidAccess() throws Exception {
         mockMvc.perform(
                         MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteCourse/" + courseId)
                                 .cookie(
@@ -251,7 +251,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testFetchModulesInCourseSuccess() throws Exception {
+    void testFetchModulesInCourseSuccess() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/courseModerator/fetchModules/" + courseId)
                         .contentType("application/json")
@@ -268,7 +268,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testFetchModulesInCourseFailure() throws Exception {
+    void testFetchModulesInCourseFailure() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/courseModerator/fetch/" + UUID.randomUUID().toString())
                         .contentType("application/json")
@@ -281,7 +281,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testFetchModulesCourseInvalidAccessCourseModeratorFail() throws Exception {
+    void testFetchModulesCourseInvalidAccessCourseModeratorFail() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/courseModerator/fetch/" + courseId)
                         .contentType("application/json")
@@ -295,7 +295,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testFetchModulesCourseInvalidAccessStudentFail() throws Exception {
+    void testFetchModulesCourseInvalidAccessStudentFail() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/api/v1/courseModerator/fetchModules/" + courseId)
                         .contentType("application/json")
@@ -307,7 +307,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testCreateModuleSuccess() throws Exception {
+    void testCreateModuleSuccess() throws Exception {
         CreateModuleRequest request = new CreateModuleRequest("Test Module 2", "This is a test module 2");
         ObjectMapper objectMapper = new ObjectMapper();
         mockMvc.perform(
@@ -324,7 +324,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testCreateModuleDuplicateFailure() throws Exception {
+    void testCreateModuleDuplicateFailure() throws Exception {
         CreateModuleRequest request = new CreateModuleRequest("Test Module", "This is a test module");
         ObjectMapper objectMapper = new ObjectMapper();
         mockMvc.perform(
@@ -341,7 +341,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testCreateModuleInvalidAccessCourseModeratorFail() throws Exception {
+    void testCreateModuleInvalidAccessCourseModeratorFail() throws Exception {
         CreateModuleRequest request = new CreateModuleRequest("Test Module 2", "This is a test module 2");
         ObjectMapper objectMapper = new ObjectMapper();
         mockMvc.perform(
@@ -356,7 +356,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testCreateModuleInvalidAccessStudentFail() throws Exception {
+    void testCreateModuleInvalidAccessStudentFail() throws Exception {
         CreateModuleRequest request = new CreateModuleRequest("Test Module 2", "This is a test module 2");
         ObjectMapper objectMapper = new ObjectMapper();
         mockMvc.perform(
@@ -371,7 +371,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteModuleSuccess() throws Exception {
+    void testDeleteModuleSuccess() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteModule/" + courseId + "/" + moduleId)
                         .contentType("application/json")
@@ -385,7 +385,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteModuleFailure() throws Exception {
+    void testDeleteModuleFailure() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteModule/" + courseId + "/" + UUID.randomUUID().toString())
                         .contentType("application/json")
@@ -399,7 +399,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteModuleInvalidAccessCourseModeratorFail() throws Exception {
+    void testDeleteModuleInvalidAccessCourseModeratorFail() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteModule/" + courseId + "/" + moduleId)
                         .contentType("application/json")
@@ -413,7 +413,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteModuleInvalidAccessStudentFail() throws Exception {
+    void testDeleteModuleInvalidAccessStudentFail() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteModule/" + courseId + "/" + moduleId)
                         .contentType("application/json")
@@ -427,7 +427,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteModuleInvalidCourseFail() throws Exception {
+    void testDeleteModuleInvalidCourseFail() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteModule/" + UUID.randomUUID().toString() + "/" + moduleId)
                         .contentType("application/json")
@@ -441,7 +441,7 @@ public class CourseModeratorIntegrationTests {
     }
 
     @Test
-    public void testDeleteModuleInvalidModuleFail() throws Exception {
+    void testDeleteModuleInvalidModuleFail() throws Exception {
         mockMvc.perform(
                 MockMvcRequestBuilders.delete("/api/v1/courseModerator/deleteModule/" + courseId + "/" + UUID.randomUUID().toString())
                         .contentType("application/json")

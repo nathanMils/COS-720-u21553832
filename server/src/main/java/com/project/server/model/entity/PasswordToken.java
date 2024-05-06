@@ -1,6 +1,6 @@
 package com.project.server.model.entity;
 
-import com.project.server.converter.StringConverter;
+import com.project.server.converter.TokenConverter;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,7 +21,7 @@ public class PasswordToken {
     private Long id;
 
     @Column(nullable = false)
-    @Convert(converter = StringConverter.class)
+    @Convert(converter = TokenConverter.class)
     private String token;
 
     @Column(nullable = false, unique = true)

@@ -18,12 +18,8 @@ public class ElasticService {
     @Transactional
     public void sendUserAlert(SendUserAlertRequest request) {
         userRepository.findById(request.getUserId()).ifPresentOrElse(
-                (user) -> {
-                    emailService.sendUserAlert(user.getEmail(), user.getUsername());
-                },
-                () -> {
-                    logger.atError().log("User not found");
-                }
+                user -> emailService.sendUserAlert(user.getEmail(), user.getUsername()),
+                () -> logger.atError().log("User not found")
         );
     }
 }

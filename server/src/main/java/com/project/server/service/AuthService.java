@@ -1,5 +1,6 @@
 package com.project.server.service;
 
+import com.project.server.exception.InvalidTokenException;
 import com.project.server.model.entity.*;
 import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.projections.auth.UserAuthProjection;
@@ -22,7 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.sql.Date;
+import java.util.Date;
 import java.time.Instant;
 import java.util.Arrays;
 
@@ -97,7 +98,7 @@ public class AuthService {
         UserAuthProjection user = userRepository.findUserProjectedByUsername(request.username()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS"));
         if (
                 passwordEncoder.matches(request.password(), user.getPassword()) &&
-                user.getEnabled()
+                Boolean.TRUE.equals(user.getEnabled())
         ) {
             log.atInfo().log(
                 "User login successful: IP='{}' Role='{}', UserId='{}'",
@@ -106,7 +107,7 @@ public class AuthService {
                 user.getId()
             );
             return buildAuthResponse(user);
-        } else if (passwordEncoder.matches(request.password(), user.getPassword()) && !user.getEnabled()) {
+        } else if (passwordEncoder.matches(request.password(), user.getPassword()) && Boolean.FALSE.equals(user.getEnabled())) {
             log.atInfo().log(
                 "Unverified User login: IP='{}' Role='{}', UserId='{}'",
                 servletRequest.getRemoteAddr(),
@@ -185,21 +186,23 @@ public class AuthService {
     public AuthResponse refresh(HttpServletRequest servletRequest) {
         Cookie[] cookies = servletRequest.getCookies();
         if (cookies == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID");
+            throw new InvalidTokenException();
         }
 
         String refresh = Arrays.stream(cookies)
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID"));
+                .orElseThrow(InvalidTokenException::new);
 
         RefreshToken token = refreshTokenService.verifyExpiration(refresh);
         if (token.isRevoked()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID");
+            throw new InvalidTokenException();
         }
-        return buildAuthResponse(userRepository.findUserProjectedById(token.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN")));
+        return buildAuthResponse(userRepository.findUserProjectedById(token.getUserId()).orElseThrow(InvalidTokenException::new));
     }
+
+
 
 
     /**
@@ -226,10 +229,7 @@ public class AuthService {
                     userRepository.save(user);
                 },
                 () -> {
-                    throw new ResponseStatusException(
-                            HttpStatus.UNAUTHORIZED,
-                            "INVALID_TOKEN"
-                    );
+                    throw new InvalidTokenException();
                 }
             );
         } else {
@@ -239,10 +239,7 @@ public class AuthService {
                 uuid
 
             );
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "INVALID_TOKEN"
-            );
+            throw new InvalidTokenException();
         }
     }
 
@@ -257,7 +254,7 @@ public class AuthService {
             ForgotPasswordRequest request
     ) {
         UserAuthProjection user = userRepository.findUserProjectedByUsername(request.username()).orElse(null);
-        if (user == null || !user.getEmail().equals(request.email()) || !user.getEnabled()) {
+        if (user == null || !user.getEmail().equals(request.email()) || Boolean.FALSE.equals(user.getEnabled())) {
             log.atWarn().log(
                 "Password reset failed: IP='{}' Username='{}'",
                 servletRequest.getRemoteAddr(),
@@ -291,10 +288,7 @@ public class AuthService {
                 servletRequest.getRemoteAddr(),
                 token
             );
-            throw new ResponseStatusException(
-                    HttpStatus.UNAUTHORIZED,
-                    "INVALID_TOKEN"
-            );
+            throw new InvalidTokenException();
         }
         log.atInfo().log(
             "Password token valid: IP='{}' token:'{}'",
@@ -316,7 +310,7 @@ public class AuthService {
     ) {
         PasswordToken token = passwordTokenService.getPasswordToken(request.token());
         if (token != null && token.getExpiryDate().compareTo(Date.from(Instant.now())) >= 0) {
-            User user = userRepository.findById(token.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN"));
+            User user = userRepository.findById(token.getUserId()).orElseThrow(InvalidTokenException::new);
             if (passwordEncoder.matches(request.password(), user.getPassword())) {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
@@ -341,11 +335,7 @@ public class AuthService {
             servletRequest.getRemoteAddr(),
             request.token()
         );
-        throw new ResponseStatusException(
-                HttpStatus.UNAUTHORIZED,
-                "INVALID_TOKEN"
-        );
-
+        throw new InvalidTokenException();
     }
 
     /**

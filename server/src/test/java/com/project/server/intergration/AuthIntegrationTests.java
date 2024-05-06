@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class AuthIntegrationTests {
+class AuthIntegrationTests {
 
     @Autowired
     private MockMvc mockMvc;
@@ -85,7 +85,7 @@ public class AuthIntegrationTests {
      * This test verifies that a user can successfully log in with correct credentials.
      */
     @Test
-    public void testLoginSuccess() throws Exception {
+    void testLoginSuccess() throws Exception {
         LoginRequest loginRequest = new LoginRequest("NathanTest", "password");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -105,7 +105,7 @@ public class AuthIntegrationTests {
      * This test verifies that a login attempt with a correct username but incorrect password fails.
      */
     @Test
-    public void testLoginFailCorrectUsername() throws Exception {
+    void testLoginFailCorrectUsername() throws Exception {
         LoginRequest loginRequest = new LoginRequest("NathanTest123", "password123");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -125,7 +125,7 @@ public class AuthIntegrationTests {
      * This test verifies that a login attempt with an incorrect username but correct password fails.
      */
     @Test
-    public void testLoginFailCorrectPassword() throws Exception {
+    void testLoginFailCorrectPassword() throws Exception {
         LoginRequest loginRequest = new LoginRequest("NathanTest123", "password");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -145,7 +145,7 @@ public class AuthIntegrationTests {
      * This test verifies that a login attempt with both incorrect username and password fails.
      */
     @Test
-    public void testLoginFailInCorrectUsernameAndPassword() throws Exception {
+    void testLoginFailInCorrectUsernameAndPassword() throws Exception {
         LoginRequest loginRequest = new LoginRequest("NathanTest123", "password123");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -165,7 +165,7 @@ public class AuthIntegrationTests {
      * This test verifies that a login attempt fails if the user is not enabled.
      */
     @Test
-    public void testLoginFailUserNotEnabled() throws Exception {
+    void testLoginFailUserNotEnabled() throws Exception {
         LoginRequest loginRequest = new LoginRequest("NathanTestNotVerified", "password");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -185,7 +185,7 @@ public class AuthIntegrationTests {
      * This test verifies that a login attempt fails if the user is not verified and the password is incorrect.
      */
     @Test
-    public void testLoginFailUserNotVerifiedIncorrectPassword() throws Exception {
+    void testLoginFailUserNotVerifiedIncorrectPassword() throws Exception {
         LoginRequest loginRequest = new LoginRequest("NathanTestNotVerified", "password111");
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -205,7 +205,7 @@ public class AuthIntegrationTests {
      * This test verifies that a user can successfully apply with valid credentials.
      */
     @Test
-    public void testApplySuccess() throws Exception {
+    void testApplySuccess() throws Exception {
         ApplicationRequest applicationRequest = new ApplicationRequest("NotIsNathanTest", "passWord1!", "nathangenius@gmail.com", "Nathan", "Opppermans");
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/v1/auth/apply")
@@ -221,7 +221,7 @@ public class AuthIntegrationTests {
      * This test verifies that an application fails if the username already exists.
      */
     @Test
-    public void testApplyFailUsernameExists() throws Exception {
+    void testApplyFailUsernameExists() throws Exception {
         ApplicationRequest applicationRequest = new ApplicationRequest("NathanTest", "passWord1!", "nathangenius@gmail.com", "Nathan", "Opppermans");
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/v1/auth/apply")
@@ -237,7 +237,7 @@ public class AuthIntegrationTests {
      * This test verifies that an application fails if the validation fails.
      */
     @Test
-    public void testApplyFailValidation() throws Exception {
+    void testApplyFailValidation() throws Exception {
         ApplicationRequest applicationRequest = new ApplicationRequest("NathanTesting", "password", "nathangenius@gmail.com", "Nathan", "Opppermans");
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/v1/auth/apply")
