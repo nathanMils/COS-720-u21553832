@@ -2,8 +2,8 @@
 
 import type { CourseDTO } from '@/types'
 import { onMounted, ref } from 'vue'
-import { CourseCardLink, GreenButton, LoadingComponent, MissingIcon, RedButton } from '@/components'
-import { dropCourse, fetchStudentCourses } from '@/api'
+import { CourseCardLink, GreenButton, LoadingComponent, MissingIcon} from '@/components'
+import { fetchStudentCourses } from '@/api'
 
 onMounted( async () => {
   try {
@@ -22,21 +22,6 @@ onMounted( async () => {
 const courses = ref<CourseDTO[]>([])
 const loading = ref(true)
 
-const drop = async (courseId: string) => {
-  loading.value = true;
-  try {
-    const response = await dropCourse(courseId);
-    if (response.status !== 200) {
-      console.error('Error:', response);
-      loading.value = false;
-      return;
-    }
-    courses.value = courses.value.filter(course => course.id !== courseId);
-  } catch (error: any) {
-    console.error('Error:', error.response);
-  }
-  loading.value = false;
-}
 </script>
 
 <template>

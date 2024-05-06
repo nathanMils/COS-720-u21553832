@@ -59,7 +59,7 @@ const register = async (moduleId: string) => {
       loading.value = false
       return
     }
-    const module = course.value!.modules.find(module => module.id === moduleId)!.registered = true
+    course.value!.modules.find(module => module.id === moduleId)!.registered = true
   } catch (error: any) {
     displayError('An error occurred while registering module')
     console.error(error)
@@ -77,7 +77,7 @@ const drop = async (moduleId: string) => {
       loading.value = false
       return
     }
-    const module = course.value!.modules.find(module => module.id === moduleId)!.registered = false
+    course.value!.modules.find(module => module.id === moduleId)!.registered = false
   } catch (error: any) {
     displayError('An error occurred while dropping module')
     console.error(error)

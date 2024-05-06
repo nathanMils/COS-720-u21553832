@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Status, type StudentApplicationDTO } from '@/types'
+import { type StudentApplicationDTO } from '@/types'
 
 defineProps<{
   application: StudentApplicationDTO

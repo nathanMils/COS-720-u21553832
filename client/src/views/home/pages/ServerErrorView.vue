@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { LogoImg } from '@/components'
-import { inject } from 'vue';
-const errorState = inject('errorState');
 </script>
 
 <template>
