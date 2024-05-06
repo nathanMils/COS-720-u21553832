@@ -26,9 +26,11 @@ jobs:
             
             - name: Install Dependencies
               run: npm install
+              working-directory: ./client
 
             - name: Run ESLint
               run: npm run lint
+              working-directory: ./client
 
     e2e-tests:
         runs-on: ubuntu-latest
@@ -71,12 +73,15 @@ jobs:
 
             - name: Install dependencies
               run: npm install
+              working-directory: ./client
             
             - name: Serve
               run: npm ci
+              working-directory: ./client
 
             - name: Run E2E tests
               run: npx cypress run
+              working-directory: ./client
 
     
     build-image:
