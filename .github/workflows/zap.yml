@@ -41,9 +41,9 @@ jobs:
             - name: Run Spring Jar
               run: java -jar -Dspring.profiles.active=test target/server-0.0.1-SNAPSHOT.jar &
             
-            - name: ZAP Baseline Scan
-              uses: zaproxy/action-baseline@v0.12.0
+            - name: ZAP API Scan
+              uses: zaproxy/action-api-scan@v0.7.0
               with:
-                target: 'http://localhost:8080/'
+                target: 'http://localhost:8080/api/v1'
 
             
