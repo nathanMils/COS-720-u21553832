@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
 import type { PostDTO } from '@/types'
 defineProps<{
   post: PostDTO,

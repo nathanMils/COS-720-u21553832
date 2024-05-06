@@ -4,7 +4,6 @@ import type { Ref } from 'vue'
 import {
   HomeView,
   LoginView,
-  DashboardView,
   ApplyView,
   ConfirmationView,
   VerifyView,

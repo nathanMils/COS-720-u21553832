@@ -9,7 +9,6 @@ import {
   loggedIn,
   getRole, forgotPassword, resetPassword
 } from '@/api'
-import { type UserDTO } from '@/types'
 import { Role } from '@/types/role'
 
 export const AuthStore = defineStore({
