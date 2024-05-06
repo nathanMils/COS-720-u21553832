@@ -1,4 +1,4 @@
-name: Vue push Image to ACR
+name: Push ACR and deploy
 
 on:
     pull_request:
@@ -7,7 +7,29 @@ on:
         - main
 
 jobs:
-    build-image:
+    build-push-server:
+        runs-on: ubuntu-latest
+        name: Create Docker Image
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+          
+          - name: 'Login via Azure CLI'
+            uses: azure/login@v1
+            with:
+              creds: ${{ secrets.AZURE_CREDENTIALS }}
+            
+          - name: 'Build and push image'
+            uses: docker/login-action@v3
+            with:
+              registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+              username: ${{ secrets.AZURE_CLIENT_ID }}
+              password: ${{ secrets.AZURE_CLIENT_SECRET }}
+          - run: |
+              docker build ./server -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
+              docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
+    
+    build-push-client:
         runs-on: ubuntu-latest
         name: Create Docker Image
         steps:

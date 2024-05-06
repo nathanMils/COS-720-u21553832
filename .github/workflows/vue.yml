@@ -1,9 +1,6 @@
 name: Vue
 
 on:
-  push:
-    branches:
-      - dev
   pull_request:
     types: [opened]
     branches:
@@ -21,7 +18,7 @@ jobs:
                 fetch-depth: 0
 
             - name: Set up Node.js
-              uses: actions/setup-node@v2
+              uses: actions/setup-node@v2.5.0
               with:
                 node-version: '20'
             
@@ -68,7 +65,7 @@ jobs:
             - name: Run Spring Jar
               run: java -jar -Dspring.profiles.active=test ./server/target/server-0.0.1-SNAPSHOT.jar &
 
-            - name: Install Node.js and npm
+            - name: Install Node.js
               uses: actions/setup-node@v2.5.0
               with:
                 node-version: '20'
