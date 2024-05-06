@@ -1,0 +1,92 @@
+name: Vue
+
+on:
+    push:
+      branches:
+        - main
+    pull_request:
+      branches:
+        - main
+
+jobs:
+
+    e2e-tests:
+        runs-on: ubuntu-latest
+        name: End to End tests with in memory database
+        env:
+            SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+            APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+            APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+            APP_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+            APP_ADMIN_NAME_FIRST: Nathan
+            APP_ADMIN_NAME_LAST: Opperman
+            APP_BASE_URL: http://localhost:3000
+            APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
+            APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
+            VITE_API_BASE_URL: http://localhost:8080/api/v1
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+            
+            - name: Set JDK
+              uses: actions/setup-java@v4
+              with:
+                java-version: '21'
+                distribution: 'temurin'
+
+            # Bulding springboot application with a different maven profile to bring H2 database into runtime scope
+            - name: Build Mvn Application
+              run: mvn clean install -Ptest -DskipTests
+            
+            # Running the JAR with the test configuration, runs in background
+            - name: Run Spring Jar
+              run: java -jar -Dspring.profiles.active=test target/server-0.0.1-SNAPSHOT.jar &
+
+            - name: Install Node.js and npm
+              uses: actions/setup-node@v2
+              with:
+                node-version: '20'
+
+            - name: Install dependencies
+              run: npm install
+            
+            - name: Build Vue.js application
+              run: npm run build
+
+            - name: Start Local Server
+              run: npm run serve -- --port 3000 &
+
+            - name: Wait for server to start
+              run: sleep 10
+
+            - name: Run Cypress tests
+              uses: cypress-io/github-action@v2
+              with:
+                start: npm start
+                wait-on: 'http://localhost:3000'
+
+    
+    build-image:
+        runs-on: ubuntu-latest
+        name: Create Docker Image
+        needs: [e2e-tests]
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            
+            - name: 'Login via Azure CLI'
+              uses: azure/login@v1
+              with:
+                creds: ${{ secrets.AZURE_CREDENTIALS }}
+            
+            - name: 'Build and push image'
+              uses: docker/login-action@v3
+              with:
+                registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+                username: ${{ secrets.AZURE_CLIENT_ID }}
+                password: ${{ secrets.AZURE_CLIENT_SECRET }}
+            - run: |
+                docker build ./client -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/client:${{ github.sha }}
+                docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/client:${{ github.sha }}
