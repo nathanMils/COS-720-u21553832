@@ -29,6 +29,7 @@ jobs:
     tests:
         runs-on: ubuntu-latest
         name: Tests
+        needs: ['compile']
         env:
           SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
           APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
@@ -53,26 +54,3 @@ jobs:
         
             - name: Running Tests
               run: mvn test --file ./server/pom.xml
-    
-    build-image:
-      runs-on: ubuntu-latest
-      name: Create Docker Image
-      needs: [compile,tests]
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-        
-        - name: 'Login via Azure CLI'
-          uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
-          
-        - name: 'Build and push image'
-          uses: docker/login-action@v3
-          with:
-            registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-            username: ${{ secrets.AZURE_CLIENT_ID }}
-            password: ${{ secrets.AZURE_CLIENT_SECRET }}
-        - run: |
-            docker build ./server -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/server:${{ github.sha }}

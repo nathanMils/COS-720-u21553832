@@ -35,6 +35,7 @@ jobs:
     e2e-tests:
         runs-on: ubuntu-latest
         name: End to End tests with in memory database
+        needs: ['eslint']
         env:
             SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
             APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
@@ -60,11 +61,11 @@ jobs:
 
             # Bulding springboot application with a different maven profile to bring H2 database into runtime scope
             - name: Build Mvn Application
-              run: mvn clean install -Ptest -DskipTests
+              run: mvn clean install -Ptest -DskipTests -f ./server/pom.xml
             
             # Running the JAR with the test configuration, runs in background
             - name: Run Spring Jar
-              run: java -jar -Dspring.profiles.active=test target/server-0.0.1-SNAPSHOT.jar &
+              run: java -jar -Dspring.profiles.active=test ./server/target/server-0.0.1-SNAPSHOT.jar &
 
             - name: Install Node.js and npm
               uses: actions/setup-node@v2.5.0
@@ -82,27 +83,3 @@ jobs:
             - name: Run E2E tests
               run: npx cypress run
               working-directory: ./client
-
-    
-    build-image:
-        runs-on: ubuntu-latest
-        name: Create Docker Image
-        needs: [e2e-tests, eslint]
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-            
-            - name: 'Login via Azure CLI'
-              uses: azure/login@v1
-              with:
-                creds: ${{ secrets.AZURE_CREDENTIALS }}
-            
-            - name: 'Build and push image'
-              uses: docker/login-action@v3
-              with:
-                registry: ${{ secrets.REGISTRY_LOGIN_SERVER }}
-                username: ${{ secrets.AZURE_CLIENT_ID }}
-                password: ${{ secrets.AZURE_CLIENT_SECRET }}
-            - run: |
-                docker build ./client -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/client:${{ github.sha }}
-                docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/client:${{ github.sha }}
