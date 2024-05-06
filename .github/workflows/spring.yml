@@ -3,8 +3,9 @@ name: Spring
 on:
     push:
       branches:
-        - main
+        - dev
     pull_request:
+      types: [opened]
       branches:
         - main
       
