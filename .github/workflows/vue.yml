@@ -78,7 +78,7 @@ jobs:
               working-directory: ./client
             
             - name: Serve
-              run: npm ci &
+              run: npm run dev &
               working-directory: ./client
 
             - name: Run E2E tests
