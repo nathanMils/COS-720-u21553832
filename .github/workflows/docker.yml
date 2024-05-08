@@ -23,7 +23,7 @@ jobs:
         - name: Build and Push Docker image to registry
           uses: docker/build-push-action@v5
           with:
-            context: ./server/Dockerfile
+            context: ./server
             push: true
             tags: cos720/server:latest
           
@@ -37,6 +37,6 @@ jobs:
         - name: Login to docker repository
           uses: docker/build-push-action@v5
           with:
-            context: ./client/Dockerfile
+            context: ./client
             push: true
             tags: cos720/client:latest
