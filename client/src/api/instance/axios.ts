@@ -4,7 +4,7 @@ import type { APIResponse, AuthResponse } from '@/api';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const axiosInstance = axios.create({
-    baseURL: baseURL,
+    baseURL: baseURL+"/api/v1",
     timeout: 10000,
     withCredentials: true
 })
