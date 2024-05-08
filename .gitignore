@@ -3,3 +3,4 @@ secret.json
 .vscode
 *.log
 /postgres
+compose.local.yml

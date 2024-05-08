@@ -42,22 +42,8 @@ services:
       APP_ADMIN_EMAIL: ${ADMIN_EMAIL}
       APP_ADMIN_NAME_FIRST: ${ADMIN_FIRST_NAME}
       APP_ADMIN_NAME_LAST: ${ADMIN_LAST_NAME}
-    depends_on:
-      - postgres
     networks:
       - proxy-server
-      - postgres-server
-  
-  postgres:
-    image: 'postgres:latest'
-    environment:
-      POSTGRES_DB: ${DATABASE_NAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_USER: ${DATABASE_USERNAME}
-    ports:
-      - "5432:5432"
-    networks:
-      - postgres-server
     
   
   client:
@@ -186,6 +172,5 @@ networks:
   proxy-client:
   proxy-server:
   proxy-kibana:
-  postgres-server:
   elk:
     driver: bridge
