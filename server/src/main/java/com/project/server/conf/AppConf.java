@@ -9,6 +9,8 @@ import dev.samstevens.totp.secret.SecretGenerator;
 import dev.samstevens.totp.time.SystemTimeProvider;
 import dev.samstevens.totp.time.TimeProvider;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,6 +40,9 @@ import static org.springframework.web.bind.annotation.RequestMethod.PATCH;
 public class AppConf {
     private final ApplicationUDService applicationUDService;
 
+    @Value("${app.base.url}")
+    private String url;
+
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -55,7 +60,7 @@ public class AppConf {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         final CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
-                "http://localhost:3000"
+                url
         ));
         config.setAllowCredentials(true);
         config.setAllowedHeaders(List.of(

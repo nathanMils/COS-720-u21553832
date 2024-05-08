@@ -1,4 +1,4 @@
-name: Push ACR and deploy
+name: Push DockerHub and deploy
 
 on:
     push:
@@ -51,7 +51,7 @@ jobs:
             tags: ${{secrets.DOCKER_HUB_USERNAME}}/client:latest
 
     push-proxy:
-      name: Push Docker Vue js image to Docker Hub
+      name: Push Docker NGINX image to Docker Hub
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Code
