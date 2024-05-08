@@ -1,4 +1,6 @@
 spring:
+  banner:
+    location: classpath:banner.txt
   profiles:
     active: local
   datasource:
