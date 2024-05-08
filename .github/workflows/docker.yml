@@ -25,7 +25,7 @@ jobs:
           with:
             context: ./server
             push: true
-            tags: cos720/server:latest
+            tags: server:latest
           
     push-client:
       name: Push Docker Vue js image to Docker Hub
@@ -45,4 +45,4 @@ jobs:
           with:
             context: ./client
             push: true
-            tags: cos720/client:latest
+            tags: client:latest
