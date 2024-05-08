@@ -1,6 +1,9 @@
 name: Push ACR and deploy
 
 on:
+    push:
+      branches:
+        - dev
     pull_request:
       types: [closed]
       branches:
@@ -63,7 +66,7 @@ jobs:
         - name: Login to docker repository
           uses: docker/build-push-action@v5
           with:
-            context: ./proxy
+            context: ./nginx
             push: true
             tags: ${{secrets.DOCKER_HUB_USERNAME}}/proxy:latest
 
