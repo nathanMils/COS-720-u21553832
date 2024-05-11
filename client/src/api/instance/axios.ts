@@ -30,6 +30,4 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-axiosInstance.defaults.baseURL+= "/api/v1"
-
 export default axiosInstance;

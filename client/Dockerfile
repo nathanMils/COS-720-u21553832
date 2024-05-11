@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
+ENV VUE_APP_API_URL=http://13.244.119.168/api/v1
 RUN npm run build
 
 # production stage
