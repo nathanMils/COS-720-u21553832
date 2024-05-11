@@ -1,18 +1,75 @@
-name: Push DockerHub and deploy
-
-on:
-    pull_request:
-      types: [closed]
-      branches:
-        - main
+name: Push Images to ECR and deploy changes
 
 # While using Elastic Container Registry can have benifits in terms of security by using IAM Roles to allow access to the images, this is only available for paid subscriptions
 # And I aint paying all that, but the principle remains
 # However access write permissions is stil an important topic
-# By perscribing 
+# By perscribing fine grained limited access to the github user role access is made minimal
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 jobs:
-    push-spring:
-      name: Push Docker Spring image to ECR
+    push-images:
+      name: Push Docker Server, Client and Proxy images to ECR
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        # us-east has available acr endpoint
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
+    
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
+          with:
+            registry-type: public
+    
+        - name: Build, tag, and push the Server image to Amazon ECR
+          id: build-server
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+            ECR_REPOSITRY: server
+            IMAGE_TAG: latest
+          run: |
+            cd ./server
+            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+
+        - name: Build, tag, and push the Client image to Amazon ECR
+          id: build-client
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+            ECR_REPOSITRY: client
+            IMAGE_TAG: latest
+          run: |
+            cd ./client
+            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+
+        - name: Build, tag, and push the Proxy image to Amazon ECR
+          id: build-proxy
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+            ECR_REPOSITRY: proxy
+            IMAGE_TAG: latest
+          run: |
+            cd ./nginx
+            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+
+    deploy:
+      name: Run document command to pull and deploy changes from EC2 instance
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Code
@@ -23,83 +80,17 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-2
-    
-        - name: Login to Amazon ECR
-          id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v2
-          with:
-            registry-type: public
-    
-        - name: Build, tag, and push the image to Amazon ECR
-          id: build-image
-          env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: server
-            IMAGE_TAG: latest
-          run: |
-            docker build -f ./server/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-          
-    push-client:
-      name: Push Docker Vue js image to ECR
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
+            aws-region: ${{ secrets.AWS_REGION }}
 
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-2
-    
-        - name: Login to Amazon ECR
-          id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v2
-          with:
-            registry-type: public
-    
-        - name: Build, tag, and push the image to Amazon ECR
-          id: build-image
+        - name: Send SSM Command to Deploy Changes
           env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: client
-            IMAGE_TAG: latest
+            INSTANCE_ID: ${{ secrets.AWS_EC2_INSTANCE_ID }}
+            REGION: ${{ secrets.AWS_REGION }}
           run: |
-            docker build -f ./client/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            aws ssm send-command --document-name "deploy_to_portal" --document-version "1" --targets '[{"Key":"InstanceIds","Values":["$INSTANCE_ID"]}]' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --region $REGION
 
-    push-proxy:
-      name: Push Docker Nginx image to ECR
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
-
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-2
+  
     
-        - name: Login to Amazon ECR
-          id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v2
-          with:
-            registry-type: public
-    
-        - name: Build, tag, and push the image to Amazon ECR
-          id: build-image
-          env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: proxy
-            IMAGE_TAG: latest
-          run: |
-            docker build -f ./nginx/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
 
     

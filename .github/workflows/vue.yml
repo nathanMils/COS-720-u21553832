@@ -1,6 +1,9 @@
 name: Vue
 
 on:
+  push:
+    branches:
+      - dev
   pull_request:
     types: [opened]
     branches:
