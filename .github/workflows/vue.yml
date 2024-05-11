@@ -36,9 +36,9 @@ jobs:
         needs: ['eslint']
         env:
             SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-            APP_ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
-            APP_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-            APP_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+            APP_ADMIN_USERNAME: NathanOpp
+            APP_ADMIN_PASSWORD: Stupidcat12!
+            APP_ADMIN_EMAIL: nathanopperman123@gmail.com
             APP_ADMIN_NAME_FIRST: Nathan
             APP_ADMIN_NAME_LAST: Opperman
             APP_BASE_URL: http://localhost:3000
