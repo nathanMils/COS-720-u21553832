@@ -1,9 +1,9 @@
 name: Spring
 
 on:
-  push:
-    branches:
-      - dev
+  # push:
+  #   branches:
+  #     - dev
   pull_request:
     types: [opened]
     branches:

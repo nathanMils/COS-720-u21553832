@@ -6,6 +6,9 @@ name: Push Images to ECR and deploy changes
 # By perscribing fine grained limited access to the github user role access is made minimal
 
 on:
+  push:
+    branches:
+      - dev
   pull_request:
     types: [closed]
     branches:
@@ -71,6 +74,7 @@ jobs:
     deploy:
       name: Run document command to pull and deploy changes from EC2 instance
       runs-on: ubuntu-latest
+      needs: ['push-images']
       steps:
         - name: Checkout Code
           uses: actions/checkout@v4
@@ -83,11 +87,8 @@ jobs:
             aws-region: ${{ secrets.AWS_REGION }}
 
         - name: Send SSM Command to Deploy Changes
-          env:
-            INSTANCE_ID: ${{ secrets.AWS_EC2_INSTANCE_ID }}
-            REGION: ${{ secrets.AWS_REGION }}
           run: |
-            aws ssm send-command --document-name "deploy_to_portal" --document-version "1" --targets '[{"Key":"InstanceIds","Values":["$INSTANCE_ID"]}]' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --region $REGION
+            aws ssm send-command --document-name "deploy_to_portal" --document-version "1" --targets '[{"Key":"InstanceIds","Values":[${{ secrets.AWS_EC2_INSTANCE_ID }}]}]' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --region ${{ secrets.AWS_REGION }}
 
   
     
