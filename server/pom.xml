@@ -161,9 +161,9 @@
 				</dependency>
 				<!--AWS SECRET MANAGER-->
 				<dependency>
-					<groupId>io.awspring.cloud</groupId>
-					<artifactId>spring-cloud-starter-aws-secrets-manager-config</artifactId>
-					<version>2.4.4</version>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-aws-secrets-manager-config</artifactId>
+					<version>2.2.6.RELEASE</version>
 				</dependency>
 			</dependencies>
 		</profile>
