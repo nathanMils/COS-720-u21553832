@@ -1,6 +1,9 @@
-name: Push DockerHub and deploy
+name: Push ECR
 
 on:
+    push:
+      branches:
+        - dev
     pull_request:
       types: [closed]
       branches:
@@ -9,7 +12,7 @@ on:
 # While using Elastic Container Registry can have benifits in terms of security by using IAM Roles to allow access to the images, this is only available for paid subscriptions
 # And I aint paying all that, but the principle remains
 # However access write permissions is stil an important topic
-# By perscribing 
+# By perscribing fine grained limited access to the github user role access is made minimal
 jobs:
     push-spring:
       name: Push Docker Spring image to ECR
@@ -23,7 +26,7 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-2
+            aws-region: af-south-1
     
         - name: Login to Amazon ECR
           id: login-ecr
@@ -53,7 +56,7 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-2
+            aws-region: af-south-1
     
         - name: Login to Amazon ECR
           id: login-ecr
@@ -83,7 +86,7 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-2
+            aws-region: af-south-1
     
         - name: Login to Amazon ECR
           id: login-ecr
