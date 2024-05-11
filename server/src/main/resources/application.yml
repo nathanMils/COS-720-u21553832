@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: portal
   banner:
     location: classpath:banner.txt
   profiles:
@@ -30,8 +32,8 @@ app:
   token:
     authExpire: 3600
     refreshExpire: 4000
-    confirmationExpire: 600
-    passwordExpire: 600
+    confirmationExpire: 6000
+    passwordExpire: 3000
   connection:
     timeout: 3000
   request:

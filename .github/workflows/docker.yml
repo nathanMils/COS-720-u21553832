@@ -1,4 +1,4 @@
-name: Push ACR and deploy
+name: Push DockerHub and deploy
 
 on:
     pull_request:
@@ -46,3 +46,26 @@ jobs:
             context: ./client
             push: true
             tags: ${{secrets.DOCKER_HUB_USERNAME}}/client:latest
+
+    push-proxy:
+      name: Push Docker NGINX image to Docker Hub
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Login to docker repository
+          uses: docker/login-action@v3
+          with:
+            username: ${{secrets.DOCKER_HUB_USERNAME}}
+            password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+        
+        - name: Login to docker repository
+          uses: docker/build-push-action@v5
+          with:
+            context: ./nginx
+            push: true
+            tags: ${{secrets.DOCKER_HUB_USERNAME}}/proxy:latest
+
+
+    
