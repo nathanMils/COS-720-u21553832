@@ -53,7 +53,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
     @Transactional
     public void createAdministrator() {
-        userRepository.findByUsername("admin").ifPresentOrElse(
+        userRepository.findByUsername(adminUsername).ifPresentOrElse(
                 admin -> {},
                 () ->
                     userRepository.save(
