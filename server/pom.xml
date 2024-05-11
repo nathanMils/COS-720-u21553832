@@ -130,6 +130,7 @@
 	<profiles>
 		<profile>
 			<id>prod</id>
+			<!--FOR DEPENDENCIES AND PROPERTIES SPECIFIC TO THE DEPLOYED APPLICATION-->
 			<properties>
 				<activatedProperties>prod</activatedProperties>
 			</properties>
@@ -156,6 +157,12 @@
 				<dependency>
 					<groupId>org.springframework.cloud</groupId>
 					<artifactId>spring-cloud-starter-aws-parameter-store-config</artifactId>
+					<version>2.2.6.RELEASE</version>
+				</dependency>
+				<!--AWS SECRET MANAGER-->
+				<dependency>
+					<groupId>org.springframework.cloud</groupId>
+					<artifactId>spring-cloud-aws-secrets-manager-config</artifactId>
 					<version>2.2.6.RELEASE</version>
 				</dependency>
 			</dependencies>

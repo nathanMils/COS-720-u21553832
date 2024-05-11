@@ -35,7 +35,8 @@ jobs:
         name: End to End tests with in memory database
         needs: ['eslint']
         env:
-            SPRING_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+            SERVER_PORT: 8080
+            SPRING_MAIL_PASSWORD: placeholder_value
             APP_ADMIN_USERNAME: NathanOpp
             APP_ADMIN_PASSWORD: Stupidcat12!
             APP_ADMIN_EMAIL: nathanopperman123@gmail.com
