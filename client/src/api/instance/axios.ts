@@ -4,7 +4,7 @@ import type { APIResponse, AuthResponse } from '@/api';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const axiosInstance = axios.create({
-    baseURL: "/api/v1",
+    baseURL: baseURL,
     timeout: 10000,
     withCredentials: true
 })
@@ -29,5 +29,7 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 );
+
+axiosInstance.defaults.baseURL+= "/api/v1"
 
 export default axiosInstance;

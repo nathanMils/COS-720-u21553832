@@ -3,7 +3,7 @@ FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /usr/src/app
 COPY src /usr/src/app/src
 COPY pom.xml /usr/src/app
-RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests
+RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests -Pprod
 
 ## Production stage
 FROM eclipse-temurin:21-jre
