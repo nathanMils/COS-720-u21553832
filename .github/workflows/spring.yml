@@ -1,10 +1,14 @@
 name: Spring
 
 on:
-    pull_request:
-      types: [opened]
-      branches:
-        - main
+  push:
+    branches:
+      - dev
+      - main
+  pull_request:
+    types: [opened]
+    branches:
+      - main
       
 jobs:
     compile:
