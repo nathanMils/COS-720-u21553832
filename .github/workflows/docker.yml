@@ -38,34 +38,34 @@ jobs:
           id: build-server
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTORY_ALIAS: n1f9p4k8
-            ECR_REPOSITORY: server
+            ECR_REGISTRY_ALIAS: n1f9p4k8
+            ECR_REPOSITRY: server
             IMAGE_TAG: latest
           run: |
-            docker build -f ./server/Dockerfile -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
+            docker build -f ./server/Dockerfile -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
         - name: Build, tag, and push the Client image to Amazon ECR
           id: build-client
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTORY_ALIAS: n1f9p4k8
-            ECR_REPOSITORY: client
+            ECR_REGISTRY_ALIAS: n1f9p4k8
+            ECR_REPOSITRY: client
             IMAGE_TAG: latest
           run: |
-            docker build -f ./client/Dockerfile -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
+            docker build -f ./client/Dockerfile -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
         - name: Build, tag, and push the Proxy image to Amazon ECR
           id: build-proxy
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTORY_ALIAS: n1f9p4k8
-            ECR_REPOSITORY: proxy
+            ECR_REGISTRY_ALIAS: n1f9p4k8
+            ECR_REPOSITRY: proxy
             IMAGE_TAG: latest
           run: |
-            docker build -f ./nginx/Dockerfile -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITORY:$IMAGE_TAG
+            docker build -f ./nginx/Dockerfile -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
 
     
