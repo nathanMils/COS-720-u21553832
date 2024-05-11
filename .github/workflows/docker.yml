@@ -31,7 +31,7 @@ jobs:
         - name: Build, tag, and push image to Amazon ECR
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: public.ecr.aws/n1f9p4k8/cos720/server
+            ECR_REPOSITORY: cos720/server
             IMAGE_TAG: latest
           run: |
             cd ./server
@@ -59,7 +59,7 @@ jobs:
         - name: Build, tag, and push image to Amazon ECR
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: public.ecr.aws/n1f9p4k8/cos720/client
+            ECR_REPOSITORY: cos720/client
             IMAGE_TAG: latest
           run: |
             cd ./client
@@ -87,7 +87,7 @@ jobs:
         - name: Build, tag, and push image to Amazon ECR
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: public.ecr.aws/n1f9p4k8/cos720/proxy
+            ECR_REPOSITORY: cos720/proxy
             IMAGE_TAG: latest
           run: |
             cd ./nginx
