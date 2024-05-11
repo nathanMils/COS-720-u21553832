@@ -1,26 +1,24 @@
-name: Push ECR
-
-on:
-    push:
-      branches:
-        - dev
-    pull_request:
-      types: [closed]
-      branches:
-        - main
+name: Push Images to ECR and deploy changes
 
 # While using Elastic Container Registry can have benifits in terms of security by using IAM Roles to allow access to the images, this is only available for paid subscriptions
 # And I aint paying all that, but the principle remains
 # However access write permissions is stil an important topic
 # By perscribing fine grained limited access to the github user role access is made minimal
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 jobs:
-    push-spring:
+    push-images:
       name: Push Docker Server, Client and Proxy images to ECR
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Code
           uses: actions/checkout@v4
 
+        # us-east has available acr endpoint
         - name: Configure AWS credentials
           uses: aws-actions/configure-aws-credentials@v1
           with:
@@ -38,7 +36,7 @@ jobs:
           id: build-server
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTRY_ALIAS: n1f9p4k8
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
             ECR_REPOSITRY: server
             IMAGE_TAG: latest
           run: |
@@ -50,7 +48,7 @@ jobs:
           id: build-client
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTRY_ALIAS: n1f9p4k8
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
             ECR_REPOSITRY: client
             IMAGE_TAG: latest
           run: |
@@ -62,13 +60,37 @@ jobs:
           id: build-proxy
           env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTRY_ALIAS: n1f9p4k8
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
             ECR_REPOSITRY: proxy
             IMAGE_TAG: latest
           run: |
             cd ./nginx
             docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
             docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+
+    deploy:
+      name: Run document command to pull and deploy changes from EC2 instance
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
+
+        - name: Send SSM Command to Deploy Changes
+          env:
+            INSTANCE_ID: ${{ secrets.AWS_EC2_INSTANCE_ID }}
+            REGION: ${{ secrets.AWS_REGION }}
+          run: |
+            aws ssm send-command --document-name "deploy_to_portal" --document-version "1" --targets '[{"Key":"InstanceIds","Values":["$INSTANCE_ID"]}]' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --region $REGION
+
+  
+    
 
 
     
