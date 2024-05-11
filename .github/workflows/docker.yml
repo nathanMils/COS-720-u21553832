@@ -1,74 +1,105 @@
 name: Push DockerHub and deploy
 
 on:
-    push:
-      branches:
-        - dev
     pull_request:
       types: [closed]
       branches:
         - main
 
+# While using Elastic Container Registry can have benifits in terms of security by using IAM Roles to allow access to the images, this is only available for paid subscriptions
+# And I aint paying all that, but the principle remains
+# However access write permissions is stil an important topic
+# By perscribing 
 jobs:
     push-spring:
-      name: Push Docker Spring image to Docker Hub
+      name: Push Docker Spring image to ECR
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Code
           uses: actions/checkout@v4
 
-        - name: Login to docker repository
-          uses: docker/login-action@v3
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
           with:
-            username: ${{secrets.DOCKER_HUB_USERNAME}}
-            password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
-
-        - name: Build and Push Docker image to registry
-          uses: docker/build-push-action@v5
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-2
+    
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
           with:
-            context: ./server
-            push: true
-            tags: ${{secrets.DOCKER_HUB_USERNAME}}/server:latest
+            registry-type: public
+    
+        - name: Build, tag, and push the image to Amazon ECR
+          id: build-image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: server
+            IMAGE_TAG: latest
+          run: |
+            docker build -f ./server/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           
     push-client:
-      name: Push Docker Vue js image to Docker Hub
+      name: Push Docker Vue js image to ECR
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Code
           uses: actions/checkout@v4
 
-        - name: Login to docker repository
-          uses: docker/login-action@v3
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
           with:
-            username: ${{secrets.DOCKER_HUB_USERNAME}}
-            password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
-        
-        - name: Login to docker repository
-          uses: docker/build-push-action@v5
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-2
+    
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
           with:
-            context: ./client
-            push: true
-            tags: ${{secrets.DOCKER_HUB_USERNAME}}/client:latest
+            registry-type: public
+    
+        - name: Build, tag, and push the image to Amazon ECR
+          id: build-image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: client
+            IMAGE_TAG: latest
+          run: |
+            docker build -f ./client/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
     push-proxy:
-      name: Push Docker NGINX image to Docker Hub
+      name: Push Docker Nginx image to ECR
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Code
           uses: actions/checkout@v4
 
-        - name: Login to docker repository
-          uses: docker/login-action@v3
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
           with:
-            username: ${{secrets.DOCKER_HUB_USERNAME}}
-            password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
-        
-        - name: Login to docker repository
-          uses: docker/build-push-action@v5
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-2
+    
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
           with:
-            context: ./nginx
-            push: true
-            tags: ${{secrets.DOCKER_HUB_USERNAME}}/proxy:latest
+            registry-type: public
+    
+        - name: Build, tag, and push the image to Amazon ECR
+          id: build-image
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: proxy
+            IMAGE_TAG: latest
+          run: |
+            docker build -f ./client/Dockerfile -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
 
 
     
