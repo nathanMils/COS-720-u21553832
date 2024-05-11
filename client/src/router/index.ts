@@ -177,6 +177,7 @@ router.beforeEach(async (to) => {
     '/verifyEmail',
     '/forgot',
     '/reset',
+    '/'
   ]
   const authRequired = !publicPages.includes(to.path)
   const auth = AuthStore()

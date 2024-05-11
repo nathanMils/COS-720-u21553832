@@ -1,9 +1,6 @@
 name: Push DockerHub and deploy
 
 on:
-    push:
-      branches:
-        - dev
     pull_request:
       types: [closed]
       branches:
