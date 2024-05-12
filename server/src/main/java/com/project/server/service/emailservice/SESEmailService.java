@@ -3,6 +3,7 @@ package com.project.server.service.emailservice;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.server.service.emailservice.impl.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class SESEmailService implements EmailService {
     @Value("${app.base.url}")
     private String baseUrl;
     private final ResourceLoader resourceLoader;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void sendDeviceVerificationEmail(String userEmail, String code) {
@@ -47,7 +49,7 @@ public class SESEmailService implements EmailService {
             String templateName = "EmailVerificationTemplate";
 
             // Check if the template exists, if not create it
-            if (!doesTemplateExist(templateName)) {
+            if (doesTemplateExist(templateName)) {
                 Template template = new Template()
                         .withTemplateName(templateName)
                         .withSubjectPart("Confirm Your Email")
@@ -61,12 +63,13 @@ public class SESEmailService implements EmailService {
             Map<String, String> templateData = new HashMap<>();
             templateData.put("link", baseUrl + "/verifyEmail?token=" + code);
 
+            String templateDataJson = objectMapper.writeValueAsString(templateData);
             // Send the email
             SendTemplatedEmailRequest request = new SendTemplatedEmailRequest()
                     .withDestination(new Destination().withToAddresses(userEmail))
                     .withSource(emailSource)
                     .withTemplate(templateName)
-                    .withTemplateData(templateData.toString());
+                    .withTemplateData(templateDataJson);
 
             sesClient.sendTemplatedEmail(request);
         } catch (IOException e) {
@@ -85,7 +88,7 @@ public class SESEmailService implements EmailService {
             String templateName = "PasswordResetTemplate";
 
             // Check if the template exists, if not create it
-            if (!doesTemplateExist(templateName)) {
+            if (doesTemplateExist(templateName)) {
                 Template template = new Template()
                         .withTemplateName(templateName)
                         .withSubjectPart("Reset Your Password")
@@ -99,12 +102,13 @@ public class SESEmailService implements EmailService {
             Map<String, String> templateData = new HashMap<>();
             templateData.put("url", baseUrl + "/reset?token=" + token);
 
+            String templateDataJson = objectMapper.writeValueAsString(templateData);
             // Send the email
             SendTemplatedEmailRequest request = new SendTemplatedEmailRequest()
                     .withDestination(new Destination().withToAddresses(userEmail))
                     .withSource(emailSource)
                     .withTemplate(templateName)
-                    .withTemplateData(templateData.toString());
+                    .withTemplateData(templateDataJson);
 
             sesClient.sendTemplatedEmail(request);
         } catch (IOException e) {
@@ -115,9 +119,9 @@ public class SESEmailService implements EmailService {
     private boolean doesTemplateExist(String templateName) {
         try {
             sesClient.getTemplate(new GetTemplateRequest().withTemplateName(templateName));
-            return true;
-        } catch (TemplateDoesNotExistException e) {
             return false;
+        } catch (TemplateDoesNotExistException e) {
+            return true;
         }
     }
 
