@@ -165,6 +165,13 @@
 					<artifactId>spring-cloud-aws-secrets-manager-config</artifactId>
 					<version>2.2.6.RELEASE</version>
 				</dependency>
+				<!--AWS SIMPLE MAIL SERVICE-->
+				<!--provides secure email sending options with encryption, preferred over aws-->
+				<dependency>
+					<groupId>com.amazonaws</groupId>
+					<artifactId>aws-java-sdk-ses</artifactId>
+					<version>1.12.720</version>
+				</dependency>
 			</dependencies>
 		</profile>
 		<profile>

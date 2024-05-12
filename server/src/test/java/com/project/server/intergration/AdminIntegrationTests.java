@@ -5,7 +5,7 @@ import com.project.server.model.entity.Module;
 import com.project.server.model.enums.RoleEnum;
 import com.project.server.model.enums.StatusEnum;
 import com.project.server.repository.*;
-import com.project.server.service.EmailService;
+import com.project.server.service.emailservice.impl.EmailService;
 import com.project.server.service.TokenService;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.*;

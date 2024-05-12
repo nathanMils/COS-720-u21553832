@@ -2,6 +2,7 @@ package com.project.server.service;
 
 import com.project.server.repository.UserRepository;
 import com.project.server.request.elastic.SendUserAlertRequest;
+import com.project.server.service.emailservice.impl.EmailService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
