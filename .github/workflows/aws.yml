@@ -5,10 +5,9 @@ name: Push Images to ECR and deploy changes
 # However access write permissions is stil an important topic
 # By perscribing fine grained limited access to the github user role access is made minimal
 
+# I am not paying for openID connect, screw that
+
 on:
-  push:
-    branches:
-      - dev
   pull_request:
     types: [closed]
     branches:
