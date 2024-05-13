@@ -1,0 +1,10 @@
+aws:
+  paramstore:
+    profile-separator: _
+    enabled: false
+    prefix: /config
+
+  secretsmanager:
+    default-context: application
+    enabled: false
+    prefix: /secret
