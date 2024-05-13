@@ -10,7 +10,6 @@ import com.project.server.request.auth.ForgotPasswordRequest;
 import com.project.server.request.auth.LoginRequest;
 import com.project.server.request.auth.PasswordChangeRequest;
 import com.project.server.response.auth.AuthResponse;
-import com.project.server.service.emailservice.impl.EmailService;
 import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
