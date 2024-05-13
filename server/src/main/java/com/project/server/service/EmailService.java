@@ -1,16 +1,15 @@
-package com.project.server.service.emailservice;
+package com.project.server.service;
 
-import com.project.server.service.emailservice.impl.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -19,10 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 @Service
-@Profile("local")
 @RequiredArgsConstructor
 @Slf4j
-public class JavaMailService implements EmailService {
+public class EmailService {
     private final JavaMailSender javaMailSender;
     @Value("${spring.mail.username}")
     private String emailSource;
@@ -30,7 +28,7 @@ public class JavaMailService implements EmailService {
     private String baseUrl;
     private final ResourceLoader resourceLoader;
 
-    @Override
+    @Async
     public void sendDeviceVerificationEmail(String userEmail, String code) {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -49,7 +47,7 @@ public class JavaMailService implements EmailService {
         }
     }
 
-    @Override
+    @Async
     public void sendModeratorEmail(
             String userEmail,
             String username,
@@ -78,7 +76,7 @@ public class JavaMailService implements EmailService {
         }
     }
 
-    @Override
+    @Async
     public void sendEmailVerificationEmail(String userEmail, String code) {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -97,7 +95,7 @@ public class JavaMailService implements EmailService {
         }
     }
 
-    @Override
+    @Async
     public void sendUserAlert(String userEmail, String userName) {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
@@ -116,7 +114,7 @@ public class JavaMailService implements EmailService {
         }
     }
 
-    @Override
+    @Async
     public void sendPasswordResetEmail(String userEmail, String token) {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);

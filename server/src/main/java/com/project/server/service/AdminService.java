@@ -13,7 +13,6 @@ import com.project.server.repository.UserRepository;
 import com.project.server.request.admin.AcceptRequest;
 import com.project.server.request.admin.CreateModeratorRequest;
 import com.project.server.request.admin.DenyRequest;
-import com.project.server.service.emailservice.impl.EmailService;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;

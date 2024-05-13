@@ -6,7 +6,7 @@ import com.project.server.model.enums.RoleEnum;
 import com.project.server.repository.UserRepository;
 import com.project.server.request.auth.ApplicationRequest;
 import com.project.server.request.auth.LoginRequest;
-import com.project.server.service.emailservice.impl.EmailService;
+import com.project.server.service.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
