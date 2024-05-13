@@ -33,60 +33,60 @@ jobs:
               run: npm run lint
               working-directory: ./client
 
-    # e2e-tests:
-    #     runs-on: ubuntu-latest
-    #     name: End to End tests with in memory database
-    #     needs: ['eslint']
-    #     env:
-    #         SERVER_PORT: 8080
-    #         SPRING_MAIL_PASSWORD: placeholder_value
-    #         APP_ADMIN_USERNAME: NathanOpp
-    #         APP_ADMIN_PASSWORD: Stupidcat12!
-    #         APP_ADMIN_EMAIL: nathanopperman123@gmail.com
-    #         APP_ADMIN_NAME_FIRST: Nathan
-    #         APP_ADMIN_NAME_LAST: Opperman
-    #         APP_BASE_URL: http://localhost:3000
-    #         APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
-    #         APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
-    #         VITE_API_BASE_URL: http://localhost:8080/api/v1
-    #     steps:
-    #         - name: Checkout Code
-    #           uses: actions/checkout@v4
-    #           with:
-    #             fetch-depth: 0
+    e2e-tests:
+        runs-on: ubuntu-latest
+        name: End to End tests with in memory database
+        needs: ['eslint']
+        env:
+            SERVER_PORT: 8080
+            SPRING_MAIL_PASSWORD: placeholder_value
+            APP_ADMIN_USERNAME: NathanOpp
+            APP_ADMIN_PASSWORD: Stupidcat12!
+            APP_ADMIN_EMAIL: nathanopperman123@gmail.com
+            APP_ADMIN_NAME_FIRST: Nathan
+            APP_ADMIN_NAME_LAST: Opperman
+            APP_BASE_URL: http://localhost:3000
+            APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
+            APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
+            VITE_API_BASE_URL: http://localhost:8080/api/v1
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
             
-    #         - name: Set JDK
-    #           uses: actions/setup-java@v4
-    #           with:
-    #             java-version: '21'
-    #             distribution: 'temurin'
+            - name: Set JDK
+              uses: actions/setup-java@v4
+              with:
+                java-version: '21'
+                distribution: 'temurin'
 
-    #         # Bulding springboot application with a different maven profile to bring H2 database into runtime scope
-    #         - name: Build Mvn Application
-    #           run: mvn clean install -Ptest -DskipTests -f ./server/pom.xml
+            # Bulding springboot application with a different maven profile to bring H2 database into runtime scope
+            - name: Build Mvn Application
+              run: mvn clean install -Ptest -DskipTests -f ./server/pom.xml
             
-    #         # Running the JAR with the test configuration, runs in background
-    #         - name: Run Spring Jar
-    #           run: java -jar -Dspring.profiles.active=test ./server/target/server-0.0.1-SNAPSHOT.jar &
+            # Running the JAR with the test configuration, runs in background
+            - name: Run Spring Jar
+              run: java -jar -Dspring.profiles.active=test ./server/target/server-0.0.1-SNAPSHOT.jar &
 
-    #         - name: Install Node.js
-    #           uses: actions/setup-node@v2.5.0
-    #           with:
-    #             node-version: '20'
+            - name: Install Node.js
+              uses: actions/setup-node@v2.5.0
+              with:
+                node-version: '20'
 
-    #         - name: Install dependencies
-    #           run: npm install
-    #           working-directory: ./client
+            - name: Install dependencies
+              run: npm install
+              working-directory: ./client
 
-    #         - name: Create .env file
-    #           run: |
-    #             echo "VITE_API_BASE_URL=http://localhost:8080/api/v1" >> .env
-    #           working-directory: ./client
+            - name: Create .env file
+              run: |
+                echo "VITE_API_BASE_URL=http://localhost:8080/api/v1" >> .env
+              working-directory: ./client
             
-    #         - name: Serve
-    #           run: npm run dev &
-    #           working-directory: ./client
+            - name: Serve
+              run: npm run dev &
+              working-directory: ./client
 
-    #         - name: Run E2E tests
-    #           run: npx cypress run
-    #           working-directory: ./client
+            - name: Run E2E tests
+              run: npx cypress run
+              working-directory: ./client

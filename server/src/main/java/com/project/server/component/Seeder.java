@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"local", "dev"})
+@Profile({"local", "test"})
 public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
