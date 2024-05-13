@@ -39,3 +39,4 @@ application-local.yml
 application-dockerlocal.yml
 sonar-project.properties
 runSonar.bat
+bootstrap.yml
