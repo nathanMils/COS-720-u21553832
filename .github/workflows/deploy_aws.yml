@@ -8,6 +8,9 @@ name: Push Images to ECR and deploy changes
 # I am not paying for openID connect, screw that
 
 on:
+  push:
+    branches:
+      - dev
   pull_request:
     types: [closed]
     branches:
