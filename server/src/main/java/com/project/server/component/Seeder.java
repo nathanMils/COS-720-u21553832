@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"dev"})
+@Profile({"local", "test"})
 public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
@@ -56,7 +56,9 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
     @Transactional
     public void createAdministrator() {
         userRepository.findByUsername(adminUsername).ifPresentOrElse(
-                admin -> {},
+                admin -> {
+                    System.out.println("Admin already exists");
+                },
                 () ->
                     userRepository.save(
                             User.builder()

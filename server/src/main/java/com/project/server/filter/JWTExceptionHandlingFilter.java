@@ -7,6 +7,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Filter for handling JWT exceptions.
@@ -46,8 +48,10 @@ public class JWTExceptionHandlingFilter extends OncePerRequestFilter {
         try {
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
+            clearAccessTokenCookie(response, request);
             handleJwtException(response, "JWT_EXPIRED");
         } catch (MalformedJwtException e) {
+            clearAccessTokenCookie(response, request);
             handleJwtException(response, "JWT_MALFORMED");
         } catch (Exception e) {
             log.error("An error occurred while processing the request", e);
@@ -58,6 +62,21 @@ public class JWTExceptionHandlingFilter extends OncePerRequestFilter {
                     .internalCode("INTERNAL_SERVER_ERROR")
                     .build();
             response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+        }
+    }
+
+    private void clearAccessTokenCookie(HttpServletResponse response, HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            Arrays.stream(cookies)
+                    .filter(cookie -> "accessToken".equals(cookie.getName()))
+                    .findFirst()
+                    .ifPresent(cookie -> {
+                        Cookie newCookie = new Cookie(cookie.getName(), null);
+                        newCookie.setMaxAge(0);
+                        newCookie.setPath("/");
+                        response.addCookie(newCookie);
+                    });
         }
     }
 

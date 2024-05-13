@@ -8,6 +8,14 @@ export const getProfile = () => {
     return axiosInstance.get<APIResponse<GetProfileResponse>>(`${base}/profile`)
 }
 
+export const logout = () => {
+  axiosInstance.post(`${base}/logout`);
+}
+
 export const getRole = () => {
     return axiosInstance.get<APIResponse<Role>>(`${base}/role`)
+}
+
+export const loggedIn = () => {
+  return axiosInstance.get<APIResponse<void>>(`${base}/loggedIn`);
 }

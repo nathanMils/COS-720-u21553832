@@ -13,6 +13,7 @@ import com.project.server.response.auth.AuthResponse;
 import jakarta.persistence.EntityExistsException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -136,31 +137,31 @@ public class AuthService {
         }
     }
 
-    /**
-     * Method for checking if a user is logged in.
-     *
-     * @param servletRequest the HTTP request
-     * @return a boolean indicating if the user is logged in
-     */
-    public boolean isLoggedIn(HttpServletRequest servletRequest) {
-        try {
-            Cookie[] cookies = servletRequest.getCookies();
-            if (cookies == null) {
-                return false;
-            }
-
-            String accessToken = getAccessTokenFromCookie(servletRequest);
-
-            if (accessToken != null) {
-                final String username = tokenService.getUserName(accessToken);
-                if (username != null) {
-                    UserDetails details = userDetailsService.loadUserByUsername(username);
-                    return tokenService.validate(accessToken, details);
-                }
-            }
-            return false;
-        } catch (UsernameNotFoundException e) {
-            return false;
+    public void logout(
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
+    ) {
+        Cookie[] cookies = servletRequest.getCookies();
+        if (cookies != null) {
+            Arrays.stream(cookies)
+                    .filter(cookie -> "accessToken".equals(cookie.getName()))
+                    .findFirst()
+                    .ifPresent(cookie -> {
+                        Cookie newCookie = new Cookie(cookie.getName(), null);
+                        newCookie.setMaxAge(0);
+                        newCookie.setPath("/");
+                        servletResponse.addCookie(newCookie);
+                    });
+            Arrays.stream(cookies)
+                    .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                    .findFirst()
+                    .ifPresent(cookie -> {
+                        refreshTokenService.revokeRefreshToken(cookie.getValue());
+                        Cookie newCookie = new Cookie(cookie.getName(), null);
+                        newCookie.setMaxAge(0);
+                        newCookie.setPath("/");
+                        servletResponse.addCookie(newCookie);
+                    });
         }
     }
 
@@ -183,20 +184,33 @@ public class AuthService {
      * @return the authentication response
      */
     @Transactional
-    public AuthResponse refresh(HttpServletRequest servletRequest) {
+    public AuthResponse refresh(
+            HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse
+    ) {
         Cookie[] cookies = servletRequest.getCookies();
         if (cookies == null) {
             throw new InvalidTokenException();
         }
 
-        String refresh = Arrays.stream(cookies)
+        Cookie refresh = Arrays.stream(cookies)
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
-                .map(Cookie::getValue)
                 .findFirst()
                 .orElseThrow(InvalidTokenException::new);
 
-        RefreshToken token = refreshTokenService.verifyExpiration(refresh);
+        RefreshToken token = refreshTokenService.findByToken(refresh.getValue());
         if (token.isRevoked()) {
+            Cookie newCookie = new Cookie(refresh.getName(), null);
+            newCookie.setMaxAge(0);
+            newCookie.setPath("/");
+            servletResponse.addCookie(newCookie);
+            throw new InvalidTokenException();
+        } else if (token.getExpiryDate().compareTo(Date.from(Instant.now())) < 0) {
+            Cookie newCookie = new Cookie(refresh.getName(), null);
+            newCookie.setMaxAge(0);
+            newCookie.setPath("/");
+            servletResponse.addCookie(newCookie);
+            refreshTokenService.revokeRefreshToken(token.getToken());
             throw new InvalidTokenException();
         }
         return buildAuthResponse(userRepository.findUserProjectedById(token.getUserId()).orElseThrow(InvalidTokenException::new));

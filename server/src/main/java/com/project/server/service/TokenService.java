@@ -1,8 +1,6 @@
 package com.project.server.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -29,18 +27,19 @@ public class TokenService {
         return Keys.hmacShaKeyFor(bytes);
     }
 
-    public String getUserName(String token) {
+    public String getUserName(String token) throws ExpiredJwtException, MalformedJwtException{
         return extractCl(token,Claims::getSubject);
     }
 
-    public <T> T extractCl(String token, Function<Claims,T> resolver) {
+    public <T> T extractCl(String token, Function<Claims,T> resolver) throws ExpiredJwtException, MalformedJwtException {
         final Claims cl = extract(token);
         return resolver.apply(cl);
     }
 
     public Claims extract(String token) {
         return Jwts.parserBuilder().setSigningKey(getKey())
-                .build().parseClaimsJws(token)
+                .build()
+                .parseClaimsJws(token)
                 .getBody();
     }
 
@@ -60,7 +59,7 @@ public class TokenService {
                 .compact();
     }
 
-    public boolean validate(String token, UserDetails details) {
+    public boolean validate(String token, UserDetails details) throws ExpiredJwtException, MalformedJwtException {
         final String name = getUserName(token);
         if (!name.equals(details.getUsername())) return false;
         return !isExpired(token);

@@ -32,9 +32,6 @@ public class AuthController {
 
     private final AuthService service;
 
-    @Value("${app.token.authExpire}")
-    private String authExpire;
-
     @Value("${app.token.refreshExpire}")
     private String refreshExpire;
 
@@ -101,7 +98,10 @@ public class AuthController {
             HttpServletRequest servletRequest,
             HttpServletResponse servletResponse
     ) {
-        AuthResponse response = service.refresh(servletRequest);
+        AuthResponse response = service.refresh(
+                servletRequest,
+                servletResponse
+        );
         setCookies(servletResponse,response);
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -123,24 +123,6 @@ public class AuthController {
             @Param("token") @ValidUUID String token
     ) {
         service.verifyToken(servletRequest,token);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(
-                        APIResponse.success()
-                );
-    }
-
-    /**
-     * Endpoint for checking if the user is logged in.
-     *
-     * @param servletRequest the HTTP request
-     * @return the response entity
-     */
-    @GetMapping("/loggedIn")
-    public ResponseEntity<APIResponse<Void>> loggedIn(
-            HttpServletRequest servletRequest
-    ) {
-        if(!service.isLoggedIn(servletRequest)) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"UNAUTHORIZED");
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
@@ -220,7 +202,7 @@ public class AuthController {
                         .secure(Boolean.parseBoolean(secure))
                         .path("/")
                         .sameSite(sameSite)
-                        .maxAge(Long.parseLong(authExpire))
+                        .maxAge(Long.parseLong(refreshExpire))
                         .build();
         ResponseCookie refreshTokenCookie = ResponseCookie.from("refreshToken",response.getRefreshToken())
                         .httpOnly(true)

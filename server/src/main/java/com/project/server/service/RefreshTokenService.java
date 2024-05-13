@@ -43,19 +43,16 @@ public class RefreshTokenService {
         }
     }
 
-    public Optional<RefreshToken> findByToken(String token){
-        return refreshTokenRepository.findByToken(token);
+    public void revokeRefreshToken(String token) {
+        refreshTokenRepository.findByToken(token).ifPresent(
+            rToken -> {
+                rToken.setRevoked(true);
+                refreshTokenRepository.save(rToken);
+            }
+        );
     }
 
-    public RefreshToken verifyExpiration(RefreshToken token){
-        if(token.getExpiryDate().compareTo(Date.from(Instant.now()))<0){
-            refreshTokenRepository.delete(token);
-            throw new RefreshTokenException("REFRESH_TOKEN_EXPIRED");
-        }
-        return token;
-    }
-
-    public RefreshToken verifyExpiration(String token) {
-        return findByToken(token).orElseThrow(() -> new RefreshTokenException("REFRESH_TOKEN_NOT_FOUND"));
+    public RefreshToken findByToken(String token) {
+        return refreshTokenRepository.findByToken(token).orElseThrow(() -> new RefreshTokenException("REFRESH_TOKEN_NOT_FOUND"));
     }
 }

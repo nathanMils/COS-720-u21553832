@@ -3,12 +3,10 @@ package com.project.server.conf;
 import com.project.server.filter.AuthFilter;
 import com.project.server.filter.JWTExceptionHandlingFilter;
 import com.project.server.filter.XSSFilter;
-import com.project.server.service.LogoutService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -21,7 +19,6 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +28,6 @@ public class SecureConf {
     private final AuthFilter authFilter;
     private final JWTExceptionHandlingFilter jwtExceptionHandlingFilter;
     private final AuthenticationProvider authProvider;
-    private final LogoutService logoutService;
     private static final String PREFIX = "/api/v1/";
 
     private final AuthenticationEntryPoint authEntryPoint;
@@ -100,16 +96,6 @@ public class SecureConf {
                 .addFilterBefore(
                         jwtExceptionHandlingFilter,
                         AuthFilter.class
-                )
-                .logout(
-                        logout -> logout
-                                .logoutUrl(PREFIX+"/user/logout")
-                                .addLogoutHandler(logoutService)
-                                .logoutSuccessHandler(
-                                        new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)
-                                )
-                                .clearAuthentication(false)
-                                .permitAll()
                 )
         ;
         return httpSecurity.build();

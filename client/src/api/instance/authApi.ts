@@ -1,13 +1,12 @@
 import type { APIResponse } from '@/api';
 import axiosInstance from './axios';
 
+const base: string = '/auth'
+
 export const login = (username: string, password: string) => {
-    return axiosInstance.post<APIResponse<void>>('/auth/login',{username, password})
+    return axiosInstance.post<APIResponse<void>>(`${base}/login`,{username, password})
 }
 
-export const logout = () => {
-    axiosInstance.post('/user/logout');
-}
 
 export const apply  = (
     username: string,
@@ -18,7 +17,7 @@ export const apply  = (
 
 ) => {
     return axiosInstance.post<APIResponse<void>>(
-        '/auth/apply',
+        `${base}/apply`,
         {
             username,
             password,
@@ -32,20 +31,20 @@ export const apply  = (
 export const refresh = (
     refreshToken: string
 ) => {
-    return axiosInstance.post<APIResponse<void>>('/auth/refresh',{refreshToken})
+    return axiosInstance.post<APIResponse<void>>(`${base}/refresh`,{refreshToken})
 }
 
 export const forgotPassword = (
     username: string,
     email: string
 ) => {
-    return axiosInstance.post<APIResponse<void>>('/auth/forgot',{username,email})
+    return axiosInstance.post<APIResponse<void>>(`${base}/forgot`,{username,email})
 }
 
 export const isValidateToken = (
     token: string
 ) => {
-    return axiosInstance.get<APIResponse<void>>(`/auth/isValid/${token}`)
+    return axiosInstance.get<APIResponse<void>>(`${base}/isValid/${token}`)
 }
 
 export const resetPassword = (
@@ -61,6 +60,3 @@ export const verifyEmail = (
   return axiosInstance.post<APIResponse<void>>(`/auth/verifyEmail?token=${token}`);
 }
 
-export const loggedIn = () => {
-  return axiosInstance.get<APIResponse<void>>('/auth/loggedIn');
-}

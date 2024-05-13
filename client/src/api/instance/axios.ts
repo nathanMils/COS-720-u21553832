@@ -15,13 +15,16 @@ axiosInstance.interceptors.response.use(
     },
     async (error) => {
       const originalRequest = error.config;
-      if (error.response && error.response.status === 403 && !originalRequest._retry) {
+      if (
+        error.response.status === 401 &&
+        error.response.data.internalCode === 'JWT_EXPIRED' &&
+        !originalRequest._retry
+      ) {
         originalRequest._retry = true;
         try {
           await axiosInstance.post<APIResponse<AuthResponse>>('/auth/refresh');
           return axiosInstance(originalRequest);
         } catch (refreshError) {
-          localStorage.removeItem('user');
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }
