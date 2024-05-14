@@ -57,7 +57,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
     public void createAdministrator() {
         userRepository.findByUsername(adminUsername).ifPresentOrElse(
                 admin -> {
-                    System.out.println("Admin already exists");
+                    // Do nothing
                 },
                 () ->
                     userRepository.save(

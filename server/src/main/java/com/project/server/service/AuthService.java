@@ -165,18 +165,6 @@ public class AuthService {
         }
     }
 
-    private String getAccessTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * Method for handling token refresh requests.
      *

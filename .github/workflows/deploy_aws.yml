@@ -87,7 +87,34 @@ jobs:
 
         - name: Send SSM Command to Deploy Changes
           run: |
-            aws ssm send-command --document-name "deploy_to_portal" --document-version "1" --targets '[{"Key":"InstanceIds","Values":["${{ secrets.AWS_EC2_INSTANCE_ID }}"]}]' --timeout-seconds 600 --max-concurrency "50" --max-errors "0" --region ${{ secrets.AWS_REGION }}
+            COMMAND_ID=$( \
+              aws ssm send-command \
+              --document-name "deploy_to_portal" \
+              --document-version "1" \
+              --targets '[ \
+                { \
+                  "Key":"InstanceIds", \
+                  "Values":["${{ secrets.AWS_EC2_INSTANCE_ID }}"] \
+                } \
+              ]' \
+              --timeout-seconds 600 \
+              --max-concurrency "50"  \
+              --max-errors "0" \
+              --region ${{ secrets.AWS_REGION }} \
+              --cloud-watch-config-output '{ \
+                "CloudWatchLogGroupName":"github_ssm", \ 
+                "CloudWatchLogStreamName":"deploy", \
+                "CloudWatchOutputEnabled":true \
+              }' \
+              --query 'Command.CommandId' \
+              --output text \
+            )
+
+            aws ssm wait command-executed \
+            --command-id $COMMAND_ID \
+            --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}" \
+            --region ${{ secrets.AWS_REGION }}
+
 
   
     
