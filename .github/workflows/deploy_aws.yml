@@ -101,11 +101,7 @@ jobs:
               --max-concurrency "50"  \
               --max-errors "0" \
               --region ${{ secrets.AWS_REGION }} \
-              --cloud-watch-config-output '{ \
-                "CloudWatchLogGroupName":"github_ssm", \ 
-                "CloudWatchLogStreamName":"deploy", \
-                "CloudWatchOutputEnabled":true \
-              }' \
+              --cloud-watch-output-config "CloudWatchOutputEnabled=true, CloudWatchLogGroupName=github_ssm, CloudWatchLogStreamName=deploy" \
               --query 'Command.CommandId' \
               --output text \
             )

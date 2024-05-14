@@ -1,0 +1,45 @@
+@startuml
+
+box "Incoming Traffic" #LightBlue
+    participant "Source" as Source
+end box
+box "Virtual Firewall" #LightGreen
+    participant "Security Group" as SecurityGroup
+end box
+box "EC2 Instance" #LightYellow
+    participant "Nginx Proxy" as Proxy
+    participant "Spring Boot Rest API" as Spring
+    participant "Vue Web Server" as Vue
+end box
+
+activate Source
+
+Source -> SecurityGroup: Request
+activate SecurityGroup
+SecurityGroup -> SecurityGroup: Check Rules
+alt Allowed
+    SecurityGroup -> Proxy: Request
+    activate Proxy
+    alt Forward to Rest API
+        Proxy -> Spring: Forward API Request
+        activate Spring
+        Spring -> Spring: Process Request
+        Spring -> Proxy: API Response
+        deactivate Spring
+    else Forward to Web Server
+        Proxy -> Vue: Forward HTTP Request
+        activate Vue
+        Vue -> Vue: Process Request
+        Vue -> Proxy: HTTP Response
+        deactivate Vue
+    else Reject
+    end
+    Proxy -> SecurityGroup: Response
+    deactivate Proxy
+    SecurityGroup -> Source: Response (Allowed)
+else Denied
+    SecurityGroup -> Source: Response (Denied)
+end
+
+deactivate Source
+@enduml

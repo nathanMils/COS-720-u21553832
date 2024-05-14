@@ -1,0 +1,6 @@
+AWS IAM Mechanism:
+URL: https://docs.aws.amazon.com/IAM/latest/UserGuide/intro-structure.html#:~:text=Authentication%20is%20provided%20by%20matching,response%20to%20an%20authorization%20request.
+PDF: https://docs.aws.amazon.com/pdfs/IAM/latest/UserGuide/iam-ug.pdf#intro-structure [Page 24]
+
+HTTPS Mechanism:
+URL: https://www.cloudflare.com/learning/ssl/what-is-https/
