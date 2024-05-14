@@ -8,72 +8,75 @@ name: Push Images to ECR and deploy changes
 # I am not paying for openID connect, screw that
 
 on:
+  push:
+    branches:
+      - dev
   pull_request:
     types: [closed]
     branches:
       - main
 jobs:
-    push-images:
-      name: Push Docker Server, Client and Proxy images to ECR
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
+    # push-images:
+    #   name: Push Docker Server, Client and Proxy images to ECR
+    #   runs-on: ubuntu-latest
+    #   steps:
+    #     - name: Checkout Code
+    #       uses: actions/checkout@v4
 
-        # us-east has available acr endpoint
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-east-1
+    #     # us-east has available acr endpoint
+    #     - name: Configure AWS credentials
+    #       uses: aws-actions/configure-aws-credentials@v1
+    #       with:
+    #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #         aws-region: us-east-1
     
-        - name: Login to Amazon ECR
-          id: login-ecr
-          uses: aws-actions/amazon-ecr-login@v2
-          with:
-            registry-type: public
+    #     - name: Login to Amazon ECR
+    #       id: login-ecr
+    #       uses: aws-actions/amazon-ecr-login@v2
+    #       with:
+    #         registry-type: public
     
-        - name: Build, tag, and push the Server image to Amazon ECR
-          id: build-server
-          env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
-            ECR_REPOSITRY: server
-            IMAGE_TAG: latest
-          run: |
-            cd ./server
-            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+    #     - name: Build, tag, and push the Server image to Amazon ECR
+    #       id: build-server
+    #       env:
+    #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #         ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+    #         ECR_REPOSITRY: server
+    #         IMAGE_TAG: latest
+    #       run: |
+    #         cd ./server
+    #         docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+    #         docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
-        - name: Build, tag, and push the Client image to Amazon ECR
-          id: build-client
-          env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
-            ECR_REPOSITRY: client
-            IMAGE_TAG: latest
-          run: |
-            cd ./client
-            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+    #     - name: Build, tag, and push the Client image to Amazon ECR
+    #       id: build-client
+    #       env:
+    #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #         ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+    #         ECR_REPOSITRY: client
+    #         IMAGE_TAG: latest
+    #       run: |
+    #         cd ./client
+    #         docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+    #         docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
-        - name: Build, tag, and push the Proxy image to Amazon ECR
-          id: build-proxy
-          env:
-            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
-            ECR_REPOSITRY: proxy
-            IMAGE_TAG: latest
-          run: |
-            cd ./nginx
-            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
-            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+    #     - name: Build, tag, and push the Proxy image to Amazon ECR
+    #       id: build-proxy
+    #       env:
+    #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+    #         ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+    #         ECR_REPOSITRY: proxy
+    #         IMAGE_TAG: latest
+    #       run: |
+    #         cd ./nginx
+    #         docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+    #         docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
     deploy:
       name: Run document command to pull and deploy changes from EC2 instance
       runs-on: ubuntu-latest
-      needs: ['push-images']
+      # needs: ['push-images']
       steps:
         - name: Checkout Code
           uses: actions/checkout@v4
@@ -87,29 +90,30 @@ jobs:
 
         - name: Send SSM Command to Deploy Changes
           run: |
-            COMMAND_ID=$( \
-              aws ssm send-command \
+            set -e  # Exit on any error
+        
+            echo "Sending SSM command to deploy changes..."
+            COMMAND_ID=$(aws ssm send-command \
               --document-name "deploy_to_portal" \
               --document-version "1" \
-              --targets '[ \
-                { \
-                  "Key":"InstanceIds", \
-                  "Values":["${{ secrets.AWS_EC2_INSTANCE_ID }}"] \
-                } \
-              ]' \
+              --targets "[{"Key":"InstanceIds","Values":["${{ secrets.AWS_EC2_INSTANCE_ID }}"]}]" \
               --timeout-seconds 600 \
-              --max-concurrency "50"  \
+              --max-concurrency "50" \
               --max-errors "0" \
-              --region ${{ secrets.AWS_REGION }} \
-              --cloud-watch-output-config "CloudWatchOutputEnabled=true, CloudWatchLogGroupName=github_ssm, CloudWatchLogStreamName=deploy" \
+              --region "${{ secrets.AWS_REGION }}" \
+              --cloud-watch-output-config "CloudWatchOutputEnabled=true,CloudWatchLogGroupName=github_ssm,CloudWatchLogStreamName=deploy" \
               --query 'Command.CommandId' \
               --output text \
             )
-
+            echo "SSM command sent. Command ID: $COMMAND_ID"
+        
+            echo "Waiting for the command to be executed..."
             aws ssm wait command-executed \
-            --command-id $COMMAND_ID \
-            --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}" \
-            --region ${{ secrets.AWS_REGION }}
+              --command-id $COMMAND_ID \
+              --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}" \
+              --region "${{ secrets.AWS_REGION }}"
+            echo "SSM command execution completed."
+          
 
 
   
