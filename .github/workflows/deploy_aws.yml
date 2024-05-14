@@ -96,7 +96,7 @@ jobs:
             COMMAND_ID=$(aws ssm send-command \
               --document-name "deploy_to_portal" \
               --document-version "1" \
-              --targets "[{"Key":"InstanceIds","Values":["${{ secrets.AWS_EC2_INSTANCE_ID }}"]}]" \
+              --targets '[{ "Key":"InstanceIds", "Values":["${{ secrets.AWS_EC2_INSTANCE_ID }}"] }]' \
               --timeout-seconds 600 \
               --max-concurrency "50" \
               --max-errors "0" \
@@ -113,11 +113,11 @@ jobs:
               --instance-id "${{ secrets.AWS_EC2_INSTANCE_ID }}" \
               --region "${{ secrets.AWS_REGION }}"
             echo "SSM command execution completed."
-          
+        
+
 
 
   
-    
 
 
-    
+  
