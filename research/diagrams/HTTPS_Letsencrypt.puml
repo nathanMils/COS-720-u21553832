@@ -1,0 +1,51 @@
+@startuml
+
+box "Client Side" #LightBlue
+    participant "User" as User
+    participant "Vue Js Client" as Client
+end box
+participant "Lets Encrypt (CA)" as CA
+box "Server Side" #LightGreen
+    participant "Nginx" as Nginx
+    participant "Backend Server" as Backend
+end box
+
+autonumber
+
+User -> Client: Input
+activate Client
+Client -> Nginx: HTTPS Request (Client Hello)
+activate Nginx
+
+
+Nginx -> Client: SSL Certificate
+Client -> CA: Validate SSL Certificate
+activate CA
+CA -> CA: Validate Certificate
+CA --> Client: Certificate Validation Result
+deactivate CA
+
+Client -> Nginx: Certificate Verification
+Nginx -> Client: SSL Handshake Completion
+
+Client -> Nginx: Encrypted HTTP Request
+Nginx -> Nginx: Decrypt HTTPS Request
+
+alt Valid SSL/TLS
+    Nginx -> Backend: Forward HTTP Request
+    activate Backend
+    Backend -> Backend: Process Request
+    Backend --> Nginx: HTTP Response
+    deactivate Backend
+
+    Nginx -> Nginx: Encrypt HTTP Response
+    Nginx --> Client: Encrypted HTTP Response
+else Invalid SSL/TLS
+    Nginx --> Client: SSL/TLS Error
+end
+
+deactivate Nginx
+
+Client -> User: Output
+deactivate Client
+@enduml
