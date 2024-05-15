@@ -2,10 +2,10 @@ spring:
   profiles:
     active: local
   datasource:
-    url: jdbc:h2:mem:myDb;DB_CLOSE_DELAY=-1
+    url: jdbc:hsqldb:mem:myDb;DB_CLOSE_DELAY=-1
     username: sa
     password: sa
-    driver-class-name: org.h2.Driver
+    driver-class-name: org.hsqldb.jdbc.JDBCDriver
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -14,7 +14,7 @@ spring:
       hibernate:
         format_sql: true
     database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.HSQLDialect
   h2:
     console:
       enabled: true
