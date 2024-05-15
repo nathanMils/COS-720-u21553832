@@ -1,17 +1,25 @@
 package com.project.server.service;
 
 import com.project.server.model.dto.PostDTO;
+import com.project.server.model.entity.Lecture;
 import com.project.server.model.entity.Post;
+import com.project.server.repository.LectureRepository;
 import com.project.server.repository.ModuleRepository;
 import com.project.server.repository.PostRepository;
 import com.project.server.request.moderator.AddPostRequest;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -20,6 +28,7 @@ public class ModuleModeratorService {
 
     private final PostRepository postRepository;
     private final ModuleRepository moduleRepository;
+    private final LectureRepository lectureRepository;
 
     @Transactional
     public PostDTO addPost(AddPostRequest request, UUID moduleId) {
@@ -39,5 +48,37 @@ public class ModuleModeratorService {
     @Transactional
     public void deletePost(UUID postId) {
         postRepository.deleteById(postId);
+    }
+
+    @Transactional
+    public void uploadLecture(MultipartFile file, UUID moduleId) {
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        try {
+            if(fileName.contains("..")) {
+                throw  new ResponseStatusException(HttpStatus.BAD_REQUEST,"Filename contains invalid path sequence " + fileName);
+            }
+            if (file.getBytes().length > (1024 * 1024)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"File size exceeds maximum limit");
+            }
+            Lecture lecture = Lecture.builder()
+                    .fileName(fileName)
+                    .module(
+                            moduleRepository.findById(moduleId)
+                                    .orElseThrow(() -> new EntityNotFoundException("MODULE_NOT_FOUND"))
+                    )
+                    .fileType(file.getContentType())
+                    .content(file.getBytes())
+                    .build();
+            lectureRepository.save(lecture);
+        } catch (MaxUploadSizeExceededException e) {
+            throw new MaxUploadSizeExceededException(file.getSize());
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Could not save File: " + fileName);
+        }
+    }
+
+    @Transactional
+    public void deleteLecture(UUID lectureId) {
+        lectureRepository.deleteById(lectureId);
     }
 }

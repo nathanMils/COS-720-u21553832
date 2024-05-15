@@ -3,12 +3,15 @@ package com.project.server.service;
 import com.project.server.exception.InvalidUserException;
 import com.project.server.exception.ModuleNotFoundException;
 import com.project.server.model.dto.CourseDTO;
+import com.project.server.model.dto.LectureDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.StudentApplicationDTO;
 import com.project.server.model.entity.*;
 import com.project.server.model.entity.Module;
 import com.project.server.model.enums.StatusEnum;
+import com.project.server.model.projections.ModuleProjection;
 import com.project.server.repository.*;
+import com.project.server.response.student.FetchLectureResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.response.student.FetchStudentCourseResponse;
 import jakarta.persistence.EntityExistsException;
@@ -34,6 +37,7 @@ public class StudentService {
     private final CourseRepository courseRepository;
     private final StudentApplicationRepository studentApplicationRepository;
     private final PostRepository postRepository;
+    private final LectureRepository lectureRepository;
 
     public FetchStudentCourseResponse fetchCourse(UUID courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new EntityNotFoundException("COURSE_NOT_FOUND"));
@@ -186,7 +190,7 @@ public class StudentService {
 
     @Transactional
     public FetchModuleContentResponse fetchModuleContent(UUID moduleId) {
-        Module module = moduleRepository.findById(moduleId).orElseThrow(() -> new EntityNotFoundException("MODULE_NOT_FOUND"));
+        ModuleProjection module = moduleRepository.findModuleProjectionById(moduleId).orElseThrow(() -> new EntityNotFoundException("MODULE_NOT_FOUND"));
         return FetchModuleContentResponse.builder()
                 .name(module.getName())
                 .description(module.getDescription())
@@ -196,8 +200,20 @@ public class StudentService {
                                 .map(Post::convert)
                                 .toList()
                 )
+                .lectures(
+                        module.getLectures()
+                                .stream()
+                                .map(lecture -> new LectureDTO(lecture.getId(),lecture.getFileName()))
+                                .toList()
+                )
                 .build();
     }
+
+    @Transactional
+    public  Lecture fetchLecture(UUID lectureId) {
+        return lectureRepository.findById(lectureId).orElseThrow(() -> new EntityNotFoundException("LECTURE_NOT_FOUND"));
+    }
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {

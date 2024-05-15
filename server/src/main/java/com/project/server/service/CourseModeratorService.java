@@ -3,9 +3,11 @@ package com.project.server.service;
 import com.project.server.exception.CourseNotFoundException;
 import com.project.server.exception.InvalidUserException;
 import com.project.server.model.dto.CourseDTO;
+import com.project.server.model.dto.LectureDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.entity.*;
 import com.project.server.model.entity.Module;
+import com.project.server.model.projections.ModuleProjection;
 import com.project.server.repository.CourseModeratorRepository;
 import com.project.server.repository.CourseRepository;
 import com.project.server.repository.ModuleRepository;
@@ -127,7 +129,7 @@ public class CourseModeratorService {
     }
 
     public FetchModuleContentResponse fetchModule(UUID moduleId) {
-        Module module = moduleRepository.findById(moduleId).orElseThrow(() -> new EntityNotFoundException("MODULE_NOT_FOUND"));
+        ModuleProjection module = moduleRepository.findModuleProjectionById(moduleId).orElseThrow(() -> new EntityNotFoundException("MODULE_NOT_FOUND"));
         return FetchModuleContentResponse.builder()
                 .name(module.getName())
                 .description(module.getDescription())
@@ -136,6 +138,12 @@ public class CourseModeratorService {
                                 .stream()
                                 .map(Post::convert)
                                 .collect(Collectors.toList())
+                )
+                .lectures(
+                        module.getLectures()
+                                .stream()
+                                .map(lecture -> new LectureDTO(lecture.getId(),lecture.getFileName()))
+                                .toList()
                 )
                 .build();
     }

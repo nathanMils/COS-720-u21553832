@@ -45,6 +45,10 @@ public class Module {
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL)
     private List<Student> students;
 
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Lecture> lectures;
+
     @CreationTimestamp
     @Column(
             updatable = false,

@@ -1,7 +1,8 @@
-import type { PostDTO } from '@/types'
+import type { LectureDTO, PostDTO } from '@/types'
 
 export interface FetchModuleContentResponse {
   name: string,
   description: string,
-  postDTOS: PostDTO[]
+  postDTOS: PostDTO[],
+  lectures: LectureDTO[],
 }

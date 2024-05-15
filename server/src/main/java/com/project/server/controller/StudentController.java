@@ -4,11 +4,15 @@ import com.project.server.constraint.ValidUUID;
 import com.project.server.model.dto.CourseDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.StudentApplicationDTO;
+import com.project.server.model.entity.Lecture;
 import com.project.server.response.APIResponse;
+import com.project.server.response.student.FetchLectureResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.response.student.FetchStudentCourseResponse;
 import com.project.server.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -162,6 +166,21 @@ public class StudentController {
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(studentService.fetchModuleContent(UUID.fromString(moduleId)))
+                );
+    }
+
+    @PreAuthorize("hasAuthority('module_' + #moduleId + '_student') || hasRole('ADMIN')")
+    @GetMapping("/fetchLecture/{moduleId}/{lectureId}")
+    public ResponseEntity<Resource> fetchLecture(
+            @ValidUUID @PathVariable String moduleId,
+            @ValidUUID @PathVariable String lectureId
+    ) {
+        Lecture lecture = studentService.fetchLecture(UUID.fromString(lectureId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header("Content-Disposition", "attachment; filename=\"" + lecture.getFileName() + "\"")
+                .body(
+                        new ByteArrayResource(lecture.getContent())
                 );
     }
 }
