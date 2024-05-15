@@ -8,70 +8,67 @@ name: Push Images to ECR and deploy changes
 # I am not paying for openID connect, screw that
 
 on:
-  push:
-    branches:
-      - dev
   pull_request:
     types: [closed]
     branches:
       - main
 jobs:
-    # push-images:
-    #   name: Push Docker Server, Client and Proxy images to ECR
-    #   runs-on: ubuntu-latest
-    #   steps:
-    #     - name: Checkout Code
-    #       uses: actions/checkout@v4
+    push-images:
+      name: Push Docker Server, Client and Proxy images to ECR
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
 
-    #     # us-east has available acr endpoint
-    #     - name: Configure AWS credentials
-    #       uses: aws-actions/configure-aws-credentials@v1
-    #       with:
-    #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    #         aws-region: us-east-1
+        # us-east has available acr endpoint
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1
     
-    #     - name: Login to Amazon ECR
-    #       id: login-ecr
-    #       uses: aws-actions/amazon-ecr-login@v2
-    #       with:
-    #         registry-type: public
+        - name: Login to Amazon ECR
+          id: login-ecr
+          uses: aws-actions/amazon-ecr-login@v2
+          with:
+            registry-type: public
     
-    #     - name: Build, tag, and push the Server image to Amazon ECR
-    #       id: build-server
-    #       env:
-    #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #         ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
-    #         ECR_REPOSITRY: server
-    #         IMAGE_TAG: latest
-    #       run: |
-    #         cd ./server
-    #         docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
-    #         docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+        - name: Build, tag, and push the Server image to Amazon ECR
+          id: build-server
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+            ECR_REPOSITRY: server
+            IMAGE_TAG: latest
+          run: |
+            cd ./server
+            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
-    #     - name: Build, tag, and push the Client image to Amazon ECR
-    #       id: build-client
-    #       env:
-    #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #         ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
-    #         ECR_REPOSITRY: client
-    #         IMAGE_TAG: latest
-    #       run: |
-    #         cd ./client
-    #         docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
-    #         docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+        - name: Build, tag, and push the Client image to Amazon ECR
+          id: build-client
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+            ECR_REPOSITRY: client
+            IMAGE_TAG: latest
+          run: |
+            cd ./client
+            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
-    #     - name: Build, tag, and push the Proxy image to Amazon ECR
-    #       id: build-proxy
-    #       env:
-    #         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #         ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
-    #         ECR_REPOSITRY: proxy
-    #         IMAGE_TAG: latest
-    #       run: |
-    #         cd ./nginx
-    #         docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
-    #         docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
+        - name: Build, tag, and push the Proxy image to Amazon ECR
+          id: build-proxy
+          env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
+            ECR_REPOSITRY: proxy
+            IMAGE_TAG: latest
+          run: |
+            cd ./nginx
+            docker build -t $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REGISTRY_ALIAS/$ECR_REPOSITRY:$IMAGE_TAG
 
     deploy:
       name: Run document command to pull and deploy changes from EC2 instance
