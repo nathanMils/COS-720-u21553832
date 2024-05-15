@@ -142,7 +142,7 @@ public class CourseModeratorService {
                 .lectures(
                         module.getLectures()
                                 .stream()
-                                .map(lecture -> new LectureDTO(lecture.getId(),lecture.getFileName()))
+                                .map(lecture -> new LectureDTO(lecture.getId(),lecture.getFileName(),lecture.getCreatedAt()))
                                 .toList()
                 )
                 .build();

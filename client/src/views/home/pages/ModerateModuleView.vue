@@ -13,11 +13,18 @@ import {
 import { type FetchModuleContentResponse, fetchModuleContent, createPost, deletePost } from '@/api'
 import { useRoute } from 'vue-router'
 import { NotFoundView } from '@/views'
+import LectureCard from '@/components/cards/LectureCard.vue'
 
 const route = useRoute()
 const moduleId = route.params.moduleId
 
 const module = ref<FetchModuleContentResponse | null>(null)
+
+const tab = ref(0)
+const items = [
+  { tab: 'Posts' },
+  { tab: 'Lectures' }
+]
 
 onMounted( async () => {
   try {
@@ -113,28 +120,64 @@ const clearError = () => {
       <div>
         <h1 class="text-4xl font-bold">{{ module?.name }}</h1>
         <p class="mt-2 text-gray-600">{{ module?.description }}</p>
+        <div class="flex justify-center">
+          <button
+            v-for="(item, index) in items"
+            :key="index"
+            @click="tab = index"
+            class="mt-4 px-4 py-2 h-10 w-32 text-center"
+            :class="{
+              'bg-primaryButton-600 hover:bg-primaryButton-700 focus:ring-4 focus:outline-none focus:ring-primaryButton-300 font-medium text-white': tab === index,
+              'bg-gray-600 text-white': tab !== index
+            }"
+          >
+            {{ item.tab }}
+          </button>
+        </div>
       </div>
       <div>
-        <GreenButton @click="addPost">
+        <GreenButton v-if="tab === 0" @click="addPost">
           Add Post
+        </GreenButton>
+        <GreenButton v-if="tab === 1" @click="addPost">
+          Add Lecture
         </GreenButton>
       </div>
     </div>
-    <div v-if="module?.postDTOS.length" class="mt-4">
-      <PostCard
-        v-for="post in module?.postDTOS"
-        :key="post.id"
-        :post="post"
-        :edit="true"
-      >
-        <RedButton @click="removePost(post.id)">
-          Remove Post
-        </RedButton>
-      </PostCard>
+    <div v-if="tab === 0" class="mt-4 flex items-center justify-center">
+      <div v-if="module?.postDTOS.length" class="mt-4">
+        <PostCard
+          v-for="post in module?.postDTOS"
+          :key="post.id"
+          :post="post"
+          :edit="true"
+        >
+          <RedButton @click="removePost(post.id)">
+            Remove Post
+          </RedButton>
+        </PostCard>
+      </div>
+      <div v-else class="flex flex-col items-center justify-center">
+        <MissingIcon />
+        <p class="text-gray-400 dark:text-gray-600">No Posts</p>
+      </div>
     </div>
-    <div v-else class="flex flex-col items-center justify-center">
-      <MissingIcon />
-      <p class="text-gray-400 dark:text-gray-600">No Posts</p>
+    <div v-if="tab === 1" class="mt-4 flex items-center justify-center">
+      <div v-if="module?.lectures.length" class="mt-4">
+        <LectureCard
+          v-for="lecture in module?.lectures"
+          :key="lecture.id"
+          :lecture="lecture"
+        >
+          <RedButton @click="removePost(lecture.id)">
+            Remove Lecture
+          </RedButton>
+        </LectureCard>
+      </div>
+      <div v-else class="flex flex-col items-center justify-center">
+        <MissingIcon />
+        <p class="text-gray-400 dark:text-gray-600">No Lectures</p>
+      </div>
     </div>
   </div>
 </template>

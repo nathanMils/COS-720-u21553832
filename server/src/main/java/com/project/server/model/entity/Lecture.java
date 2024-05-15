@@ -3,7 +3,10 @@ package com.project.server.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Getter
@@ -34,12 +37,25 @@ public class Lecture {
     @ManyToOne
     @JoinColumn(name = "module_id")
     private Module module;
-
-
-
+    
     @Lob
     @Column(
             nullable = false
     )
     private byte[] content;
+
+    @CreationTimestamp
+    @Column(
+            updatable = false,
+            nullable = false,
+            name = "created_at"
+    )
+    private Date createdAt;
+
+    @UpdateTimestamp
+    @Column(
+            nullable = false,
+            name = "updated_at"
+    )
+    private Date updatedAt;
 }
