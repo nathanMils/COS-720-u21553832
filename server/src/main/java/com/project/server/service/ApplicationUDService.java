@@ -1,6 +1,7 @@
 package com.project.server.service;
 
 import com.project.server.model.enums.StatusEnum;
+import com.project.server.model.projections.authorization.AuthLectureProjection;
 import com.project.server.model.projections.authorization.AuthModuleProjection;
 import com.project.server.model.projections.authorization.AuthUserProjection;
 import com.project.server.repository.*;
@@ -59,12 +60,19 @@ public class ApplicationUDService implements UserDetailsService {
                                 .toList()
                 );
                 studentRepository.findAuthProjectionByUserId(user.getId()).forEach(
-                        student -> authorities.addAll(
-                                List.of(
-                                    new SimpleGrantedAuthority(String.format("course_%s_module_%s_student",student.getCourse().getId().toString(),student.getModule().getId().toString())),
-                                    new SimpleGrantedAuthority(String.format("module_%s_student",student.getModule().getId().toString()))
-                                )
-                        )
+                        student -> {
+                            authorities.addAll(
+                                    List.of(
+                                            new SimpleGrantedAuthority(String.format("course_%s_module_%s_student", student.getCourse().getId().toString(), student.getModule().getId().toString())),
+                                            new SimpleGrantedAuthority(String.format("module_%s_student", student.getModule().getId().toString()))
+                                    )
+                            );
+                            for (AuthLectureProjection lecture: student.getModule().getLectures()) {
+                                authorities.add(
+                                        new SimpleGrantedAuthority(String.format("lecture_%s_student",lecture.getId().toString()))
+                                );
+                            }
+                        }
                 );
                 break;
             case ROLE_COURSE_MODERATOR:
@@ -77,6 +85,11 @@ public class ApplicationUDService implements UserDetailsService {
                                 authorities.add(
                                     new SimpleGrantedAuthority(String.format("module_%s_moderator",module.getId().toString()))
                                 );
+                                for (AuthLectureProjection lectureProjection: module.getLectures()) {
+                                    authorities.add(
+                                        new SimpleGrantedAuthority(String.format("lecture_%s_moderator",lectureProjection.getId().toString()))
+                                    );
+                                }
                             }
                         }
                 );

@@ -128,6 +128,7 @@ public class CourseModeratorService {
         throw new InvalidUserException();
     }
 
+    @Transactional
     public FetchModuleContentResponse fetchModule(UUID moduleId) {
         ModuleProjection module = moduleRepository.findModuleProjectionById(moduleId).orElseThrow(() -> new EntityNotFoundException("MODULE_NOT_FOUND"));
         return FetchModuleContentResponse.builder()

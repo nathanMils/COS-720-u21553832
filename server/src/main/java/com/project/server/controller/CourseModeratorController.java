@@ -175,10 +175,9 @@ public class CourseModeratorController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator') || hasRole('ADMIN')")
-    @DeleteMapping("/deleteLecture/{moduleId}/{lectureId}")
+    @PreAuthorize("hasAuthority('lecture_' + #lectureId + '_moderator') || hasRole('ADMIN')")
+    @DeleteMapping("/deleteLecture/{lectureId}")
     public ResponseEntity<APIResponse<Void>> deleteLecture(
-            @ValidUUID @PathVariable String moduleId,
             @ValidUUID @PathVariable String lectureId
     ) {
         moduleModeratorService.deleteLecture(UUID.fromString(lectureId));

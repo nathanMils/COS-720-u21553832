@@ -124,7 +124,7 @@ const removePost = async (postId: string) => {
 const removeLecture = async (lectureId: string) => {
   loading.value = true;
   try {
-    const response = await deleteLecture(moduleId as string, lectureId);
+    const response = await deleteLecture(lectureId);
     if (response.status !== 200) {
       displayError('Error deleting lecture')
       console.error('Error:', response);
@@ -202,40 +202,36 @@ const clearError = () => {
         </GreenButton>
       </div>
     </div>
-    <div v-if="tab === 0" class="mt-4 flex items-center justify-center">
-      <div v-if="module?.postDTOS.length" class="mt-4">
-        <PostCard
-          v-for="post in module?.postDTOS"
-          :key="post.id"
-          :post="post"
-          :edit="true"
-        >
-          <RedButton @click="removePost(post.id)">
-            Remove Post
-          </RedButton>
-        </PostCard>
-      </div>
-      <div v-else class="flex flex-col items-center justify-center">
-        <MissingIcon />
-        <p class="text-gray-400 dark:text-gray-600">No Posts</p>
-      </div>
+    <div v-if="module?.postDTOS.length && tab===0" class="mt-4">
+      <PostCard
+        v-for="post in module?.postDTOS"
+        :key="post.id"
+        :post="post"
+        :edit="true"
+      >
+        <RedButton @click="removePost(post.id)">
+          Remove Post
+        </RedButton>
+      </PostCard>
     </div>
-    <div v-if="tab === 1" class="mt-4 flex items-center justify-center">
-      <div v-if="module?.lectures.length" class="mt-4">
-        <LectureCard
-          v-for="lecture in module?.lectures"
-          :key="lecture.id"
-          :lecture="lecture"
-        >
-          <RedButton @click="removeLecture(lecture.id)">
-            Remove Lecture
-          </RedButton>
-        </LectureCard>
-      </div>
-      <div v-else class="flex flex-col items-center justify-center">
-        <MissingIcon />
-        <p class="text-gray-400 dark:text-gray-600">No Lectures</p>
-      </div>
+    <div v-if="!module?.postDTOS.length && tab===0" class="flex flex-col items-center justify-center">
+      <MissingIcon />
+      <p class="text-gray-400 dark:text-gray-600">No Posts</p>
+    </div>
+    <div v-if="module?.lectures.length && tab === 1" class="mt-4">
+      <LectureCard
+        v-for="lecture in module?.lectures"
+        :key="lecture.id"
+        :lecture="lecture"
+      >
+        <RedButton @click="removeLecture(lecture.id)">
+          Remove Lecture
+        </RedButton>
+      </LectureCard>
+    </div>
+    <div v-if="!(module?.lectures.length) && tab === 1" class="flex flex-col items-center justify-center">
+      <MissingIcon />
+      <p class="text-gray-400 dark:text-gray-600">No Lectures</p>
     </div>
   </div>
 </template>

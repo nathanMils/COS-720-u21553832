@@ -47,6 +47,6 @@ export const uploadLecture = (moduleID: string, file: File) => {
     return axiosInstance.post<APIResponse<LectureDTO>>(`${base}/uploadLecture/${moduleID}`, formData)
 }
 
-export const deleteLecture = (moduleID: string, lectureID: string) => {
-    return axiosInstance.delete<APIResponse<void>>(`${base}/deleteLecture/${moduleID}/${lectureID}`)
+export const deleteLecture = (lectureID: string) => {
+    return axiosInstance.delete<APIResponse<void>>(`${base}/deleteLecture/${lectureID}`)
 }

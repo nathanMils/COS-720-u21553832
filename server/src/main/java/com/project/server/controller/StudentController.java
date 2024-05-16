@@ -169,10 +169,9 @@ public class StudentController {
                 );
     }
 
-    @PreAuthorize("hasAuthority('module_' + #moduleId + '_student') || hasRole('ADMIN')")
-    @GetMapping("/fetchLecture/{moduleId}/{lectureId}")
+    @PreAuthorize("hasAuthority('lecture_' + #lectureId + '_student') || hasAuthority('lecture_'+ #lectureId + '_moderator') || hasRole('ADMIN')")
+    @GetMapping("/fetchLecture/{lectureId}")
     public ResponseEntity<Resource> fetchLecture(
-            @ValidUUID @PathVariable String moduleId,
             @ValidUUID @PathVariable String lectureId
     ) {
         Lecture lecture = studentService.fetchLecture(UUID.fromString(lectureId));
