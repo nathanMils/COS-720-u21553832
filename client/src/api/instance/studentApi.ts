@@ -52,3 +52,7 @@ export const fetchMyApplications = () => {
 export const fetchStudentModuleContent = (moduleID: string) => {
     return axiosInstance.get<APIResponse<FetchModuleContentResponse>>(`${base}/fetchContent/${moduleID}`)
 }
+
+export const fetchLecture = (lectureID: string) => {
+    return axiosInstance.get<Blob>(`${base}/fetchLecture/${lectureID}`, {responseType: 'blob'})
+}

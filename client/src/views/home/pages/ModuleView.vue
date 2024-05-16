@@ -53,6 +53,9 @@ const clearError = () => {
   showError.value = false
   error.value = ''
 }
+const cleanString = (str: string) => {
+  return str.replace(/\s/g, ' ')
+}
 </script>
 
 <template>
@@ -68,8 +71,8 @@ const clearError = () => {
   <div v-if="!loading && !notFound" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-4xl font-bold">{{ module?.name }}</h1>
-        <p class="mt-2 text-gray-600">{{ module?.description }}</p>
+        <h1 class="text-4xl font-bold">{{ cleanString(module?.name!) }}</h1>
+        <p class="mt-2 text-gray-600">{{ cleanString(module?.description!) }}</p>
         <div class="flex justify-center">
           <button
             v-for="(item, index) in items"
@@ -86,32 +89,30 @@ const clearError = () => {
         </div>
       </div>
     </div>
-    <div v-if="tab === 0" class="mt-4 flex items-center justify-center">
-      <div v-if="module?.postDTOS.length" class="mt-4">
-        <PostCard
-          v-for="post in module?.postDTOS"
-          :key="post.id"
-          :post="post"
-          :edit="true"
-        />
-      </div>
-      <div v-else class="flex flex-col items-center justify-center">
-        <MissingIcon />
-        <p class="text-gray-400 dark:text-gray-600">No Posts</p>
-      </div>
+    <div v-if="module?.postDTOS.length && tab===0" class="mt-4">
+      <PostCard
+        v-for="post in module?.postDTOS"
+        :key="post.id"
+        :post="post"
+        :edit="true"
+        class="mb-4"
+      />
     </div>
-    <div v-if="tab === 1" class="mt-4 flex items-center justify-center">
-      <div v-if="module?.lectures.length" class="mt-4">
-        <LectureCard
-          v-for="lecture in module?.lectures"
-          :key="lecture.id"
-          :lecture="lecture"
-        />
-      </div>
-      <div v-else class="flex flex-col items-center justify-center">
-        <MissingIcon />
-        <p class="text-gray-400 dark:text-gray-600">No Lectures</p>
-      </div>
+    <div v-if="!module?.postDTOS.length && tab===0" class="flex flex-col items-center justify-center">
+      <MissingIcon />
+      <p class="text-gray-400 dark:text-gray-600">No Posts</p>
+    </div>
+    <div v-if="module?.lectures.length && tab === 1" class="mt-4">
+      <LectureCard
+        v-for="lecture in module?.lectures"
+        :key="lecture.id"
+        :lecture="lecture"
+        class="mb-4"
+      />
+    </div>
+    <div v-if="!(module?.lectures.length) && tab === 1" class="flex flex-col items-center justify-center">
+      <MissingIcon />
+      <p class="text-gray-400 dark:text-gray-600">No Lectures</p>
     </div>
   </div>
 </template>

@@ -23,7 +23,7 @@ import {
   CreateModuleView,
   ForgotPasswordView,
   ResetPasswordView,
-  ModerateModuleView, ModuleView
+  ModerateModuleView, ModuleView, LectureView
 } from '@/views'
 import { AuthStore } from '@/stores'
 import { Role } from '@/types'
@@ -115,6 +115,12 @@ const router = createRouter({
           name: 'moderateModule',
           component: ModerateModuleView,
           meta: { roles: [Role.ROLE_COURSE_MODERATOR,Role.ROLE_ADMIN] }
+        },
+        {
+          path: 'lecture/:lectureId',
+          name: 'lecture',
+          component: LectureView,
+          meta: { roles: [Role.ROLE_STUDENT, Role.ROLE_COURSE_MODERATOR, Role.ROLE_ADMIN] }
         },
         {
           path: '',

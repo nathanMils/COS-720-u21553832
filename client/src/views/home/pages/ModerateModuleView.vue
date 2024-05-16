@@ -151,6 +151,9 @@ const clearError = () => {
   showError.value = false
   error.value = ''
 }
+const cleanString = (str: string) => {
+  return str.replace(/\s/g, ' ')
+}
 </script>
 
 <template>
@@ -176,8 +179,8 @@ const clearError = () => {
   <div v-if="!loading && !notFound" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-4xl font-bold">{{ module?.name }}</h1>
-        <p class="mt-2 text-gray-600">{{ module?.description }}</p>
+        <h1 class="text-4xl font-bold">{{ cleanString(module?.name!) }}</h1>
+        <p class="mt-2 text-gray-600">{{ cleanString(module?.description!) }}</p>
         <div class="flex justify-center">
           <button
             v-for="(item, index) in items"
@@ -208,6 +211,7 @@ const clearError = () => {
         :key="post.id"
         :post="post"
         :edit="true"
+        class="mb-4"
       >
         <RedButton @click="removePost(post.id)">
           Remove Post
@@ -223,6 +227,7 @@ const clearError = () => {
         v-for="lecture in module?.lectures"
         :key="lecture.id"
         :lecture="lecture"
+        class="mb-4"
       >
         <RedButton @click="removeLecture(lecture.id)">
           Remove Lecture

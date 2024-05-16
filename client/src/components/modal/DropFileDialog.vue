@@ -43,7 +43,6 @@ const file = reactive({file: null as File | null});
 const fileName = ref('');
 
 const onDrop = (event: any) => {
-  console.log('onDrop called');
   const droppedFile = event.dataTransfer.files[0];
   if (droppedFile.type !== 'application/pdf') {
     alert('Only PDF files are accepted');
@@ -51,11 +50,9 @@ const onDrop = (event: any) => {
   }
   file.file = droppedFile as File;
   fileName.value = file.file?.name || '';
-  console.log('onDrop:', file.file);
 };
 
 const onFileChange = (event: any) => {
-  console.log('onFileChange called');
   const selectedFile = event.target.files[0];
   if (selectedFile.type !== 'application/pdf') {
     alert('Only PDF files are accepted');
@@ -63,23 +60,17 @@ const onFileChange = (event: any) => {
   }
   file.file = selectedFile as File;
   fileName.value = file.file?.name || '';
-  console.log('onFileChange:', file.file);
 };
 
 const cancel = () => {
   file.file = null;
   fileName.value = '';
-  console.log('cancel:', file.file);
   emits('cancel');
 };
 
 const confirm = () => {
-  console.log('confirm start:', file.file);
   if (file.file) {
-    console.log('confirm:', file.file);
     emits('confirm', file.file);
-  } else {
-    console.log('confirm failed: file is null');
   }
 };
 

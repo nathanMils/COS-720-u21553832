@@ -8,6 +8,10 @@ const emit = defineEmits(['drop'])
 const handleDrop = () => {
   emit('drop')
 }
+
+const cleanString = (str: string) => {
+  return str.replace(/\s/g, ' ')
+}
 </script>
 
 <template>
@@ -15,8 +19,8 @@ const handleDrop = () => {
     <div class="flex justify-between items-start w-full">
       <div>
         <h2 class="text-lg font-semibold">{{ application.userFirstName + ' ' + application.userLastName }}</h2>
-        <p class="mt-2 text-gray-600">{{ application.courseName }}</p>
-        <p class="mt-2 text-gray-600">{{ application.description }}</p>
+        <p class="mt-2 text-gray-600">{{ cleanString(application.courseName) }}</p>
+        <p class="mt-2 text-gray-600">{{ cleanString(application.description) }}</p>
         <p class="mt-2 text-blue-500">{{ application.status }}</p>
       </div>
       <div class="flex flex-col justify-center items-center">

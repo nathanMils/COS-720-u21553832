@@ -10,6 +10,7 @@ import com.project.server.response.student.FetchLectureResponse;
 import com.project.server.response.student.FetchModuleContentResponse;
 import com.project.server.response.student.FetchStudentCourseResponse;
 import com.project.server.service.StudentService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -172,12 +173,13 @@ public class StudentController {
     @PreAuthorize("hasAuthority('lecture_' + #lectureId + '_student') || hasAuthority('lecture_'+ #lectureId + '_moderator') || hasRole('ADMIN')")
     @GetMapping("/fetchLecture/{lectureId}")
     public ResponseEntity<Resource> fetchLecture(
-            @ValidUUID @PathVariable String lectureId
+            @ValidUUID @PathVariable String lectureId,
+            HttpServletResponse response
     ) {
         Lecture lecture = studentService.fetchLecture(UUID.fromString(lectureId));
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + lecture.getFileName() + "\"");
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .header("Content-Disposition", "attachment; filename=\"" + lecture.getFileName() + "\"")
                 .body(
                         new ByteArrayResource(lecture.getContent())
                 );
