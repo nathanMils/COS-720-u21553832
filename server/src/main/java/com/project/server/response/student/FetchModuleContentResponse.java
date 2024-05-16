@@ -1,5 +1,6 @@
 package com.project.server.response.student;
 
+import com.project.server.model.dto.LectureDTO;
 import com.project.server.model.dto.PostDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,4 +17,5 @@ public class FetchModuleContentResponse {
     private String name;
     private String description;
     private List<PostDTO> postDTOS;
+    private List<LectureDTO> lectures;
 }

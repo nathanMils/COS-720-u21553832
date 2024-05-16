@@ -1,6 +1,10 @@
 package com.project.server.model.projections;
 
+import java.util.Date;
+import java.util.UUID;
+
 public interface LectureProjection {
-    String getName();
-    String getDescription();
+    UUID getId();
+    String getFileName();
+    Date getCreatedAt();
 }

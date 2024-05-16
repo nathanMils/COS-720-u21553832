@@ -176,12 +176,14 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<dependencies>
-				<!--H2 DATABASE FOR IN MEMORY TESTING-->
+				<!--HSQLDB DATABASE FOR IN MEMORY TESTING-->
 				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
+					<groupId>org.hsqldb</groupId>
+					<artifactId>hsqldb</artifactId>
+					<version>2.7.2</version>
 					<scope>test</scope>
 				</dependency>
+
 			</dependencies>
 		</profile>
 		<profile>
@@ -190,10 +192,11 @@
 				<activatedProperties>test</activatedProperties>
 			</properties>
 			<dependencies>
-				<!--H2 DATABASE FOR IN MEMORY TESTING WITH ZAP-->
+				<!--HSQLDB DATABASE FOR IN MEMORY TESTING WITH ZAP-->
 				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
+					<groupId>org.hsqldb</groupId>
+					<artifactId>hsqldb</artifactId>
+					<version>2.7.2</version>
 					<scope>runtime</scope>
 				</dependency>
 			</dependencies>

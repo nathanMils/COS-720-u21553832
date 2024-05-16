@@ -1,6 +1,6 @@
 import axiosInstance from '@/api/instance/axios'
 import type { APIResponse, FetchCourseResponse, FetchModuleContentResponse } from '@/api'
-import type { CourseDTO, PostDTO } from '@/types'
+import type { CourseDTO, LectureDTO, PostDTO } from '@/types'
 
 const base: string = '/courseModerator'
 
@@ -39,4 +39,14 @@ export const createPost = (moduleID: string, content: string) => {
 
 export const deletePost = (moduleID: string, postID: string) => {
     return axiosInstance.delete<APIResponse<void>>(`${base}/deletePost/${moduleID}/${postID}`)
+}
+
+export const uploadLecture = (moduleID: string, file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return axiosInstance.post<APIResponse<LectureDTO>>(`${base}/uploadLecture/${moduleID}`, formData)
+}
+
+export const deleteLecture = (lectureID: string) => {
+    return axiosInstance.delete<APIResponse<void>>(`${base}/deleteLecture/${lectureID}`)
 }

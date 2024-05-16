@@ -84,6 +84,9 @@ const drop = async (moduleId: string) => {
   }
   loading.value = false
 }
+const cleanString = (str: string) => {
+  return str.replace(/\s/g, ' ')
+}
 </script>
 
 <template>
@@ -99,8 +102,8 @@ const drop = async (moduleId: string) => {
   <div v-if="!loading && !notFound" class="flex-grow overflow-auto px-10 py-10 grid grid-rows-[auto,1fr]">
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-4xl font-bold">{{ course?.courseName }}</h1>
-        <p class="mt-2 text-gray-600 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ course?.courseDescription }}</p>
+        <h1 class="text-4xl font-bold">{{ cleanString(course?.courseName!) }}</h1>
+        <p class="mt-2 text-gray-600 overflow-ellipsis overflow-hidden whitespace-nowrap">{{ cleanString(course?.courseDescription!) }}</p>
         <p class="mt-2 text-gray-600 overflow-ellipsis overflow-hidden whitespace-nowrap">Moderator: {{ course?.courseModerator }}</p>
       </div>
     </div>

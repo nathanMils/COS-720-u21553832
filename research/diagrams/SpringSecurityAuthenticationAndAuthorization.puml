@@ -1,0 +1,130 @@
+@startuml
+
+actor "Client" as Client
+box "Security FilterChain" #LightBlue
+    participant "XSSFilter" as XSSFilter
+    participant "JWTExceptionFilter" as JWTExceptionFilter
+    participant "JWTTokenFilter" as JWTTokenFilter
+    participant "AuthorizationFilter" as FilterSecurityInterceptor
+end box
+box "Security Services" #LightCyan
+    participant "TokenService" as TokenService
+    participant "UserDetailsService" as UserDetailsService
+end box
+box "Authentication and Authorization" #LightGreen
+    participant "AccessDeniedHandler" as AccessDeniedHandler
+    participant "AuthEntryPoint" as AuthEntryPoint
+    participant "SecurityContextHolder" as SecurityContextHolder
+    participant "SecurityMetadataSource" as SecurityMetadataSource
+    participant "Authorization Manager" as AccessDecisionManager
+end box
+box "Web MVC" #LightPink
+    participant "DispatcherServlet" as DispatcherServlet
+    participant "HandlerMapping" as HandlerMapping
+    participant "Controller" as Controller
+    participant "Service" as Service
+    participant "Repository" as Repository
+end box
+box "Database" #LightYellow
+    participant "UserDetails" as UserDetails
+    participant "Data" as Data
+end box
+
+autonumber
+
+Client -> XSSFilter: Send Request
+activate XSSFilter
+XSSFilter -> XSSFilter: Sanitize Request
+XSSFilter -> JWTExceptionFilter: doFilter
+deactivate XSSFilter
+activate JWTExceptionFilter
+JWTExceptionFilter -> JWTTokenFilter: doFilter
+activate JWTTokenFilter
+JWTTokenFilter -> JWTTokenFilter: Extract Token from Cookie
+alt Token is Present
+    JWTTokenFilter -> TokenService: Extract Username
+    activate TokenService
+    TokenService -> TokenService: Extract Claims from Token
+    TokenService -> JWTTokenFilter: Return Username
+    deactivate TokenService
+    JWTTokenFilter -> UserDetailsService: Load User by Username
+    activate UserDetailsService
+    UserDetailsService -> UserDetails: Retrieve User Details and Authorities
+    activate UserDetails
+    UserDetails --> UserDetailsService: Return User Details
+    deactivate UserDetails
+    UserDetailsService --> JWTTokenFilter: Return User Details
+    deactivate UserDetailsService
+    JWTTokenFilter -> TokenService: Validate Token
+    activate TokenService
+    alt Token is Valid
+        TokenService -> JWTTokenFilter: Token is Valid
+        JWTTokenFilter -> JWTTokenFilter: Create Authentication Object(details,authorities)
+        JWTTokenFilter -> SecurityContextHolder: Set Authentication Object
+        activate SecurityContextHolder
+        SecurityContextHolder -> SecurityContextHolder: Set Security Context
+        deactivate SecurityContextHolder
+    else Token is Invalid
+        TokenService -> JWTTokenFilter: Send Error Response (Invalid/Expired Token)
+        deactivate TokenService
+        JWTTokenFilter --> JWTExceptionFilter: Throw Exception
+        JWTExceptionFilter -> JWTExceptionFilter: Handler Exception
+        JWTExceptionFilter --> Client: Send Error Response (Short Circuit)
+        deactivate JWTExceptionFilter
+    end
+end
+JWTTokenFilter -> FilterSecurityInterceptor: doFilter
+deactivate JWTTokenFilter
+activate FilterSecurityInterceptor
+FilterSecurityInterceptor -> SecurityMetadataSource: getAttributes(request)
+activate SecurityMetadataSource
+SecurityMetadataSource -> SecurityMetadataSource: Retrieve MetaData
+SecurityMetadataSource --> FilterSecurityInterceptor: Return Security MetaData
+deactivate SecurityMetadataSource
+FilterSecurityInterceptor -> SecurityContextHolder: Get Authentication Object
+activate SecurityContextHolder
+SecurityContextHolder -> FilterSecurityInterceptor: Return Authentication Object
+deactivate SecurityContextHolder
+FilterSecurityInterceptor -> AccessDecisionManager: decide(authentication,request,metadata)
+activate AccessDecisionManager
+alt Access is Granted
+    AccessDecisionManager -> FilterSecurityInterceptor: Return
+    FilterSecurityInterceptor -> DispatcherServlet: Forward Request
+    activate DispatcherServlet
+    DispatcherServlet -> HandlerMapping: Map Request
+    activate HandlerMapping
+    HandlerMapping -> Controller: Handle Request
+    activate Controller
+    Controller -> Service: Process Request
+    activate Service
+    Service -> Repository: Retrieve Data
+    activate Repository
+    Repository -> Data: Query Data
+    activate Data
+    Data --> Repository: Return Data
+    deactivate Data
+    Repository --> Service: Return Data
+    deactivate Repository
+    Service --> Controller: Return Data
+    deactivate Service
+    Controller --> HandlerMapping: Return Response
+    deactivate Controller
+    HandlerMapping --> DispatcherServlet: Return Response
+    deactivate HandlerMapping
+    DispatcherServlet --> FilterSecurityInterceptor: Return Response
+    deactivate DispatcherServlet
+    FilterSecurityInterceptor --> Client: Return Response
+else Access is Denied
+    AccessDecisionManager -> FilterSecurityInterceptor: Throw AccessDeniedException
+    deactivate AccessDecisionManager
+    FilterSecurityInterceptor -> AuthEntryPoint: Throw AccessDeniedException
+    deactivate FilterSecurityInterceptor
+    activate AuthEntryPoint
+    AuthEntryPoint -> AccessDeniedHandler: Handle Access Denied
+    activate AccessDeniedHandler
+    AccessDeniedHandler --> AuthEntryPoint: Send Error Response (Access Denied)
+    deactivate AccessDeniedHandler
+    AuthEntryPoint --> Client: Send Error Response (Access Denied)
+    deactivate AuthEntryPoint
+end
+@enduml

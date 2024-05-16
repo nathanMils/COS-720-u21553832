@@ -3,6 +3,7 @@ package com.project.server.controller;
 import com.project.server.constraint.Sanitize;
 import com.project.server.constraint.ValidUUID;
 import com.project.server.model.dto.CourseDTO;
+import com.project.server.model.dto.LectureDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.PostDTO;
 import com.project.server.request.admin.CreateCourseRequest;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -157,6 +159,32 @@ public class CourseModeratorController {
                 .status(HttpStatus.OK)
                 .body(
                         APIResponse.success(courseModeratorService.fetchModule(UUID.fromString(moduleId)))
+                );
+    }
+
+    @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator') || hasRole('ADMIN')")
+    @PostMapping("/uploadLecture/{moduleId}")
+    public ResponseEntity<APIResponse<LectureDTO>> uploadLecture(
+            @ValidUUID @PathVariable String moduleId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(moduleModeratorService.uploadLecture(file, UUID.fromString(moduleId)))
+                );
+    }
+
+    @PreAuthorize("hasAuthority('lecture_' + #lectureId + '_moderator') || hasRole('ADMIN')")
+    @DeleteMapping("/deleteLecture/{lectureId}")
+    public ResponseEntity<APIResponse<Void>> deleteLecture(
+            @ValidUUID @PathVariable String lectureId
+    ) {
+        moduleModeratorService.deleteLecture(UUID.fromString(lectureId));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success()
                 );
     }
 }
