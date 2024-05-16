@@ -1,6 +1,7 @@
 package com.project.server.model.entity;
 
 
+import com.project.server.model.dto.LectureDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -37,7 +38,7 @@ public class Lecture {
     @ManyToOne
     @JoinColumn(name = "module_id")
     private Module module;
-    
+
     @Lob
     @Column(
             nullable = false
@@ -58,4 +59,12 @@ public class Lecture {
             name = "updated_at"
     )
     private Date updatedAt;
+
+    public LectureDTO convert() {
+        return LectureDTO.builder()
+                .id(this.id)
+                .fileName(this.fileName)
+                .createdAt(this.createdAt)
+                .build();
+    }
 }

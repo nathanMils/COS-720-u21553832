@@ -2,7 +2,7 @@
 
 import { onMounted, ref } from 'vue'
 import {
-  AddPostDialog,
+  AddPostDialog, DropFileDialog,
   GreenButton,
   InnerErrorModal,
   LoadingComponent,
@@ -10,7 +10,14 @@ import {
   PostCard,
   RedButton
 } from '@/components'
-import { type FetchModuleContentResponse, fetchModuleContent, createPost, deletePost } from '@/api'
+import {
+  type FetchModuleContentResponse,
+  fetchModuleContent,
+  createPost,
+  deletePost,
+  deleteLecture,
+  uploadLecture
+} from '@/api'
 import { useRoute } from 'vue-router'
 import { NotFoundView } from '@/views'
 import LectureCard from '@/components/cards/LectureCard.vue'
@@ -44,9 +51,37 @@ onMounted( async () => {
   loading.value = false;
 })
 
+const showDropFileDialog = ref(false)
+const addLecture = () => {
+  showDropFileDialog.value = true
+}
 const showAddPostDialog = ref(false)
 const addPost = () => {
   showAddPostDialog.value = true
+}
+
+const sendLecture = async (file: File) => {
+  loading.value = true;
+  try {
+    const response = await uploadLecture(moduleId as string, file)
+    if (response.status !== 200) {
+      displayError('An error occurred while uploading the file')
+      console.error('Error:', response);
+      loading.value = false;
+      return;
+    }
+    module.value?.lectures.push(response.data.data!)
+    showDropFileDialog.value = false
+  } catch (error: any) {
+    if (error.response.status === 400) {
+      displayError('Sorry this file is too large')
+      loading.value = false;
+      return;
+    }
+    displayError('An error occurred while uploading the file')
+    console.error('Error:', error.response);
+  }
+  loading.value = false;
 }
 
 const sendPost = async (postContent: string) => {
@@ -86,6 +121,24 @@ const removePost = async (postId: string) => {
   loading.value = false;
 }
 
+const removeLecture = async (lectureId: string) => {
+  loading.value = true;
+  try {
+    const response = await deleteLecture(moduleId as string, lectureId);
+    if (response.status !== 200) {
+      displayError('Error deleting lecture')
+      console.error('Error:', response);
+      loading.value = false;
+      return;
+    }
+    module.value!.lectures = module.value!.lectures.filter(lecture => lecture.id !== lectureId);
+  } catch (error: any) {
+    displayError('Error deleting lecture')
+    console.error('Error:', error.response);
+  }
+  loading.value = false;
+}
+
 const loading = ref(true)
 const notFound = ref(false)
 const error = ref('')
@@ -110,6 +163,11 @@ const clearError = () => {
     :show="showAddPostDialog"
     @close="showAddPostDialog = false"
     @submit="sendPost"
+  />
+  <DropFileDialog
+    :show="showDropFileDialog"
+    @cancel="showDropFileDialog = false"
+    @confirm="sendLecture"
   />
   <NotFoundView v-show="notFound"/>
   <div v-show="loading" class="flex items-center justify-center h-full">
@@ -139,7 +197,7 @@ const clearError = () => {
         <GreenButton v-if="tab === 0" @click="addPost">
           Add Post
         </GreenButton>
-        <GreenButton v-if="tab === 1" @click="addPost">
+        <GreenButton v-if="tab === 1" @click="addLecture">
           Add Lecture
         </GreenButton>
       </div>
@@ -169,7 +227,7 @@ const clearError = () => {
           :key="lecture.id"
           :lecture="lecture"
         >
-          <RedButton @click="removePost(lecture.id)">
+          <RedButton @click="removeLecture(lecture.id)">
             Remove Lecture
           </RedButton>
         </LectureCard>

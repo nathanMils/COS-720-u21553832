@@ -1,5 +1,6 @@
 package com.project.server.service;
 
+import com.project.server.model.dto.LectureDTO;
 import com.project.server.model.dto.PostDTO;
 import com.project.server.model.entity.Lecture;
 import com.project.server.model.entity.Post;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
@@ -51,7 +53,7 @@ public class ModuleModeratorService {
     }
 
     @Transactional
-    public void uploadLecture(MultipartFile file, UUID moduleId) {
+    public LectureDTO uploadLecture(MultipartFile file, UUID moduleId) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
             if(fileName.contains("..")) {
@@ -69,11 +71,11 @@ public class ModuleModeratorService {
                     .fileType(file.getContentType())
                     .content(file.getBytes())
                     .build();
-            lectureRepository.save(lecture);
+            return lectureRepository.save(lecture).convert();
         } catch (MaxUploadSizeExceededException e) {
             throw new MaxUploadSizeExceededException(file.getSize());
-        } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Could not save File: " + fileName);
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"Failed to upload file " + fileName);
         }
     }
 

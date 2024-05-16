@@ -3,6 +3,7 @@ package com.project.server.controller;
 import com.project.server.constraint.Sanitize;
 import com.project.server.constraint.ValidUUID;
 import com.project.server.model.dto.CourseDTO;
+import com.project.server.model.dto.LectureDTO;
 import com.project.server.model.dto.ModuleDTO;
 import com.project.server.model.dto.PostDTO;
 import com.project.server.request.admin.CreateCourseRequest;
@@ -163,21 +164,21 @@ public class CourseModeratorController {
 
     @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator') || hasRole('ADMIN')")
     @PostMapping("/uploadLecture/{moduleId}")
-    public ResponseEntity<APIResponse<Void>> uploadLecture(
+    public ResponseEntity<APIResponse<LectureDTO>> uploadLecture(
             @ValidUUID @PathVariable String moduleId,
             @RequestParam("file") MultipartFile file
     ) {
-        moduleModeratorService.uploadLecture(file, UUID.fromString(moduleId));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(
-                        APIResponse.success()
+                        APIResponse.success(moduleModeratorService.uploadLecture(file, UUID.fromString(moduleId)))
                 );
     }
 
     @PreAuthorize("hasAuthority('module_' + #moduleId + '_moderator') || hasRole('ADMIN')")
-    @DeleteMapping("/deleteLecture/{lectureId}")
+    @DeleteMapping("/deleteLecture/{moduleId}/{lectureId}")
     public ResponseEntity<APIResponse<Void>> deleteLecture(
+            @ValidUUID @PathVariable String moduleId,
             @ValidUUID @PathVariable String lectureId
     ) {
         moduleModeratorService.deleteLecture(UUID.fromString(lectureId));
