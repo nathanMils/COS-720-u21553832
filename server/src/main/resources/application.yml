@@ -34,6 +34,7 @@ spring:
 logging:
   config: classpath:logback-spring.xml
 app:
+  seed: true
   token:
     authExpire: 3600
     refreshExpire: 4000

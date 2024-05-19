@@ -74,7 +74,7 @@ const sendLecture = async (file: File) => {
     showDropFileDialog.value = false
   } catch (error: any) {
     if (error.response.status === 400) {
-      displayError('Sorry this file is too large')
+      displayError(error.response.data.internalCode)
       loading.value = false;
       return;
     }

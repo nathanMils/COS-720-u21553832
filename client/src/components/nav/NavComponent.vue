@@ -51,7 +51,13 @@
               <span class="ml-4">All Courses</span>
             </a>
           </RouterLink>
-          <RouterLink v-show="role === Role.ROLE_ADMIN" :to="{name: 'createCourse'}">
+          <RouterLink v-show="role === Role.ROLE_COURSE_MODERATOR" :to="{name: 'moderatorCourses'}">
+            <a class="flex w-full items-center px-6 py-5 text-appText-light dark:text-appText-dark hover:bg-appHover-light dark:hover:bg-appHover-dark">
+              <i class="fa-solid fa-book-open text-primaryButton-500"></i>
+              <span class="ml-4">My Courses</span>
+            </a>
+          </RouterLink>
+          <RouterLink v-show="role === Role.ROLE_ADMIN || role === Role.ROLE_COURSE_MODERATOR" :to="{name: 'createCourse'}">
             <a class="flex w-full items-center px-6 py-5 text-appText-light dark:text-appText-dark hover:bg-appHover-light dark:hover:bg-appHover-dark">
               <i class="fa-solid fa-plus text-primaryButton-500"></i>
               <span class="ml-4">Create Course</span>

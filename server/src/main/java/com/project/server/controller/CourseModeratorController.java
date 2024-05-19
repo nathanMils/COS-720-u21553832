@@ -187,4 +187,13 @@ public class CourseModeratorController {
                         APIResponse.success()
                 );
     }
+
+    @GetMapping("/fetchCourses")
+    public ResponseEntity<APIResponse<List<CourseDTO>>> fetchCourses() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(
+                        APIResponse.success(courseModeratorService.fetchCourses())
+                );
+    }
 }

@@ -55,6 +55,8 @@ public class ModuleModeratorService {
     @Transactional
     public LectureDTO uploadLecture(MultipartFile file, UUID moduleId) {
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        if (lectureRepository.existsByFileName(fileName))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"File with name " + fileName + " already exists");
         try {
             if(fileName.contains("..")) {
                 throw  new ResponseStatusException(HttpStatus.BAD_REQUEST,"Filename contains invalid path sequence " + fileName);

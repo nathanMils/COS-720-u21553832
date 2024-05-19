@@ -148,4 +148,11 @@ public class CourseModeratorService {
                 )
                 .build();
     }
+
+    public List<CourseDTO> fetchCourses() {
+        return courseRepository.findAllByModeratorId(getAuthenticatedUser().getId())
+                .stream()
+                .map(Course::convert)
+                .collect(Collectors.toList());
+    }
 }

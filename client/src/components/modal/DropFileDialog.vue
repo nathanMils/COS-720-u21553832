@@ -70,7 +70,10 @@ const cancel = () => {
 
 const confirm = () => {
   if (file.file) {
-    emits('confirm', file.file);
+    let temp = file.file;
+    file.file = null;
+    fileName.value = '';
+    emits('confirm', temp);
   }
 };
 
