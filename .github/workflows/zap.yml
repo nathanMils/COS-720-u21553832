@@ -1,9 +1,9 @@
 name: OWASP ZAP Security Testing
 
 on:
-    push:
-      branches:
-        - dev
+  push:
+    branches:
+      - dev
 
 jobs:
     api_scan:
