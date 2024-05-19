@@ -72,7 +72,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
                     )
 
         );
-        userRepository.findByUsername("Course Moderator A").ifPresentOrElse(
+        userRepository.findByUsername("Course_Moderator_A").ifPresentOrElse(
                 courseModerator -> {
                     // Do nothing
                 },
@@ -90,7 +90,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
                                         .build()
                         )
         );
-        userRepository.findByUsername("Course Moderator B").ifPresentOrElse(
+        userRepository.findByUsername("Course_Moderator_B").ifPresentOrElse(
                 courseModerator -> {
                     // Do nothing
                 },
@@ -108,7 +108,7 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
                                         .build()
                         )
         );
-        userRepository.findByUsername("Course Moderator C").ifPresentOrElse(
+        userRepository.findByUsername("Course_Moderator_C").ifPresentOrElse(
                 courseModerator -> {
                     // Do nothing
                 },
