@@ -12,7 +12,7 @@ export const logout = () => {
   axiosInstance.post(`${base}/logout`);
 }
 
-export const getRole = () => {
+export const getUserRole = () => {
     return axiosInstance.get<APIResponse<Role>>(`${base}/role`)
 }
 
