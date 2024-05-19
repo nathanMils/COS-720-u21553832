@@ -102,7 +102,7 @@ jobs:
             run: |
               cd ./nginx/test
               docker build -t proxy .
-              docker run proxy &
+              docker run -d -p 80:80 proxy
 
           - name: ZAP Scan
             uses: zaproxy/action-baseline@v0.12.0
