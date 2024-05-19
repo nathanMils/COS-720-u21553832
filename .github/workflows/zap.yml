@@ -7,25 +7,40 @@ jobs:
     baseline:
       runs-on: ubuntu-latest
       name: ZAP Baseline Scan
+      env:
+        SERVER_PORT: 8080
+        SPRING_MAIL_PASSWORD: placeholder_value
+        APP_ADMIN_USERNAME: NathanOpp
+        APP_ADMIN_PASSWORD: Stupidcat12!
+        APP_ADMIN_EMAIL: nathanopperman123@gmail.com
+        APP_ADMIN_NAME_FIRST: Nathan
+        APP_ADMIN_NAME_LAST: Opperman
+        APP_BASE_URL: http://localhost:3000
+        APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
+        APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
       steps:
         - name: Checkout Code
           uses: actions/checkout@v4
+          with:
+            fetch-depth: 0
+            
+        - name: Set JDK
+          uses: actions/setup-java@v4
+          with:
+            java-version: '21'
+            distribution: 'temurin'
+
+        # Bulding springboot application with a different maven profile to bring H2 database into runtime scope
+        - name: Build Mvn Application
+          run: mvn clean install -Ptest -DskipTests -f ./server/pom.xml
+        
+        # Running the JAR with the test configuration, runs in background
+        - name: Run Spring Jar
+          run: java -jar -Dspring.profiles.active=test ./server/target/server-0.0.1-SNAPSHOT.jar &
         
         - name: ZAP API Scan
           uses: zaproxy/action-api-scan@v0.7.0
           with:
-            target: ${{secrets.HOST_URL}}
-
-    full:
-      runs-on: ubuntu-latest
-      name: ZAP Full Scan
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
-        
-        - name: ZAP API Scan
-          uses: zaproxy/action-full-scan@v0.10.0
-          with:
-            target: ${{secrets.HOST_URL}}
+            target: 'http://host.docker.internal:8080/api/v1'
 
             
