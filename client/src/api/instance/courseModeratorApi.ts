@@ -50,3 +50,7 @@ export const uploadLecture = (moduleID: string, file: File) => {
 export const deleteLecture = (lectureID: string) => {
     return axiosInstance.delete<APIResponse<void>>(`${base}/deleteLecture/${lectureID}`)
 }
+
+export const fetchModeratorCourses = () => {
+    return axiosInstance.get<APIResponse<CourseDTO[]>>(`${base}/fetchCourses`)
+}

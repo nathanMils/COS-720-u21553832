@@ -7,14 +7,14 @@ import com.project.server.service.OTPService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"local", "test"})
+@ConditionalOnProperty(name = "app.seed", havingValue = "true")
 public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
 
     @Autowired
@@ -51,8 +51,6 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
     }
 
     // This loads all roles we want before runtime
-
-
     @Transactional
     public void createAdministrator() {
         userRepository.findByUsername(adminUsername).ifPresentOrElse(
@@ -74,5 +72,61 @@ public class Seeder implements ApplicationListener<ContextRefreshedEvent> {
                     )
 
         );
+        userRepository.findByUsername("Course Moderator A").ifPresentOrElse(
+                courseModerator -> {
+                    // Do nothing
+                },
+                () ->
+                        userRepository.save(
+                                User.builder()
+                                        .username("Course_Moderator_A")
+                                        .email(adminEmail)
+                                        .firstName("Course")
+                                        .lastName("Moderator")
+                                        .password(passwordEncoder.encode("password_courseA"))
+                                        .role(RoleEnum.ROLE_COURSE_MODERATOR)
+                                        .secret(otpService.generateSecret())
+                                        .enabled(true)
+                                        .build()
+                        )
+        );
+        userRepository.findByUsername("Course Moderator B").ifPresentOrElse(
+                courseModerator -> {
+                    // Do nothing
+                },
+                () ->
+                        userRepository.save(
+                                User.builder()
+                                        .username("Course_Moderator_B")
+                                        .email(adminEmail)
+                                        .firstName("Course")
+                                        .lastName("Moderator")
+                                        .password(passwordEncoder.encode("password_courseB"))
+                                        .role(RoleEnum.ROLE_COURSE_MODERATOR)
+                                        .secret(otpService.generateSecret())
+                                        .enabled(true)
+                                        .build()
+                        )
+        );
+        userRepository.findByUsername("Course Moderator C").ifPresentOrElse(
+                courseModerator -> {
+                    // Do nothing
+                },
+                () ->
+                        userRepository.save(
+                                User.builder()
+                                        .username("Course_Moderator_C")
+                                        .email(adminEmail)
+                                        .firstName("Course")
+                                        .lastName("Moderator")
+                                        .password(passwordEncoder.encode("password_courseC"))
+                                        .role(RoleEnum.ROLE_COURSE_MODERATOR)
+                                        .secret(otpService.generateSecret())
+                                        .enabled(true)
+                                        .build()
+                        )
+        );
+
+
     }
 }

@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface LectureRepository extends JpaRepository<Lecture, UUID> {
     List<LectureProjection> findAllByModuleId(UUID moduleId);
+    boolean existsByFileName(String name);
 }
