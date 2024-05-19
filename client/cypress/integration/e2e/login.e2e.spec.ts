@@ -27,7 +27,7 @@ describe('Login View', () => {
     cy.get('button[type="submit"]').click()
 
     // Check if the URL is now the dashboard page
-    cy.url().should('include', '/dashboard')
+    cy.url().should('include', '/studentApplications')
 
     // Visit a protected page
     cy.visit('/dashboard')
