@@ -90,7 +90,6 @@ const sendPost = async (postContent: string) => {
     const response = await createPost(moduleId as string, postContent);
     if (response.status !== 200) {
       displayError('An error occurred while creating post')
-      console.error('Error:', response);
       loading.value = false;
       return;
     }
@@ -98,7 +97,6 @@ const sendPost = async (postContent: string) => {
     showAddPostDialog.value = false
   } catch (error: any) {
     displayError('An error occurred while creating post')
-    console.error('Error:', error.response);
   }
   loading.value = false;
 }
@@ -109,14 +107,12 @@ const removePost = async (postId: string) => {
     const response = await deletePost(moduleId as string, postId);
     if (response.status !== 200) {
       displayError('Error deleting post')
-      console.error('Error:', response);
       loading.value = false;
       return;
     }
     module.value!.postDTOS = module.value!.postDTOS.filter(post => post.id !== postId);
   } catch (error: any) {
     displayError('Error deleting post')
-    console.error('Error:', error.response);
   }
   loading.value = false;
 }
@@ -127,14 +123,12 @@ const removeLecture = async (lectureId: string) => {
     const response = await deleteLecture(lectureId);
     if (response.status !== 200) {
       displayError('Error deleting lecture')
-      console.error('Error:', response);
       loading.value = false;
       return;
     }
     module.value!.lectures = module.value!.lectures.filter(lecture => lecture.id !== lectureId);
   } catch (error: any) {
     displayError('Error deleting lecture')
-    console.error('Error:', error.response);
   }
   loading.value = false;
 }

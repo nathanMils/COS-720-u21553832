@@ -24,7 +24,6 @@ const create = async () => {
     }
     success.value = true;
   } catch (error: any) {
-    console.log(error)
     switch (error.response.data.internalCode) {
       case 'MODULE_NAME_EXISTS':
         moduleForm.name = '';

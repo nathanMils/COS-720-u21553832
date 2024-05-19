@@ -34,14 +34,12 @@ onMounted( async () => {
     if (response.status !== 200) {
       displayError('An error occurred while fetching course')
       notFound.value = true
-      console.error("An error occurred while fetching course modules")
       return
     }
     course.value = response.data.data
   } catch (error: any) {
     displayError('An error occurred while fetching course')
     notFound.value = true
-    console.error(error)
   }
   loading.value = false
 })
@@ -55,13 +53,11 @@ const removeModule = async (moduleId: string) => {
     const response = await deleteModule(courseId as string,moduleId)
     if (response.status !== 200) {
       displayError('Error deleting module')
-      console.error('Error:', response)
       return
     }
     course.value!.modules = course.value!.modules.filter(module => module.id !== moduleId)
   } catch (error: any) {
     displayError('Error deleting module')
-    console.error('Error:', error.response)
   }
 }
 

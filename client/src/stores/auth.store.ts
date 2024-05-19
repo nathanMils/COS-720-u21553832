@@ -77,7 +77,6 @@ export const AuthStore = defineStore({
           return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
         }
       } catch (error: any) {
-        console.log(error.response)
         if (error.response) {
           if (error.response.status === 409 && error.response.data.internalCode === 'USERNAME_EXISTS') {
             return { status: error.response.status, message: 'USERNAME_EXISTS' };
@@ -119,7 +118,6 @@ export const AuthStore = defineStore({
           return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
         }
       } catch (error: any) {
-        console.log(error.response)
         return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
       }
     },
@@ -132,7 +130,6 @@ export const AuthStore = defineStore({
           return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
         }
       } catch (error: any) {
-        console.log(error.response)
         if (error.response.data.internalCode === 'PASSWORD_SAME') {
           return { status: 400, message: 'PASSWORD_SAME' };
         }
