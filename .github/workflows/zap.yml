@@ -98,11 +98,11 @@ jobs:
             run: npm run dev &
             working-directory: ./client
 
-          - name: Build proxy image
-            run: docker build -t proxy -f ./nginx/test
-
-          - name: Run proxy
-            run: docker run proxy &
+          - name: Build amd run proxy image
+            run: |
+              cd ./nginx/test
+              docker build -t proxy .
+              docker run proxy &
 
           - name: ZAP Scan
             uses: zaproxy/action-baseline@v0.12.0
