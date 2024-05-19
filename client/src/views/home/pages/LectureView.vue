@@ -34,7 +34,6 @@ onMounted( async () => {
     if (response.status !== 200) {
       displayError('An error occurred while fetching lecture')
       notFound.value = true
-      console.error("An error occurred while fetching lecture")
       return
     }
     if (response.data) {
@@ -43,7 +42,6 @@ onMounted( async () => {
   } catch (error: any) {
     displayError('An error occurred while fetching course')
     notFound.value = true
-    console.error(error)
   }
   loading.value = false
 })

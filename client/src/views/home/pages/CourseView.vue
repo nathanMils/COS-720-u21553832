@@ -55,14 +55,12 @@ const register = async (moduleId: string) => {
     const response = await registerModule(courseId as string, moduleId)
     if (response.status !== 200) {
       displayError('An error occurred while registering module')
-      console.error("An error occurred while registering module")
       loading.value = false
       return
     }
     course.value!.modules.find(module => module.id === moduleId)!.registered = true
   } catch (error: any) {
     displayError('An error occurred while registering module')
-    console.error(error)
   }
   loading.value = false
 }
@@ -73,14 +71,12 @@ const drop = async (moduleId: string) => {
     const response = await deregisterModule(courseId as string, moduleId)
     if (response.status !== 200) {
       displayError('An error occurred while dropping module')
-      console.error("An error occurred while dropping module")
       loading.value = false
       return
     }
     course.value!.modules.find(module => module.id === moduleId)!.registered = false
   } catch (error: any) {
     displayError('An error occurred while dropping module')
-    console.error(error)
   }
   loading.value = false
 }

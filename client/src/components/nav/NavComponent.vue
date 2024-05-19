@@ -9,12 +9,6 @@
     <div class="flex flex-col flex-1 overflow-y-auto">
       <nav class="flex-1 flex flex-col justify-between">
         <div>
-          <RouterLink :to="{name: 'dashboard'}">
-            <a class="flex w-full items-center px-6 py-5 text-appText-light dark:text-appText-dark hover:bg-appHover-light dark:hover:bg-appHover-dark">
-              <i class="fa-solid fa-bars text-primaryButton-500"></i>
-              <span class="ml-4">Dashboard</span>
-            </a>
-          </RouterLink>
           <RouterLink v-show="role === Role.ROLE_STUDENT" :to="{name: 'myModules'}">
             <a class="flex w-full items-center px-6 py-5 text-appText-light dark:text-appText-dark hover:bg-appHover-light dark:hover:bg-appHover-dark">
               <i class="fa-solid fa-book text-primaryButton-500"></i>

@@ -1,4 +1,3 @@
-export { default as DashboardView } from './DashboardView.vue'
 export { default as ProfileView } from './ProfileView.vue'
 export { default as MyApplicationsView } from './MyApplicationsView.vue'
 export { default as MyCoursesView } from './MyCoursesView.vue'

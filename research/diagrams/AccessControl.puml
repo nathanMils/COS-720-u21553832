@@ -1,0 +1,27 @@
+@startuml
+start
+
+:User sends REST API request;
+
+:Spring Security intercepts the request;
+
+:Spring Security checks JWT Token;
+
+if (User is authenticated?) then (yes)
+  :Load User Details from UserDetailsService;
+  :Check User Roles and Permissions;
+  if (User is authorized?) then (yes)
+    :Proceed with Request;
+    :Call appropriate Controller method;
+    :Access the requested resource;
+    :Generate response;
+  else (no)
+    :Deny Access;
+    :Return 403 Forbidden response;
+  endif
+else (no)
+  :Return 401 Unauthorized response;
+endif
+
+stop
+@enduml

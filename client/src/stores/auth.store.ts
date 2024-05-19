@@ -7,7 +7,7 @@ import {
   apply,
   verifyEmail,
   loggedIn,
-  getRole, forgotPassword, resetPassword
+  getUserRole, forgotPassword, resetPassword
 } from '@/api'
 import { Role } from '@/types/role'
 
@@ -24,7 +24,18 @@ export const AuthStore = defineStore({
         const response = await login(username, password);
         if (response.status === 200) {
           this.isLoggedIn = true;
-          router.push(this.returnUrl ?? '/dashboard');
+          switch (await this.getRole())
+          {
+            case "ROLE_ADMIN":
+              router.push({name: 'studentApplications'});
+              break;
+            case "ROLE_STUDENT":
+              router.push({name: 'myModules'});
+              break;
+            case "ROLE_COURSE_MODERATOR":
+              router.push({name: 'moderatorCourses'});
+              break;
+          }
           this.returnUrl = null;
           return { status: response.status, message: 'Success' };
         } else {
@@ -66,7 +77,6 @@ export const AuthStore = defineStore({
           return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
         }
       } catch (error: any) {
-        console.log(error.response)
         if (error.response) {
           if (error.response.status === 409 && error.response.data.internalCode === 'USERNAME_EXISTS') {
             return { status: error.response.status, message: 'USERNAME_EXISTS' };
@@ -108,7 +118,6 @@ export const AuthStore = defineStore({
           return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
         }
       } catch (error: any) {
-        console.log(error.response)
         return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
       }
     },
@@ -121,7 +130,6 @@ export const AuthStore = defineStore({
           return { status: 500, message: 'UNKNOWN_SERVER_ERROR' };
         }
       } catch (error: any) {
-        console.log(error.response)
         if (error.response.data.internalCode === 'PASSWORD_SAME') {
           return { status: 400, message: 'PASSWORD_SAME' };
         }
@@ -143,7 +151,7 @@ export const AuthStore = defineStore({
     async getRole(): Promise<Role|null> {
       try {
         if (this.role === null) {
-          const response = await getRole();
+          const response = await getUserRole();
           this.role = response.data.data;
         }
         return this.role;
@@ -155,7 +163,7 @@ export const AuthStore = defineStore({
     async isRole(role: Role): Promise<boolean> {
       try {
         if (this.role === null) {
-          const response = await getRole();
+          const response = await getUserRole();
           this.role = response.data.data;
         }
         return this.role === role;
@@ -167,7 +175,7 @@ export const AuthStore = defineStore({
     async isRoleIncluded(roles: Role[]): Promise<boolean> {
       try {
         if (this.role === null) {
-          const response = await getRole();
+          const response = await getUserRole();
           this.role = response.data.data;
         }
         return roles.includes(this.role!);
