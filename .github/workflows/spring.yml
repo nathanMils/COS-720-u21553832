@@ -3,7 +3,7 @@ name: Spring
 on:
   push:
     branches:
-      - dev
+      - main
       
 jobs:
     compile:

@@ -3,7 +3,7 @@ name: Vue
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
 
