@@ -1,14 +1,16 @@
-name: OWASP ZAP Security Testing
+name: OWASP ZAP Security Testing:API scan
 
 on:
-    workflow_dispatch:
+  push:
+    branches:
+      - dev
 
 jobs:
-    baseline:
+    api_scan:
       runs-on: ubuntu-latest
-      name: ZAP Baseline Scan
+      name: ZAP API Scan
       env:
-        SERVER_PORT: 8080
+        SERVER_PORT: 8081
         SPRING_MAIL_PASSWORD: placeholder_value
         APP_ADMIN_USERNAME: NathanOpp
         APP_ADMIN_PASSWORD: Stupidcat12!
@@ -41,6 +43,8 @@ jobs:
         - name: ZAP API Scan
           uses: zaproxy/action-api-scan@v0.7.0
           with:
-            target: 'http://host.docker.internal:8080/api/v1'
+            token: ${{ secrets.GITHUB_TOKEN }}
+            rules_file_name: '.zap/api_rules.tsv'
+            target: 'http://localhost:8081/api/v1'
 
-            
+      
