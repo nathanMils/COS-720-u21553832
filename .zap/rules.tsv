@@ -1,5 +1,1 @@
-10038   IGNORE  (NGINX proxy handles this)
-10020   IGNORE  (NGINX proxy handles this)
-10021   IGNORE  (NGINX proxy handles this)
-10063   IGNORE  (NGINX proxy handles this)
-10109   IGNORE  (Only applicable in non production)
+90003   IGNORE  (This wont be an issue since google fonts is secure)
