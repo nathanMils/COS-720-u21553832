@@ -1,9 +1,12 @@
 ## Build stage: Builds and runs each deployment
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /usr/src/app
+
+ARG MAVEN_PROFILE=prod
+
 COPY src /usr/src/app/src
 COPY pom.xml /usr/src/app
-RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests -Pprod
+RUN mvn -f /usr/src/app/pom.xml clean package -DskipTests -P${MAVEN_PROFILE}
 
 ## Production stage
 FROM eclipse-temurin:21-jre

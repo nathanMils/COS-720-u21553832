@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+
+  server:
+    build:
+      context: ./server
+      args:
+        MAVEN_PROFILE: test
+    container_name: server
+    volumes:
+      - ./server/logs:/usr/app/logs
+    restart: no
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+      SERVER_PORT: 8080
+      SPRING_MAIL_PASSWORD: placeholder_value
+      APP_ADMIN_USERNAME: NathanOpp
+      APP_ADMIN_PASSWORD: Stupidcat12!
+      APP_ADMIN_EMAIL: nathanopperman123@gmail.com
+      APP_ADMIN_NAME_FIRST: Nathan
+      APP_ADMIN_NAME_LAST: Opperman
+      APP_BASE_URL: http://localhost
+      APP_KEY: ${APP_KEY}
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY}
+    networks:
+      - proxy-server
+    
+  
+  client:
+    build:
+      context: ./client
+      args:
+        VITE_API_BASE_URL: http://localhost/api/v1
+    container_name: client
+    restart: no
+    depends_on:
+      - server
+    networks:
+      - proxy-client
+      
+
+  proxy:
+    build:
+      context: ./nginx
+      args:
+        NGINX_PROFILE: test
+    container_name: proxy
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - client
+      - server
+    networks:
+      - proxy-client
+      - proxy-server
+
+networks:
+  proxy-client:
+  proxy-server:

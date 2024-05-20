@@ -66,42 +66,14 @@ jobs:
             with:
               fetch-depth: 0
               
-          - name: Set JDK
-            uses: actions/setup-java@v4
-            with:
-              java-version: '21'
-              distribution: 'temurin'
-  
-          # Bulding springboot application with a different maven profile to bring H2 database into runtime scope
-          - name: Build Mvn Application
-            run: mvn clean install -Ptest -DskipTests -f ./server/pom.xml
-          
-          # Running the JAR with the test configuration, runs in background
-          - name: Run Spring Jar
-            run: java -jar -Dspring.profiles.active=test ./server/target/server-0.0.1-SNAPSHOT.jar &
-          
-          - name: Install Node.js
-            uses: actions/setup-node@v2.5.0
-            with:
-              node-version: '20'
-
-          - name: Install dependencies
-            run: npm install
-            working-directory: ./client
-
-          - name: Create .env file
+          - name: Run Compose
             run: |
-              echo "VITE_API_BASE_URL=http://localhost/api/v1" >> .env
-            working-directory: ./client
-          
-          - name: Serve
-            run: npm run dev &
-            working-directory: ./client
+              docker compose compose.full.yml up &
 
           - name: ZAP Scan
             uses: zaproxy/action-baseline@v0.12.0
             with:
               token: ${{ secrets.GITHUB_TOKEN }}
-              target: 'http://localhost:3000'
+              target: 'http://localhost'
 
       
