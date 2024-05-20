@@ -44,6 +44,7 @@ jobs:
           uses: zaproxy/action-api-scan@v0.7.0
           with:
             token: ${{ secrets.GITHUB_TOKEN }}
+            rules_file_name: '.zap/api_rules.tsv'
             target: 'http://localhost:8081/api/v1'
 
       
