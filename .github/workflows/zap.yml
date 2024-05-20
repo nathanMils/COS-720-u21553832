@@ -60,6 +60,7 @@ jobs:
               
           - name: Run Compose
             run: |
+              docker compose -f compose.full.yml build
               docker compose -f compose.full.yml up &
 
           - name: ZAP Scan
