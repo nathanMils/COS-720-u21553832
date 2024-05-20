@@ -1,0 +1,7 @@
+90003	IGNORE	(This wont be an issue since google fonts is secure)
+10109	IGNORE	(It is infact a modern web application, much better than it being old)
+10055	IGNORE	(This is intentional and safe)
+90034	IGNORE	(Cloud Meta data isnt exposed in response)
+90049	IGNORE	(This content is not intended for storing)
+10027	IGNORE	(The comments are part of the vue js teams application)
+10096	IGNORE	(This is the browser not my application)
