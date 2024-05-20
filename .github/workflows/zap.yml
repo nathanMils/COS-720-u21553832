@@ -50,14 +50,6 @@ jobs:
         runs-on: ubuntu-latest
         name: ZAP Baseline Scan
         env:
-          SERVER_PORT: 8081
-          SPRING_MAIL_PASSWORD: placeholder_value
-          APP_ADMIN_USERNAME: NathanOpp
-          APP_ADMIN_PASSWORD: Stupidcat12!
-          APP_ADMIN_EMAIL: nathanopperman123@gmail.com
-          APP_ADMIN_NAME_FIRST: Nathan
-          APP_ADMIN_NAME_LAST: Opperman
-          APP_BASE_URL: http://localhost:3000
           APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
           APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
         steps:
