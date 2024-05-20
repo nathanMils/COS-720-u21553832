@@ -68,7 +68,7 @@ jobs:
               
           - name: Run Compose
             run: |
-              docker compose compose.full.yml up &
+              docker compose -f compose.full.yml up &
 
           - name: ZAP Scan
             uses: zaproxy/action-baseline@v0.12.0
