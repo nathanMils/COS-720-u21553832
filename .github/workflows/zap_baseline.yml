@@ -1,0 +1,35 @@
+name: OWASP ZAP Security Testing:Baseline Scan
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+    # Runs fullstack application in a test mode using docker compose and then runs a baseline scan of the application
+    # fullstack is required since nginx adds many headers to do with security: CSP, TLS, Anti clickjacking and many more
+    baseline_scan:
+        runs-on: ubuntu-latest
+        name: ZAP Baseline Scan
+        env:
+          APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
+          APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@v4
+            with:
+              fetch-depth: 0
+              
+          - name: Run Compose
+            run: |
+              docker compose -f compose.full.yml build
+              docker compose -f compose.full.yml up -d
+
+          - name: ZAP Scan
+            uses: zaproxy/action-baseline@v0.12.0
+            with:
+              token: ${{ secrets.GITHUB_TOKEN }}
+              rules_file_name: '.zap/rules.tsv'
+              target: 'http://localhost'
+
+      
