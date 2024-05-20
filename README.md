@@ -24,7 +24,7 @@
 - **Frontend**: Cypress
 
 ## Security Testing
-- **OWASP ZAP**: Web application and Rest API scanning (full/baseline)
-- **SonarQube**: Spring static java code analysis
-- **Image/ Container Scanning**: Docker desktop with Docker Scout
-- **EC2 Scanning**: Using AWS inspector to scan EC2 instance for vulnerabilities
+- **OWASP ZAP**: Web application and Rest API scanning (full/baseline) both as part of CI/CD and locally to allow stronger testing
+- **SonarQube**: Spring static java code analysis, done locally to avoid costs
+- **Image/ Container Scanning**: Docker desktop with Docker Scout, done locally (too expensive)
+- **EC2 Scanning**: Using AWS inspector to scan EC2 instance for vulnerabilities (only for free trial period)
