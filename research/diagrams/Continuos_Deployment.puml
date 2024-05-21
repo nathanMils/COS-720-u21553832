@@ -1,0 +1,30 @@
+@startuml
+title Continuous Deployment Process
+
+actor Developer
+
+rectangle "GitHub" {
+    rectangle "Github Repo" as Repo {
+        Developer -> Repo : Push code
+    }
+    rectangle "GitHub Actions" as Actions {
+        Repo -> Actions : Build Docker Images
+    }
+}
+
+rectangle "AWS Cloud" {
+    rectangle "AWS SSM" as SSM {
+        Actions -> SSM : Run command
+    }
+    rectangle "EC2 Instance" as EC2 {
+        rectangle "SSM Agent" as SSMAgent {
+           SSM -> SSMAgent : Run command
+        }
+    }
+    rectangle "AWS ECR" as ECR {
+        Actions -> ECR : Push new Docker image
+        SSMAgent -> ECR : Pull Docker Images
+    }
+}
+
+@enduml

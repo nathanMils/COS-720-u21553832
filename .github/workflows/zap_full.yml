@@ -9,9 +9,9 @@ on:
 jobs:
     # Runs fullstack application in a test mode using docker compose and then runs a full scan of the application
     # fullstack is required since nginx adds many headers to do with security: CSP, TLS, Anti clickjacking and many more
-    baseline_scan:
+    full_scan:
         runs-on: ubuntu-latest
-        name: ZAP Baseline Scan
+        name: ZAP Full Scan
         env:
           APP_KEY: ${{secrets.JWT_SIGNING_KEY }}
           APP_ENCRYPTION_KEY: ${{ secrets.DATABASE_ENCRYPTION_KEY }}
