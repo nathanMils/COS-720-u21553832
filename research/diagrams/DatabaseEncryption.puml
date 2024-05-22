@@ -1,0 +1,44 @@
+@startuml
+participant "Application" as App
+participant "Service Layer" as Service
+participant "Repository Layer" as Repository
+participant "Encryption Converter" as Converter
+participant "Database" as DB
+
+
+App -> Service: saveData(plainData)
+activate Service
+Service -> Repository: convertAndSave(plainData)
+activate Repository
+Repository -> Converter: convertToDatabaseColumn(plainData)
+activate Converter
+Converter -> Converter: Encrypt data
+Converter --> Repository: Encrypted data
+deactivate Converter
+Repository -> DB: save(encryptedData)
+activate DB
+DB --> Repository: Acknowledge save
+deactivate DB
+Repository --> Service: Acknowledge save
+deactivate Repository
+Service --> App: Acknowledge save
+deactivate Service
+
+App -> Service: retrieveData()
+activate Service
+Service -> Repository: retrieveData()
+activate Repository
+Repository -> DB: fetchData()
+activate DB
+DB --> Repository: Encrypted data
+deactivate DB
+Repository -> Converter: convertToEntityAttribute(encryptedData)
+activate Converter
+Converter -> Converter: Decrypt data
+Converter --> Repository: Decrypted data
+deactivate Converter
+Repository --> Service: decryptedData
+deactivate Repository
+Service --> App: decryptedData
+deactivate Service
+@enduml
