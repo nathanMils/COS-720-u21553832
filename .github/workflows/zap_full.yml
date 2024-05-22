@@ -33,4 +33,8 @@ jobs:
               rules_file_name: '.zap/full_rules.tsv'
               target: 'http://localhost'
 
+          - name: Stop and remove containers
+            run: |
+              docker compose -f compose.full.yml down
+
       
