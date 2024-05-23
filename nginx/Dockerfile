@@ -7,4 +7,6 @@ COPY ./logging.conf /etc/nginx/templates/conf.d/logging.conf.template
 COPY ./modsecurity.${MODSECURITY_PROFILE}.conf /etc/nginx/templates/conf.d/modsecurity.conf.template
 ENV ALLOWED_METHODS="GET HEAD POST OPTIONS DELETE"
 ENV MODSEC_RULE_ENGINE=on
-RUN if [ "$MODSECURITY_PROFILE" = "extreme" ] ; then export BLOCKING_PARANOIA=3 ; else export BLOCKING_PARANOIA=1 ; fi
+ENV PARANOIA=2
+ENV BLOCKING_PARANOIA=2
+ENV ANOMALY_INBOUND=5
