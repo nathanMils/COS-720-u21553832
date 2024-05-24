@@ -45,6 +45,7 @@ services:
       context: ./nginx
       args:
         NGINX_PROFILE: test
+        MODSECURITY_PROFILE: critical
     container_name: proxy
     restart: always
     ports:

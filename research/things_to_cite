@@ -4,3 +4,29 @@ PDF: https://docs.aws.amazon.com/pdfs/IAM/latest/UserGuide/iam-ug.pdf#intro-stru
 
 HTTPS Mechanism:
 URL: https://www.cloudflare.com/learning/ssl/what-is-https/
+
+@ARTICLE{4510876,
+  author={Payne, Bryan D. and Edwards, W. Keith},
+  journal={IEEE Internet Computing}, 
+  title={A Brief Introduction to Usable Security}, 
+  year={2008},
+  volume={12},
+  number={3},
+  pages={13-21},
+  keywords={Usability;Authentication;Computer security;Information security;Cryptography;Guidelines;Space technology;Tellurium;Internet;Writing;useable computer security;user interface;user authentication;email encryption},
+  doi={10.1109/MIC.2008.50}}
+@rfc{10.17487/RFC7519,
+author = {Jones, M. and Bradley, J. and Sakimura, N.},
+title = {RFC 7519: JSON Web Token (JWT)},
+year = {2015},
+publisher = {RFC Editor},
+address = {USA},
+abstract = {JSON Web Token (JWT) is a compact, URL-safe means of representing claims to be transferred between two parties. The claims in a JWT are encoded as a JSON object that is used as the payload of a JSON Web Signature (JWS) structure or as the plaintext of a JSON Web Encryption (JWE) structure, enabling the claims to be digitally signed or integrity protected with a Message Authentication Code (MAC) and/or encrypted.}
+}
+
+@article{blazhevski2013modes,
+  title={Modes of operation of the AES algorithm},
+  author={Blazhevski, Dobre and Bozhinovski, Adrijan and Stojchevska, Biljana and Pachovski, Veno},
+  year={2013},
+  publisher={Faculty of Computer Science and Engineering, Ss. Cyril and Methodius~…}
+}

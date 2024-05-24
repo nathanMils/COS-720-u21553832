@@ -1,0 +1,20 @@
+
+TY  - JOUR
+AB  - Purpose For decades, literature has reported on the perceived conflict between usability and security. This mutual trade-off needs to be considered and addressed whenever security products are developed. Achieving well-balanced levels of both is a precondition for sufficient security as users tend to reject unusable solutions. To assess it correctly, usability should be evaluated in the context of security. This paper aims to identify and describe universally applicable and solution-independent factors that affect the perceived usability of security mechanisms. Design/methodology/approach The selected methodology was a systematic literature review during which multiple database resources were queried. Application of predefined selection criteria led to the creation of a bibliography before backward snowballing was applied to minimize the risk of missing material of importance. All 70 included publications were then analyzed through thematic analysis. Findings The study resulted in the identification of 14 themes and 30 associated subthemes representing aspects with reported influence on perceived usability in the context of security. While some of them were only mentioned sparsely, the most prominent and thus presumably most significant ones were: simplicity, information and support, task completion time, error rates and error management. Originality/value The identified novel themes can increase knowledge about factors that influence usability. This can be useful for different groups: end users may be empowered to choose appropriate solutions more consciously, developers may be able to avoid common usability pitfalls when designing new products and system administrators may benefit from a better understanding of how to configure solutions and how to educate users efficiently.
+VL  - 29
+IS  - 4
+SN  - 2056-4961
+DO  - 10.1108/ICS-10-2020-0167
+UR  - https://doi.org/10.1108/ICS-10-2020-0167
+AU  - Lennartsson, Markus
+AU  - Kävrestad, Joakim
+AU  - Nohlberg, Marcus
+PY  - 2021
+Y1  - 2021/01/01
+TI  - Exploring the meaning of usable security – a literature review
+T2  - Information & Computer Security
+PB  - Emerald Publishing Limited
+SP  - 647
+EP  - 663
+Y2  - 2024/05/21
+ER  - 
