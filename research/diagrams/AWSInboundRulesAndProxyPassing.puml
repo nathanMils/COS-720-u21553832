@@ -4,10 +4,10 @@ box "Incoming Traffic" #LightBlue
     participant "Source" as Source
 end box
 box "Virtual Firewall" #LightGreen
-    participant "Security Group" as SecurityGroup
+    participant "Security Groups" as SecurityGroup
 end box
 box "EC2 Instance" #LightYellow
-    participant "Nginx Proxy" as Proxy
+    participant "Nginx" as Proxy
     participant "Spring Boot Rest API" as Spring
     participant "Vue Web Server" as Vue
 end box
