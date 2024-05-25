@@ -9,7 +9,7 @@ COPY ./modsecurity.${MODSECURITY_PROFILE}.conf /etc/nginx/templates/conf.d/modse
 # Parameters for ModSecurity
 
 # Security Engine Setting On -> Enable ModSecurity | Off -> Disable ModSecurity | DetectionOnly -> Enable ModSecurity in DetectionOnly mode
-ENV MODSEC_RULE_ENGINE=on
+ENV MODSEC_RULE_ENGINE=On
 
 # Logging
 ENV MODSEC_AUDIT_LOG=/var/log/nginx/modsec_audit.log

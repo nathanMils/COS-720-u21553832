@@ -1,7 +1,8 @@
-secret.json
+
 .vscode
 *.log
 /postgres
 compose.local.yml
 hide
 /.env
+.sqlMap
